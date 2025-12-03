@@ -1,0 +1,9 @@
+installation:
+  version: 6.0.0-alpha.13
+  installDate: '2025-12-03T15:13:18.345Z'
+  lastUpdated: '2025-12-03T15:13:18.345Z'
+modules:
+  - core
+  - bmm
+ides:
+  - antigravity
