@@ -36,11 +36,15 @@ workflow_status:
         output: "/home/fabian/dev/work/snapandsay/docs/prd.md"
         completed_at: "2025-12-03T19:48:00+01:00"
       - id: "validate-prd"
-        status: "pending"
+        status: "completed"
         agent: "pm"
+        output: "/home/fabian/dev/work/snapandsay/docs/validation-report-2025-12-04.md"
+        completed_at: "2025-12-04T15:05:00+01:00"
       - id: "create-ux-design"
-        status: "pending"
+        status: "completed"
         agent: "ux-designer"
+        output: "/home/fabian/dev/work/snapandsay/docs/ux-design-specification.md"
+        completed_at: "2025-12-04T15:50:00+01:00"
 
   - phase: 2
     name: "Solutioning"
