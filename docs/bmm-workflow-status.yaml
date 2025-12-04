@@ -60,8 +60,10 @@ workflow_status:
         output: "/home/fabian/dev/work/snapandsay/docs/project_context.md"
         completed_at: "2025-12-04T16:35:00+01:00"
       - id: "create-epics-and-stories"
-        status: "pending"
+        status: "completed"
         agent: "pm"
+        output: "/home/fabian/dev/work/snapandsay/docs/epics.md"
+        completed_at: "2025-12-04T16:48:00+01:00"
       - id: "test-design"
         status: "pending"
         agent: "tea"
@@ -69,8 +71,10 @@ workflow_status:
         status: "pending"
         agent: "architect"
       - id: "implementation-readiness"
-        status: "pending"
+        status: "completed"
         agent: "architect"
+        output: "/home/fabian/dev/work/snapandsay/docs/implementation-readiness-report-2025-12-04.md"
+        completed_at: "2025-12-04T16:55:00+01:00"
 
   - phase: 3
     name: "Implementation"
