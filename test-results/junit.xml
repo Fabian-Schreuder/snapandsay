@@ -1,0 +1,32 @@
+<testsuites id="" name="" tests="6" failures="0" skipped="0" errors="0" time="3.698487">
+<testsuite name="example.spec.ts" timestamp="2025-12-04T16:50:55.049Z" hostname="chromium" tests="2" failures="0" skipped="0" time="0.992" errors="0">
+<testcase name="Example Test Suite › should load homepage" classname="example.spec.ts" time="0.355">
+</testcase>
+<testcase name="Example Test Suite › should create user and login" classname="example.spec.ts" time="0.637">
+<system-err>
+<![CDATA[User creation API failed (network error), returning mock user
+]]>
+</system-err>
+</testcase>
+</testsuite>
+<testsuite name="example.spec.ts" timestamp="2025-12-04T16:50:55.049Z" hostname="firefox" tests="2" failures="0" skipped="0" time="2.762" errors="0">
+<testcase name="Example Test Suite › should load homepage" classname="example.spec.ts" time="1.429">
+</testcase>
+<testcase name="Example Test Suite › should create user and login" classname="example.spec.ts" time="1.333">
+<system-err>
+<![CDATA[User creation API failed (network error), returning mock user
+]]>
+</system-err>
+</testcase>
+</testsuite>
+<testsuite name="example.spec.ts" timestamp="2025-12-04T16:50:55.049Z" hostname="webkit" tests="2" failures="0" skipped="0" time="1.577" errors="0">
+<testcase name="Example Test Suite › should load homepage" classname="example.spec.ts" time="0.697">
+</testcase>
+<testcase name="Example Test Suite › should create user and login" classname="example.spec.ts" time="0.88">
+<system-err>
+<![CDATA[User creation API failed (network error), returning mock user
+]]>
+</system-err>
+</testcase>
+</testsuite>
+</testsuites>

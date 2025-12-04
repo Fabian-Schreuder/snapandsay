@@ -1,5 +1,11 @@
 {
+	"scripts": {
+		"test:e2e": "playwright test"
+	},
 	"devDependencies": {
-		"@seontechnologies/playwright-utils": "^3.10.0"
+		"@faker-js/faker": "^10.1.0",
+		"@playwright/test": "^1.57.0",
+		"@seontechnologies/playwright-utils": "^3.10.0",
+		"dotenv": "^17.2.3"
 	}
 }
