@@ -1,0 +1,10 @@
+# Supabase local development files
+# These are auto-generated and should not be committed
+.branches/
+.temp/
+
+# Supabase CLI generated files
+*.log
+
+# Local environment overrides
+.env.local

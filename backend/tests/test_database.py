@@ -1,93 +1,257 @@
+"""Database schema and RLS policy integration tests.
+
+Tests the Supabase schema setup including:
+- Vector extension installation
+- Users table schema and constraints
+- Trigger functionality for auto-creation
+- RLS policies for SELECT and UPDATE
+"""
+import uuid
 import pytest
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
-
-from app.database import (
-    async_session_maker,
-    create_db_and_tables,
-    get_async_session,
-)
-from app.models import Base
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-@pytest.fixture
-async def mock_engine(mocker):
-    # Mock the engine
-    mock_engine = mocker.AsyncMock(spec=AsyncEngine)
+class TestDatabaseSchema:
+    """Test database schema setup and constraints."""
 
-    # Create a mock connection
-    mock_conn = mocker.AsyncMock()
-    mock_conn.run_sync = mocker.AsyncMock()
+    @pytest.mark.asyncio
+    async def test_vector_extension_exists(self, db_session: AsyncSession) -> None:
+        """Test that vector extension is installed."""
+        result = await db_session.execute(
+            text("SELECT * FROM pg_extension WHERE extname = 'vector'")
+        )
+        extension = result.first()
+        assert extension is not None, "vector extension should be installed"
 
-    # Set up the context manager properly
-    mock_context = mocker.AsyncMock()
-    mock_context.__aenter__.return_value = mock_conn
-    mock_engine.begin.return_value = mock_context
+    @pytest.mark.asyncio
+    async def test_users_table_exists(self, db_session: AsyncSession) -> None:
+        """Test that public.users table exists with correct schema."""
+        result = await db_session.execute(text("SELECT to_regclass('public.users')"))
+        table_exists = result.scalar()
+        assert table_exists is not None, "public.users table should exist"
 
-    return mock_engine
+    @pytest.mark.asyncio
+    async def test_users_table_columns(self, db_session: AsyncSession) -> None:
+        """Test that users table has correct columns and types."""
+        result = await db_session.execute(
+            text("""
+                SELECT column_name, data_type, is_nullable
+                FROM information_schema.columns
+                WHERE table_schema = 'public' AND table_name = 'users'
+                ORDER BY ordinal_position
+            """)
+        )
+        columns = {row.column_name: row for row in result.fetchall()}
+        
+        # Verify id column
+        assert "id" in columns
+        assert columns["id"].data_type == "uuid"
+        assert columns["id"].is_nullable == "NO"
+        
+        # Verify anonymous_id column
+        assert "anonymous_id" in columns
+        assert columns["anonymous_id"].data_type == "text"
+        assert columns["anonymous_id"].is_nullable == "NO"
+        
+        # Verify created_at column
+        assert "created_at" in columns
+        assert columns["created_at"].data_type == "timestamp with time zone"
 
-
-@pytest.fixture
-async def mock_session(mocker):
-    # Create a mock session
-    mock_session = mocker.AsyncMock(spec=AsyncSession)
-
-    # Mock the session context manager
-    mock_session.__aenter__.return_value = mock_session
-    mock_session.__aexit__.return_value = None
-
-    # Mock the session maker
-    mock_session_maker = mocker.patch("app.database.async_session_maker")
-    mock_session_maker.return_value = mock_session
-
-    return mock_session
-
-
-@pytest.mark.asyncio
-async def test_create_db_and_tables(mock_engine, mocker):
-    # Replace the real engine with our mock
-    mocker.patch("app.database.engine", mock_engine)
-
-    await create_db_and_tables()
-
-    # Verify that begin was called
-    mock_engine.begin.assert_called_once()
-
-    # Verify that create_all was called
-    mock_conn = mock_engine.begin.return_value.__aenter__.return_value
-    mock_conn.run_sync.assert_called_once_with(Base.metadata.create_all)
-
-
-@pytest.mark.asyncio
-async def test_get_async_session(mock_session):
-    # Test the session generator
-    session_generator = get_async_session()
-    session = await session_generator.__anext__()
-
-    # Verify we got the mock session
-    assert session == mock_session
-
-    # Verify the session was created with the expected context
-    mock_session.__aenter__.assert_called_once()
-
-
-def test_engine_creation(mocker):
-    # Mock settings
-    mock_settings = mocker.patch("app.database.settings")
-    mock_settings.DATABASE_URL = "sqlite+aiosqlite:///./test.db"
-    mock_settings.EXPIRE_ON_COMMIT = False
-
-    # Import engine to trigger creation with mocked settings
-    from app.database import async_session_maker, engine
-
-    # Verify engine is created
-    assert isinstance(engine, AsyncEngine)
-
-    # Verify session maker is configured
-    assert async_session_maker.kw["expire_on_commit"] is False
+    @pytest.mark.asyncio
+    async def test_anonymous_id_index_exists(self, db_session: AsyncSession) -> None:
+        """Test that anonymous_id has btree index for performance."""
+        result = await db_session.execute(
+            text("""
+                SELECT indexname, indexdef
+                FROM pg_indexes
+                WHERE schemaname = 'public' 
+                AND tablename = 'users'
+                AND indexname = 'users_anonymous_id_idx'
+            """)
+        )
+        index = result.first()
+        assert index is not None, "anonymous_id index should exist"
+        assert "btree" in index.indexdef.lower(), "index should use btree"
 
 
-@pytest.mark.asyncio
-async def test_session_maker_configuration():
-    # Create a test session
-    async with async_session_maker() as session:
-        assert isinstance(session, AsyncSession)
+class TestUserCreationTrigger:
+    """Test automatic user creation trigger."""
+
+    @pytest.mark.asyncio
+    async def test_trigger_creates_user_with_metadata(self, db_session: AsyncSession) -> None:
+        """Test that trigger creates public.users record with metadata anonymous_id."""
+        test_id = str(uuid.uuid4())
+        test_anon_id = f"test_anon_{uuid.uuid4().hex[:8]}"
+        
+        try:
+            # Insert into auth.users with metadata
+            await db_session.execute(
+                text("""
+                    INSERT INTO auth.users (
+                        instance_id, id, aud, role, email, 
+                        encrypted_password, email_confirmed_at, raw_user_meta_data
+                    )
+                    VALUES (
+                        '00000000-0000-0000-0000-000000000000',
+                        :user_id,
+                        'authenticated',
+                        'authenticated',
+                        :email,
+                        'password',
+                        now(),
+                        :metadata::jsonb
+                    )
+                """),
+                {
+                    "user_id": test_id,
+                    "email": f"test_{uuid.uuid4().hex[:8]}@example.com",
+                    "metadata": f'{{"anonymous_id": "{test_anon_id}"}}'
+                }
+            )
+            await db_session.commit()
+            
+            # Verify public.users record was created
+            result = await db_session.execute(
+                text("SELECT * FROM public.users WHERE id = :user_id"),
+                {"user_id": test_id}
+            )
+            user = result.first()
+            
+            assert user is not None, "Trigger should create public.users record"
+            assert user.anonymous_id == test_anon_id, "Should use metadata anonymous_id"
+            assert user.created_at is not None, "Should have created_at timestamp"
+            
+        finally:
+            # Cleanup
+            await db_session.execute(
+                text("DELETE FROM auth.users WHERE id = :user_id"),
+                {"user_id": test_id}
+            )
+            await db_session.commit()
+
+    @pytest.mark.asyncio
+    async def test_trigger_generates_fallback_id(self, db_session: AsyncSession) -> None:
+        """Test that trigger generates fallback anonymous_id when metadata missing."""
+        test_id = str(uuid.uuid4())
+        
+        try:
+            # Insert into auth.users WITHOUT metadata
+            await db_session.execute(
+                text("""
+                    INSERT INTO auth.users (
+                        instance_id, id, aud, role, email,
+                        encrypted_password, email_confirmed_at, raw_user_meta_data
+                    )
+                    VALUES (
+                        '00000000-0000-0000-0000-000000000000',
+                        :user_id,
+                        'authenticated',
+                        'authenticated',
+                        :email,
+                        'password',
+                        now(),
+                        '{}'::jsonb
+                    )
+                """),
+                {
+                    "user_id": test_id,
+                    "email": f"test_{uuid.uuid4().hex[:8]}@example.com"
+                }
+            )
+            await db_session.commit()
+            
+            # Verify fallback ID was generated
+            result = await db_session.execute(
+                text("SELECT * FROM public.users WHERE id = :user_id"),
+                {"user_id": test_id}
+            )
+            user = result.first()
+            
+            assert user is not None, "Trigger should create public.users record"
+            assert user.anonymous_id.startswith("anon_"), "Should generate fallback ID"
+            assert len(user.anonymous_id) == 16, "Fallback ID should be 'anon_' + 11 chars"
+            
+        finally:
+            # Cleanup
+            await db_session.execute(
+                text("DELETE FROM auth.users WHERE id = :user_id"),
+                {"user_id": test_id}
+            )
+            await db_session.commit()
+
+
+class TestRLSPolicies:
+    """Test Row Level Security policies."""
+
+    @pytest.mark.asyncio
+    async def test_rls_enabled(self, db_session: AsyncSession) -> None:
+        """Test that RLS is enabled on users table."""
+        result = await db_session.execute(
+            text("""
+                SELECT relrowsecurity
+                FROM pg_class
+                WHERE relname = 'users' AND relnamespace = 'public'::regnamespace
+            """)
+        )
+        row = result.first()
+        assert row is not None
+        assert row.relrowsecurity is True, "RLS should be enabled on users table"
+
+    @pytest.mark.asyncio
+    async def test_select_policy_exists(self, db_session: AsyncSession) -> None:
+        """Test that SELECT policy exists and is configured correctly."""
+        result = await db_session.execute(
+            text("""
+                SELECT polname, polcmd
+                FROM pg_policy
+                WHERE polrelid = 'public.users'::regclass
+                AND polcmd = 'r'
+            """)
+        )
+        policy = result.first()
+        assert policy is not None, "SELECT policy should exist"
+        assert "own profile" in policy.polname.lower(), "Policy name should indicate ownership"
+
+    @pytest.mark.asyncio
+    async def test_update_policy_exists(self, db_session: AsyncSession) -> None:
+        """Test that UPDATE policy exists and is configured correctly."""
+        result = await db_session.execute(
+            text("""
+                SELECT polname, polcmd
+                FROM pg_policy
+                WHERE polrelid = 'public.users'::regclass
+                AND polcmd = 'w'
+            """)
+        )
+        policy = result.first()
+        assert policy is not None, "UPDATE policy should exist"
+        assert "own profile" in policy.polname.lower(), "Policy name should indicate ownership"
+
+    @pytest.mark.asyncio
+    async def test_no_insert_policy(self, db_session: AsyncSession) -> None:
+        """Test that no INSERT policy exists (trigger-only creation)."""
+        result = await db_session.execute(
+            text("""
+                SELECT COUNT(*)
+                FROM pg_policy
+                WHERE polrelid = 'public.users'::regclass
+                AND polcmd = 'a'
+            """)
+        )
+        count = result.scalar()
+        assert count == 0, "Should not have INSERT policy (trigger-only creation)"
+
+    @pytest.mark.asyncio
+    async def test_no_delete_policy(self, db_session: AsyncSession) -> None:
+        """Test that no DELETE policy exists (admin-only deletion)."""
+        result = await db_session.execute(
+            text("""
+                SELECT COUNT(*)
+                FROM pg_policy
+                WHERE polrelid = 'public.users'::regclass
+                AND polcmd = 'd'
+            """)
+        )
+        count = result.scalar()
+        assert count == 0, "Should not have DELETE policy (admin-only deletion)"
