@@ -1,6 +1,6 @@
 # Story 1.1: Project Initialization & Repo Setup
 
-Status: ready-for-dev
+Status: Ready for Review
 
 ## Story
 
@@ -16,35 +16,40 @@ so that the team can start building on a solid foundation.
 2.  **And** The `vintasoftware/nextjs-fastapi-template` is cloned and cleaned of unused boilerplate (specifically `fastapi-users`)
 3.  **And** The backend directory structure includes `agent`, `services`, `core`, and `db` modules
 4.  **And** CI/CD workflows are configured for linting (ESLint, Ruff)
-5.  **And** The project is runnable locally with `npm run dev`
+5.  **And** The project is runnable locally with `pnpm run dev`
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Initialize Repository & Template (AC: 1, 2)
-    - [ ] Clone `vintasoftware/nextjs-fastapi-template`
-    - [ ] **CRITICAL:** Remove `fastapi-users` dependency and related code (we use Supabase Auth)
-    - [ ] Remove demo components and example routes
-    - [ ] Initialize git and create `.gitignore`
-- [ ] Task 2: Restructure Backend (AC: 3)
-    - [ ] Create `backend/app/agent/` (for LangGraph)
-    - [ ] Create `backend/app/services/` (for business logic)
-    - [ ] Create `backend/app/core/` (for config/security)
-    - [ ] Create `backend/app/db/` (for session/base)
-    - [ ] Add `langgraph` to `backend/requirements.txt`
-- [ ] Task 3: Setup Supabase & Environment (AC: 5)
-    - [ ] Create `supabase/config.toml` for local dev
-    - [ ] Create `supabase/migrations/` directory
-    - [ ] Configure `frontend` and `backend` to run concurrently
-- [ ] Task 4: Setup Quality Tools (AC: 4)
-    - [ ] Configure `ruff` for Python backend
-    - [ ] Configure `eslint` for Next.js frontend
+- [x] Task 1: Initialize Repository & Template (AC: 1, 2)
+    - [x] Clone `vintasoftware/nextjs-fastapi-template`
+    - [x] **CRITICAL:** Remove `fastapi-users` dependency and related code (we use Supabase Auth)
+    - [x] **CRITICAL:** Remove Alembic configuration (`alembic.ini`, `migrations/` folder) - we use Supabase migrations
+    - [x] Remove demo components and example routes
+    - [x] Initialize git and create `.gitignore`
+- [x] Task 2: Restructure Backend (AC: 3)
+    - [x] Create `backend/app/agent/` (for LangGraph)
+    - [x] Create `backend/app/services/` (for business logic)
+    - [x] Create `backend/app/core/` (for config/security)
+    - [x] Create `backend/app/db/` (for session/base)
+    - [x] Add `langgraph` dependency (ensure `uv` is used for package management)
+- [x] Task 3: Setup Supabase & Environment (AC: 5)
+    - [x] Create `supabase/config.toml` for local dev
+    - [x] Create `supabase/migrations/` directory
+    - [x] Configure `frontend` and `backend` to run concurrently
+- [x] Task 4: Setup Quality Tools (AC: 4)
+    - [x] Configure `ruff` for Python backend
+    - [x] Configure `eslint` for Next.js frontend
 
 ## Dev Notes
 
 - **Template Source:** `https://github.com/vintasoftware/nextjs-fastapi-template`
 - **Auth Strategy:**
     - **REMOVE** `fastapi-users`. The template uses it, but our Architecture mandates **Supabase Auth**.
+    - **Check specific files for cleanup:** `backend/app/api/deps.py`, `backend/app/core/security.py`, `backend/app/models/user.py`.
     - We will implement custom JWT middleware in a later story, but for now, ensure the conflicting library is gone.
+- **Tooling Standards:**
+    - **Frontend:** Use `pnpm` exclusively (do not use `npm` or `yarn`).
+    - **Backend:** Use `uv` for dependency management.
 - **Architecture Alignment:**
     - **Backend Structure:** Must strictly follow `docs/architecture.md`.
         - `app/agent`: LangGraph definitions.
@@ -75,8 +80,27 @@ so that the team can start building on a solid foundation.
 
 - Agentic Mode (Sm Agent)
 
+### One-Shot File List
+
+#### [MODIFY] [pyproject.toml](file:///home/fabian/dev/work/snapandsay/backend/pyproject.toml)
+#### [MODIFY] [config.py](file:///home/fabian/dev/work/snapandsay/backend/app/config.py)
+#### [MODIFY] [models.py](file:///home/fabian/dev/work/snapandsay/backend/app/models.py)
+#### [MODIFY] [email.py](file:///home/fabian/dev/work/snapandsay/backend/app/email.py)
+#### [MODIFY] [conftest.py](file:///home/fabian/dev/work/snapandsay/backend/tests/conftest.py)
+#### [MODIFY] [test_database.py](file:///home/fabian/dev/work/snapandsay/backend/tests/test_database.py)
+#### [MODIFY] [test_email.py](file:///home/fabian/dev/work/snapandsay/backend/tests/test_email.py)
+#### [DELETE] [alembic.ini](file:///home/fabian/dev/work/snapandsay/backend/alembic.ini)
+#### [DELETE] [test_main.py](file:///home/fabian/dev/work/snapandsay/backend/tests/main/test_main.py)
+#### [DELETE] [test_items.py](file:///home/fabian/dev/work/snapandsay/backend/tests/routes/test_items.py)
+#### [NEW] [config.toml](file:///home/fabian/dev/work/snapandsay/supabase/config.toml)
+#### [NEW] [test_cleanup.py](file:///home/fabian/dev/work/snapandsay/backend/tests/test_cleanup.py)
+#### [NEW] [test_task2.py](file:///home/fabian/dev/work/snapandsay/backend/tests/test_task2.py)
+
 ### Completion Notes List
 
-- [ ] Confirmed `fastapi-users` removal
-- [ ] Verified backend structure matches Architecture
-- [ ] Verified local run
+- [x] Confirmed `fastapi-users` removal
+- [x] Verified backend structure matches Architecture
+- [x] Verified local run
+- [x] Installed `langgraph` dependency
+- [x] Created `supabase/config.toml`
+- [x] Cleaned up demo tests and components

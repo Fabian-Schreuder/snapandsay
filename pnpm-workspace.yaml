@@ -1,2 +1,5 @@
+packages:
+  - "frontend"
+
 onlyBuiltDependencies:
-  - '@seontechnologies/playwright-utils'
+  - "@seontechnologies/playwright-utils"
