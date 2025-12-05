@@ -1,9 +1,11 @@
 from fastapi import FastAPI
-from fastapi_pagination import add_pagination
 from fastapi.middleware.cors import CORSMiddleware
-from .utils import simple_generate_unique_route_id
-from app.config import settings
+from fastapi_pagination import add_pagination
+
 from app.api.v1.api import api_router
+from app.config import settings
+
+from .utils import simple_generate_unique_route_id
 
 app = FastAPI(
     generate_unique_id_function=simple_generate_unique_route_id,
@@ -23,3 +25,9 @@ app.add_middleware(
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 add_pagination(app)
+
+
+@app.get("/health", tags=["health"])
+async def root_health_check():
+    """Root-level health check for load balancers and container orchestration."""
+    return {"status": "ok"}

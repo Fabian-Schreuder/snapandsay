@@ -1,7 +1,7 @@
 import os
-import tomllib
-import pytest
 import subprocess
+import tomllib
+
 
 def test_fastapi_users_removed():
     """Verify fastapi-users is not in dependencies and not used in code."""
@@ -28,7 +28,9 @@ def test_fastapi_users_removed():
     matches = result.stdout.splitlines()
     filtered_matches = [m for m in matches if "test_cleanup.py" not in m]
     
-    assert len(filtered_matches) == 0, f"Found traces of fastapi-users: {filtered_matches}"
+    assert (
+        len(filtered_matches) == 0
+    ), f"Found traces of fastapi-users: {filtered_matches}"
 
 def test_alembic_removed():
     """Verify alembic is removed from dev dependencies and config."""

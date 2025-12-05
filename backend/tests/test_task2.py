@@ -1,5 +1,7 @@
 import os
+
 import pytest
+
 
 def test_directories_exist():
     """Verify backend structure exists."""
@@ -11,7 +13,8 @@ def test_directories_exist():
     ]
     for d in dirs:
         assert os.path.exists(d), f"Directory {d} should exist"
-        assert os.path.exists(os.path.join(d, "__init__.py")), f"{d}/__init__.py should exist"
+        init_file = os.path.join(d, "__init__.py")
+        assert os.path.exists(init_file), f"{d}/__init__.py should exist"
 
 def test_langgraph_installed():
     """Verify langgraph is installed."""

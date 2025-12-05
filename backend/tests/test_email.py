@@ -1,6 +1,8 @@
-import pytest
 from pathlib import Path
+
+import pytest
 from fastapi_mail import ConnectionConfig
+
 from app.email import get_email_config
 
 

@@ -1,4 +1,5 @@
 from fastapi.routing import APIRoute
+
 from app.utils import simple_generate_unique_route_id
 
 

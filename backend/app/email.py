@@ -1,7 +1,7 @@
 from pathlib import Path
-import urllib.parse
 
 from fastapi_mail import ConnectionConfig
+
 from .config import settings
 
 

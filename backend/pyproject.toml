@@ -49,5 +49,27 @@ line-length = 88
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["E", "F", "I"]
-ignore = []
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "S",   # flake8-bandit (security)
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+]
+ignore = [
+    "S101",   # Use of assert (expected in pytest)
+    "S603",   # subprocess without shell=True (acceptable in controlled scripts)
+    "S607",   # Starting process with partial path (acceptable with system commands)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101",   # Allow asserts in tests
+    "S105",   # Allow hardcoded passwords in test fixtures
+]
+"watcher.py" = [
+    "S603",   # Allow subprocess calls in dev watcher
+    "S607",   # Allow partial paths in dev watcher
+]

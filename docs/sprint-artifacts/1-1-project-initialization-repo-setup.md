@@ -40,12 +40,25 @@ so that the team can start building on a solid foundation.
     - [x] Configure `ruff` for Python backend
     - [x] Configure `eslint` for Next.js frontend
 
-### Review Follow-ups (AI)
+### Review Follow-ups (AI) - Round 1
 
 - [x] [AI-Review][CRITICAL] Fix git untracked files (backend, frontend, supabase)
 - [x] [AI-Review][HIGH] Fix hollow application (wire up API router in main.py)
 - [x] [AI-Review][MEDIUM] Fix architecture mismatch (move API to v1/endpoints)
 - [x] [AI-Review][VERIFICATION] Add health check endpoint and tests
+
+### Review Follow-ups (AI) - Round 2 (Code Review 2025-12-05)
+
+- [x] [AI-Review][CRITICAL] Remove test.db from git repository
+- [x] [AI-Review][CRITICAL] Create comprehensive backend/.gitignore
+- [x] [AI-Review][HIGH] Add Ruff linting to CI/CD pipeline
+- [x] [AI-Review][HIGH] Fix CI/CD to use pnpm instead of npm
+- [x] [AI-Review][MEDIUM] Configure pytest asyncio_default_fixture_loop_scope
+- [x] [AI-Review][MEDIUM] Enable frontend ESLint in CI/CD
+- [x] [AI-Review][MEDIUM] Add root-level /health endpoint for load balancers
+- [x] [AI-Review][LOW] Fix code formatting in models.py
+- [x] [AI-Review][LOW] Enhance Ruff configuration with security rules
+- [x] [AI-Review][LOW] Add test for root health endpoint
 
 ## Dev Notes
 
@@ -106,6 +119,11 @@ so that the team can start building on a solid foundation.
 #### [NEW] [api.py](file:///home/fabian/dev/work/snapandsay/backend/app/api/v1/api.py)
 #### [NEW] [test_health.py](file:///home/fabian/dev/work/snapandsay/backend/tests/api/v1/test_health.py)
 #### [MODIFY] [main.py](file:///home/fabian/dev/work/snapandsay/backend/app/main.py)
+#### [MODIFY] [.gitignore](file:///home/fabian/dev/work/snapandsay/backend/.gitignore)
+#### [MODIFY] [.github/workflows/test.yml](file:///home/fabian/dev/work/snapandsay/.github/workflows/test.yml)
+#### [MODIFY] [pytest.ini](file:///home/fabian/dev/work/snapandsay/backend/pytest.ini)
+#### [MODIFY] [pyproject.toml](file:///home/fabian/dev/work/snapandsay/backend/pyproject.toml)
+#### [MODIFY] [test_health.py](file:///home/fabian/dev/work/snapandsay/backend/tests/api/v1/test_health.py)
 
 ### Completion Notes List
 
@@ -115,3 +133,11 @@ so that the team can start building on a solid foundation.
 - [x] Installed `langgraph` dependency
 - [x] Created `supabase/config.toml`
 - [x] Cleaned up demo tests and components
+- [x] Code review fixes applied (Round 2):
+  - Removed test.db from git tracking
+  - Created comprehensive .gitignore
+  - Added backend linting to CI/CD (Ruff)
+  - Changed CI/CD from npm to pnpm
+  - Fixed pytest async warnings
+  - Added root /health endpoint
+  - Enhanced Ruff rules (security, type hints)

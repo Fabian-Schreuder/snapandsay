@@ -1,5 +1,5 @@
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession, AsyncEngine
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession
 
 from app.database import (
     async_session_maker,
@@ -77,7 +77,7 @@ def test_engine_creation(mocker):
     mock_settings.EXPIRE_ON_COMMIT = False
 
     # Import engine to trigger creation with mocked settings
-    from app.database import engine, async_session_maker
+    from app.database import async_session_maker, engine
 
     # Verify engine is created
     assert isinstance(engine, AsyncEngine)
