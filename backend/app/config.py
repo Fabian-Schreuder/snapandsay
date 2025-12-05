@@ -13,12 +13,7 @@ class Settings(BaseSettings):
     TEST_DATABASE_URL: str | None = None
     EXPIRE_ON_COMMIT: bool = False
 
-    # User
-    # ACCESS_SECRET_KEY: str  # Removed for Supabase Auth
-    # RESET_PASSWORD_SECRET_KEY: str
-    # VERIFICATION_SECRET_KEY: str
-    # ALGORITHM: str = "HS256"
-    # ACCESS_TOKEN_EXPIRE_SECONDS: int = 3600
+
 
     # Email
     MAIL_USERNAME: str | None = None

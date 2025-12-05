@@ -1,6 +1,6 @@
 # Story 1.1: Project Initialization & Repo Setup
 
-Status: Ready for Review
+Status: Done
 
 ## Story
 
@@ -39,6 +39,13 @@ so that the team can start building on a solid foundation.
 - [x] Task 4: Setup Quality Tools (AC: 4)
     - [x] Configure `ruff` for Python backend
     - [x] Configure `eslint` for Next.js frontend
+
+### Review Follow-ups (AI)
+
+- [x] [AI-Review][CRITICAL] Fix git untracked files (backend, frontend, supabase)
+- [x] [AI-Review][HIGH] Fix hollow application (wire up API router in main.py)
+- [x] [AI-Review][MEDIUM] Fix architecture mismatch (move API to v1/endpoints)
+- [x] [AI-Review][VERIFICATION] Add health check endpoint and tests
 
 ## Dev Notes
 
@@ -95,6 +102,10 @@ so that the team can start building on a solid foundation.
 #### [NEW] [config.toml](file:///home/fabian/dev/work/snapandsay/supabase/config.toml)
 #### [NEW] [test_cleanup.py](file:///home/fabian/dev/work/snapandsay/backend/tests/test_cleanup.py)
 #### [NEW] [test_task2.py](file:///home/fabian/dev/work/snapandsay/backend/tests/test_task2.py)
+#### [NEW] [health.py](file:///home/fabian/dev/work/snapandsay/backend/app/api/v1/endpoints/health.py)
+#### [NEW] [api.py](file:///home/fabian/dev/work/snapandsay/backend/app/api/v1/api.py)
+#### [NEW] [test_health.py](file:///home/fabian/dev/work/snapandsay/backend/tests/api/v1/test_health.py)
+#### [MODIFY] [main.py](file:///home/fabian/dev/work/snapandsay/backend/app/main.py)
 
 ### Completion Notes List
 
