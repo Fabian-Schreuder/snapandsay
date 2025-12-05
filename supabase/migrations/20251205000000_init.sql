@@ -38,9 +38,9 @@ begin
   return new;
 exception
   when others then
-    -- Log error but don't block auth.users creation
-    raise warning 'Failed to create public.users record for auth.users.id=%: %', new.id, sqlerrm;
-    return new;
+    -- FAIL HARD: Abort the transaction so auth.users is NOT created if public.users fails
+    -- This ensures we don't end up with zombie users without profiles
+    raise exception 'Failed to create public.users record for auth.users.id=%: %', new.id, sqlerrm;
 end;
 $$;
 

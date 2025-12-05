@@ -28,7 +28,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
     - Backend: Railway (Docker-based deployment).
 - **Package Managers:**
     - Frontend: `pnpm` (latest) - *Constraint:* Use `pnpm-lock.yaml` for reproducibility.
-    - Backend: `uv` (latest) - *Constraint:* Use `uv pip compile` for requirements locking.
+    - Backend: `uv` (latest) - *Constraint:* Use `uv sync` with `uv.lock` for deterministic builds.
 
 ## Critical Implementation Rules
 

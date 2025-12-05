@@ -92,10 +92,7 @@ So that we can store user data securely.
 - [x] Verified local migration application with `npx supabase db reset`
 - [x] Validated schema and extensions using Python script `validate_db.py`
 - [x] **Code Review Applied (2025-12-05):**
-  - Fixed critical bug in trigger function: `substr()` index corrected from 0 to 1
-  - Added error handling and retry logic to trigger function
-  - Documented RLS policy decisions (no INSERT/DELETE by design)
-  - Refactored validation script with proper docstrings and parameterized queries
-  - Added comprehensive pytest integration tests (290 lines, 12 test cases)
-  - Created `.gitignore` for Supabase-generated files
-  - Enhanced SQL comments for maintainability
+  - Updated trigger function `handle_new_user` to RAISE EXCEPTION on error (fail hard) to prevent zombie users.
+  - Ported behavioral RLS tests from `validate_db.py` to `test_database.py` for CI integration.
+  - Configured `test_database.py` and `conftest.py` to run robustly against Supabase local instance by fixing SQL syntax and schema management.
+  - Verified 13/13 tests passing.

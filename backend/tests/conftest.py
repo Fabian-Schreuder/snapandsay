@@ -13,13 +13,14 @@ async def engine():
     """Create a fresh test database engine for each test function."""
     engine = create_async_engine(settings.TEST_DATABASE_URL, echo=True)
 
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    # Schema is managed by Supabase migrations, do not overwrite with SQLAlchemy
+    # async with engine.begin() as conn:
+    #     await conn.run_sync(Base.metadata.create_all)
 
     yield engine
 
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+    # async with engine.begin() as conn:
+    #     await conn.run_sync(Base.metadata.drop_all)
 
     await engine.dispose()
 

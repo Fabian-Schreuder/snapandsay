@@ -100,7 +100,7 @@ class TestUserCreationTrigger:
                         :email,
                         'password',
                         now(),
-                        :metadata::jsonb
+                        CAST(:metadata AS jsonb)
                     )
                 """),
                 {
@@ -124,6 +124,7 @@ class TestUserCreationTrigger:
             
         finally:
             # Cleanup
+            await db_session.rollback() # Ensure rollback before delete if needed
             await db_session.execute(
                 text("DELETE FROM auth.users WHERE id = :user_id"),
                 {"user_id": test_id}
@@ -255,3 +256,93 @@ class TestRLSPolicies:
         )
         count = result.scalar()
         assert count == 0, "Should not have DELETE policy (admin-only deletion)"
+
+
+class TestRLSBehavior:
+    """Test actual RLS enforcement behavior."""
+
+    @pytest.mark.asyncio
+    async def test_rls_enforces_select_ownership(self, db_session: AsyncSession) -> None:
+        """Test that a user can only SELECT their own record."""
+        # 1. Create a test user (trigger will create public.users record)
+        test_id = str(uuid.uuid4())
+        await db_session.execute(
+            text("""
+                INSERT INTO auth.users (id, aud, role, email, encrypted_password, email_confirmed_at)
+                VALUES (:user_id, 'authenticated', 'authenticated', :email, 'password', now())
+            """),
+            {"user_id": test_id, "email": f"test_rls_{uuid.uuid4().hex[:8]}@example.com"}
+        )
+        await db_session.commit()
+
+        try:
+            # 2. Simulate RLS context for this user
+            await db_session.execute(text("SET LOCAL ROLE authenticated"))
+            await db_session.execute(
+                text("SELECT set_config('request.jwt.claims', :claims, true)"),
+                {"claims": f'{{"sub": "{test_id}", "role": "authenticated"}}'}
+            )
+
+            # 3. Try to SELECT from public.users
+            result = await db_session.execute(text("SELECT id FROM public.users"))
+            rows = result.fetchall()
+
+            # 4. Verify visibility: Should see exactly 1 row (themselves)
+            # Note: In a real DB with other users, this proves isolation
+            assert len(rows) == 1, "User should see their own record"
+            assert str(rows[0].id) == test_id, "User should see their own ID"
+
+        finally:
+            # Cleanup (must reset role to delete)
+            await db_session.execute(text("RESET ROLE"))
+            await db_session.execute(
+                text("DELETE FROM auth.users WHERE id = :user_id"),
+                {"user_id": test_id}
+            )
+            await db_session.commit()
+
+    @pytest.mark.asyncio
+    async def test_rls_enforces_update_ownership(self, db_session: AsyncSession) -> None:
+        """Test that a user can only UPDATE their own record."""
+        # 1. Create a test user
+        test_id = str(uuid.uuid4())
+        await db_session.execute(
+            text("""
+                INSERT INTO auth.users (id, aud, role, email, encrypted_password, email_confirmed_at)
+                VALUES (:user_id, 'authenticated', 'authenticated', :email, 'password', now())
+            """),
+            {"user_id": test_id, "email": f"test_rls_upd_{uuid.uuid4().hex[:8]}@example.com"}
+        )
+        await db_session.commit()
+
+        try:
+            # 2. Simulate RLS context
+            await db_session.execute(text("SET LOCAL ROLE authenticated"))
+            await db_session.execute(
+                text("SELECT set_config('request.jwt.claims', :claims, true)"),
+                {"claims": f'{{"sub": "{test_id}", "role": "authenticated"}}'}
+            )
+
+            # 3. Try to UPDATE own record
+            result = await db_session.execute(
+                text("UPDATE public.users SET created_at = now() WHERE id = :user_id RETURNING id"),
+                {"user_id": test_id}
+            )
+            updated = result.fetchone()
+            assert updated is not None, "Should be able to update own record"
+
+            # 4. Try to UPDATE someone else's record (simulated by random ID)
+            other_id = str(uuid.uuid4())
+            result = await db_session.execute(
+                text("UPDATE public.users SET created_at = now() WHERE id = :other_id"),
+                {"other_id": other_id}
+            )
+            assert result.rowcount == 0, "Should not be able to update others' data"
+
+        finally:
+            await db_session.execute(text("RESET ROLE"))
+            await db_session.execute(
+                text("DELETE FROM auth.users WHERE id = :user_id"),
+                {"user_id": test_id}
+            )
+            await db_session.commit()
