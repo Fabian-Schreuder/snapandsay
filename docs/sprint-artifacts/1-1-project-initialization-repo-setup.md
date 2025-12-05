@@ -60,6 +60,14 @@ so that the team can start building on a solid foundation.
 - [x] [AI-Review][LOW] Enhance Ruff configuration with security rules
 - [x] [AI-Review][LOW] Add test for root health endpoint
 
+### Review Follow-ups (AI) - Round 3 (Adversarial Review)
+
+- [x] [AI-Review][HIGH] Upgrade Ruff to 0.4.10+ in pyproject.toml
+- [x] [AI-Review][HIGH] Fix unsafe default values for CORS_ORIGINS
+- [x] [AI-Review][MEDIUM] Fix unsafe default values for email USE_CREDENTIALS
+- [x] [AI-Review][MEDIUM] Delete legacy verification scripts (test_task2.py, test_cleanup.py)
+- [x] [AI-Review][LOW] Clean up empty test directories
+
 ## Dev Notes
 
 - **Template Source:** `https://github.com/vintasoftware/nextjs-fastapi-template`
@@ -141,3 +149,7 @@ so that the team can start building on a solid foundation.
   - Fixed pytest async warnings
   - Added root /health endpoint
   - Enhanced Ruff rules (security, type hints)
+- [x] Code review fixes applied (Round 3):
+  - Upgraded Ruff to >=0.4.0
+  - Fixed unsafe CORS and Email config defaults
+  - Deleted legacy verification tests and empty directories

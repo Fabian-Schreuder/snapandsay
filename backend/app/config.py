@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     MAIL_FROM_NAME: str = "FastAPI template"
     MAIL_STARTTLS: bool = True
     MAIL_SSL_TLS: bool = False
-    USE_CREDENTIALS: bool = True
+    USE_CREDENTIALS: bool = False
     VALIDATE_CERTS: bool = True
     TEMPLATE_DIR: str = "email_templates"
 
@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:3000"
 
     # CORS
-    CORS_ORIGINS: set[str]
+    CORS_ORIGINS: set[str] = []
 
     model_config = SettingsConfigDict(
         env_file=".env", env_file_encoding="utf-8", extra="ignore"
