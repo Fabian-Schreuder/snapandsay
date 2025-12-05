@@ -7,7 +7,7 @@ story_location: /home/fabian/dev/work/snapandsay/docs/sprint-artifacts
 development_status:
   epic-1: backlog
   1-1-project-initialization-repo-setup: review
-  1-2-database-supabase-configuration: backlog
+  1-2-database-supabase-configuration: review
   1-3-authentication-foundation-anonymous: backlog
   epic-1-retrospective: optional
 
