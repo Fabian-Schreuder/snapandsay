@@ -1,6 +1,6 @@
 # Story 2.3: Combined Capture & Upload Service
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -36,37 +36,37 @@ So that the AI can analyze them.
 
 ## Tasks / Subtasks
 
-- [ ] Database: Schema & Migrations
-    - [ ] Create `backend/app/models/log.py` defining the `DietaryLog` model (SQLAlchemy).
+- [x] Database: Schema & Migrations
+    - [x] Create `backend/app/models/log.py` defining the `DietaryLog` model (SQLAlchemy).
         - Fields: `id` (UUID), `user_id` (FK), `image_path` (str), `audio_path` (str, nullable), `transcript` (str, nullable), `description` (str, nullable), `calories` (int, nullable), `protein`/`carbs`/`fats` (int, nullable), `status` (enum: processing, clarification, logged), `created_at` (with `server_default=func.now()`).
-    - [ ] Create `supabase/migrations/YYYYMMDDHHMMSS_create_dietary_logs.sql`.
+    - [x] Create `supabase/migrations/YYYYMMDDHHMMSS_create_dietary_logs.sql`.
         - Define table `dietary_logs`.
         - Enable RLS (Users can select/insert/update/delete their own rows).
         - **CRITICAL**: Create RLS policies for `storage.objects` to allow authenticated users to INSERT into `raw_uploads/{user_id}/*` and SELECT their own files.
         - Create index on `user_id` and `created_at`.
-    - [ ] Run migration to apply changes.
+    - [x] Run migration to apply changes.
 
-- [ ] Backend: API & Service
-    - [ ] Create `backend/app/schemas/analysis.py` (Pydantic).
+- [x] Backend: API & Service
+    - [x] Create `backend/app/schemas/analysis.py` (Pydantic).
         - `AnalysisUploadRequest`: `image_path`, `audio_path` (optional), `client_timestamp`.
         - `AnalysisUploadResponse`: `log_id`, `status`.
-    - [ ] Create `backend/app/api/v1/endpoints/analysis.py`.
+    - [x] Create `backend/app/api/v1/endpoints/analysis.py`.
         - Implement `POST /upload` endpoint.
         - Validate file paths exist (optional, or trust client for MVP).
         - Create DB entry with `status="processing"`.
         - Return `AnalysisUploadResponse`.
-    - [ ] Register router in `backend/app/api/v1/api.py`.
+    - [x] Register router in `backend/app/api/v1/api.py`.
 
-- [ ] Frontend: Service Layer
-    - [ ] Update `frontend/lib/supabase.ts` (verify storage client access).
+- [x] Frontend: Service Layer
+    - [x] Update `frontend/lib/supabase.ts` (verify storage client access).
         - Ensure `raw_uploads` bucket exists in Supabase (or create via migration/dashboard script if possible, primarily manual or via seed). **Action**: Check if bucket creation via SQL matches Supabase pattern, usually requires storage extension. *Dev note: Assume bucket needs to be created or use SQL to insert into `storage.buckets`.*
-    - [ ] Create `frontend/services/upload-service.ts`.
+    - [x] Create `frontend/services/upload-service.ts`.
         - `uploadFile(bucket, path, file)`: Wrapper for Supabase storage upload.
         - Handle unique filename generation.
 
-- [ ] Frontend: Integration & UI
-    - [ ] Update `frontend/lib/api.ts` to include `analysis.upload(...)` method (fetch wrapper).
-    - [ ] Modify `frontend/app/(dashboard)/snap/page.tsx`.
+- [x] Frontend: Integration & UI
+    - [x] Update `frontend/lib/api.ts` to include `analysis.upload(...)` method (fetch wrapper).
+    - [x] Modify `frontend/app/(dashboard)/snap/page.tsx`.
         - Implement `handleUpload` function triggered after Voice capture (or "Done" button).
         - Execute `upload-service` calls in parallel for Image + Audio.
         - **Robustness**: Implement cleanup logic if one upload fails (attempt to delete the successful one to avoid orphans) or ensure atomic handling.
@@ -108,4 +108,26 @@ So that the AI can analyze them.
 
 ### Completion Notes List
 
+- Database migration created for `dietary_logs` and `storage.buckets`.
+- `DietaryLog` model implemented. `models.py` refactored to package.
+- `AnalysisUploadRequest` schema implemented. `schemas.py` refactored to package.
+- `POST /api/v1/analysis/upload` endpoint implemented.
+- `upload-service` created in frontend for storage uploads.
+- `SnapPage` updated to handle upload flow (Image + Audio -> Storage -> API) with loading and error states.
+- Unit tests created for API endpoint (`backend/tests/api/v1/test_analysis.py`).
+- Integration tests created for frontend flow (`frontend/__tests__/SnapPageUpload.test.tsx`).
+
 ### File List
+
+- backend/app/models/log.py
+- backend/app/models/__init__.py
+- backend/app/schemas/analysis.py
+- backend/app/schemas/__init__.py
+- backend/app/api/v1/endpoints/analysis.py
+- backend/app/api/v1/api.py
+- supabase/migrations/20251206000000_create_dietary_logs.sql
+- frontend/services/upload-service.ts
+- frontend/lib/api.ts
+- frontend/app/(dashboard)/snap/page.tsx
+- frontend/__tests__/SnapPageUpload.test.tsx
+

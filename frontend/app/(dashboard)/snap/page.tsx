@@ -1,13 +1,20 @@
 "use client"
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import CameraCapture from '@/components/features/camera/CameraCapture'
 import ImagePreview from '@/components/features/camera/ImagePreview'
 import { VoiceCaptureButton } from '@/components/features/voice/VoiceCaptureButton'
+import { uploadFile, generateUploadPath } from '@/services/upload-service'
+import { analysisApi } from '@/lib/api'
+import { supabase } from '@/lib/supabase'
 
 export default function SnapPage() {
+  const router = useRouter();
   const [step, setStep] = useState<'capture' | 'preview' | 'record'>('capture');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleCapture = (imageSrc: string) => {
     setCapturedImage(imageSrc);
@@ -23,13 +30,85 @@ export default function SnapPage() {
     setStep('record');
   };
 
-  const handleRecordingComplete = (blob: Blob) => {
+  const handleRecordingComplete = async (blob: Blob) => {
     setAudioBlob(blob);
-    // TODO: Proceed to upload (Story 2.3)
+    await handleUpload(blob);
+  };
+
+  const handleUpload = async (currentAudioBlob: Blob) => {
+    if (!capturedImage) return;
+
+    setIsUploading(true);
+    setErrorMessage(null);
+
+    try {
+      // 1. Get User
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No authenticated user found");
+
+      // 2. Prepare Files
+      const imageBlob = await (await fetch(capturedImage)).blob();
+      
+      const imagePath = generateUploadPath(user.id, 'image');
+      const audioPath = generateUploadPath(user.id, 'audio');
+
+      // 3. Parallel Uploads
+      await Promise.all([
+        uploadFile('raw_uploads', imagePath, imageBlob),
+        uploadFile('raw_uploads', audioPath, currentAudioBlob)
+      ]);
+
+      // 4. API Call
+      await analysisApi.upload({
+        image_path: imagePath,
+        audio_path: audioPath,
+        client_timestamp: new Date().toISOString()
+      });
+
+      // 5. Success (Navigate or Show State)
+      // For this story, just show success state or console log, as per Dev Notes:
+      // "For now, just show the state; the actual streaming updates will come in Story 3.3."
+      // Maybe redirect to a log list or show a "Sent!" message. 
+      // Assuming redirect to dashboard or home for now, or just alert.
+      
+      // Let's reset for now or show a temporary success overlay.
+      alert("Meal saved! We are analyzing it.");
+      router.push('/'); 
+
+    } catch (error) {
+      console.error("Upload sequence failed:", error);
+      setErrorMessage("We couldn't save that. Please try again.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
-    <div className="h-[100dvh] w-full bg-black flex flex-col">
+    <div className="h-[100dvh] w-full bg-black flex flex-col relative">
+      {/* Error Overlay */}
+      {errorMessage && (
+        <div className="absolute top-8 left-4 right-4 z-50 bg-red-500/90 text-white p-4 rounded-xl text-center shadow-lg backdrop-blur animate-in slide-in-from-top">
+          <p className="font-medium">{errorMessage}</p>
+          <button 
+            onClick={() => setErrorMessage(null)}
+            className="mt-2 text-sm bg-white/20 px-4 py-1 rounded-full hover:bg-white/30"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {/* Loading/Thinking State */}
+      {isUploading && (
+        <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center space-y-4 animate-in fade-in duration-300">
+          <div className="relative w-20 h-20">
+            <div className="absolute inset-0 border-t-4 border-primary rounded-full animate-spin"></div>
+            <div className="absolute inset-2 border-b-4 border-white/50 rounded-full animate-spin direction-reverse"></div>
+          </div>
+          <p className="text-white text-xl font-medium animate-pulse">Analyzing...</p>
+        </div>
+      )}
+
       {step === 'capture' && (
         <CameraCapture onCapture={handleCapture} />
       )}
@@ -60,7 +139,10 @@ export default function SnapPage() {
           </div>
 
           <div className="flex flex-col items-center gap-4">
-             <VoiceCaptureButton onRecordingComplete={handleRecordingComplete} />
+             {/* Disable button while uploading */}
+             {!isUploading && (
+                 <VoiceCaptureButton onRecordingComplete={handleRecordingComplete} />
+             )}
              <p className="text-zinc-400 text-sm">Hold to record</p>
           </div>
         </div>
