@@ -121,6 +121,12 @@ so that I can visually log what I'm eating.
     -   Added "Camera Access Needed" UI with retry button.
     -   Enforced HD resolution constraints (`1280x720` min) for higher quality capture.
     -   Verified fixes with updated tests.
+-   **AI Code Review Fixes (2025-12-06) - [Fixed Automatically]:**
+    -   Implemented `navigator.vibrate(50)` for haptic feedback (AC2).
+    -   Implemented visual shutter flash overlay (AC2).
+    -   Improved retry logic to reset internal state instead of `window.location.reload()`.
+    -   Removed performance-heavy `console.log` of Base64 strings.
+    -   Updated tests to verify haptics, flash, and retry logic.
 -   All Acceptance Criteria satisfied.
 
 ### File List

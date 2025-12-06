@@ -16,7 +16,7 @@ export default function SnapPage() {
 
   const handleConfirm = () => {
     // TODO: Navigate to next step or handle confirm action (Story 2.2/2.3)
-    console.log("Image confirmed for upload", capturedImage);
+    // Removed verbose logging for performance
   };
 
   return (
