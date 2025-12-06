@@ -1,6 +1,6 @@
 # Story 1.3: Authentication Foundation (Anonymous)
 
-Status: ready-for-review
+Status: done
 
 ## Story
 
@@ -93,6 +93,13 @@ so that I can start logging immediately without friction.
 - Implemented `AuthGuard` in `layout.tsx` to handle auto-login for all pages.
 - Created `backend/app/api/deps.py` for shared `get_current_user` dependency.
 - Backend tests added in `backend/tests/test_auth.py` covering JWT verification.
+
+### Review Fixes (Applied)
+
+- **CRITICAL FIX**: Fixed race condition in `AuthGuard.tsx` preventing potential double anonymous sign-ins.
+- **CRITICAL FIX**: Added `test_verify_token_anon_role` in `test_auth.py` to verify anonymous token handling.
+- **FIX**: Added production integrity checks in `frontend/middleware.ts` for Supabase env vars.
+- **FIX**: Corrected Swagger UI `tokenUrl` path in `deps.py`.
 
 ### File List
 

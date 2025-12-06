@@ -50,3 +50,11 @@ async def test_get_current_user_invalid_token():
     with pytest.raises(HTTPException) as exc:
         await get_current_user("invalid")
     assert exc.value.status_code == 401
+
+def test_verify_token_anon_role():
+    """Verify that tokens with 'anon' role are accepted."""
+    uid = str(uuid4())
+    token = create_token(uid=uid, role="anon")
+    user = verify_token(token)
+    assert str(user.id) == uid
+    assert user.role == "anon"
