@@ -14,6 +14,8 @@ const videoConstraints = {
 
 export default function CameraCapture({ onCapture }: CameraCaptureProps) {
   const webcamRef = useRef<Webcam>(null);
+  const [error, setError] = React.useState<string | null>(null);
+  const [permissionDenied, setPermissionDenied] = React.useState(false);
 
   const capture = useCallback(() => {
     const imageSrc = webcamRef.current?.getScreenshot();
@@ -22,13 +24,53 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
     }
   }, [webcamRef, onCapture]);
 
+  const handleUserMediaError = useCallback((error: string | DOMException) => {
+    console.error("Camera Error:", error);
+    // Check for specific permission errors if possible, standardizing fallback
+    setPermissionDenied(true);
+    setError("We need camera access to see your meal.");
+  }, []);
+
+  const handleUserMedia = useCallback(() => {
+    setError(null);
+    setPermissionDenied(false);
+  }, []);
+
+  // Standard HD landscape, but 'environment' facing mode is key
+  const videoConstraintsWithResolution = {
+    ...videoConstraints,
+    width: { min: 1280, ideal: 1920 },
+    height: { min: 720, ideal: 1080 }
+  };
+
+  if (error || permissionDenied) {
+    return (
+      <div className="h-full w-full bg-zinc-900 flex flex-col items-center justify-center p-8 text-center space-y-6">
+        <div className="h-20 w-20 rounded-full bg-red-100 flex items-center justify-center mb-4">
+           {/* Fallback icon if lucide fails, but we know it's there */}
+           <Camera className="h-10 w-10 text-red-600" />
+        </div>
+        <h3 className="text-xl font-semibold text-white">Camera Access Needed</h3>
+        <p className="text-zinc-300 text-lg max-w-xs">{error || "We need permission to use your camera so you can snap your meal."}</p>
+        <button 
+          onClick={() => window.location.reload()} // Simple retry for now
+          className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-bold text-lg hover:opacity-90 transition-opacity"
+        >
+          Try Again
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="relative h-full w-full bg-black flex flex-col items-center justify-center overflow-hidden">
       <Webcam
         audio={false}
         ref={webcamRef}
         screenshotFormat="image/jpeg"
-        videoConstraints={videoConstraints}
+        videoConstraints={videoConstraintsWithResolution}
+        onUserMedia={handleUserMedia}
+        onUserMediaError={handleUserMediaError}
         className="absolute inset-0 h-full w-full object-cover"
       />
       

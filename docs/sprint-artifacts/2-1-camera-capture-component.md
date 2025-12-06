@@ -1,6 +1,6 @@
 # Story 2.1: Camera Capture Component
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -116,6 +116,11 @@ so that I can visually log what I'm eating.
 -   Implemented `ImagePreview` component with "Retake" and "Confirm" actions.
 -   Integrated components into `src/app/(dashboard)/snap/page.tsx` with state management for capture/preview flow.
 -   Added comprehensive unit tests for all components and integration test for the page flow.
+-   **Code Review Fixes (2025-12-06):**
+    -   Implemented `onUserMediaError` handling in `CameraCapture` for permission denied scenarios.
+    -   Added "Camera Access Needed" UI with retry button.
+    -   Enforced HD resolution constraints (`1280x720` min) for higher quality capture.
+    -   Verified fixes with updated tests.
 -   All Acceptance Criteria satisfied.
 
 ### File List
