@@ -127,6 +127,12 @@ so that I can visually log what I'm eating.
     -   Improved retry logic to reset internal state instead of `window.location.reload()`.
     -   Removed performance-heavy `console.log` of Base64 strings.
     -   Updated tests to verify haptics, flash, and retry logic.
+-   **AI Code Review Fixes (2025-12-06) - [Fixed Automatically]:**
+    -   Fixed `CameraCapture` race condition on unmount by clearing timeouts.
+    -   Relaxed `videoConstraints` to use `ideal` resolution instead of strict `min` to prevent `OverconstrainedError` on lower-end devices.
+    -   Improved `onUserMediaError` handling to distinguish between `OverconstrainedError` (resolution mismatch) and `NotAllowedError` (permission denied).
+    -   Adjusted flash timing to 75ms for snappier feedback.
+    -   Updated tests to verify specific error handling logic.
 -   All Acceptance Criteria satisfied.
 
 ### File List

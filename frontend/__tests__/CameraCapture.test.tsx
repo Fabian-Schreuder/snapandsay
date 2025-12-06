@@ -10,7 +10,9 @@ jest.mock('react-webcam', () => {
         default: React.forwardRef((props: any, ref: any) => {
              return (
                  <div data-testid="webcam-mock">
-                     <button onClick={() => props.onUserMediaError && props.onUserMediaError('Permission denied')}>Trigger Error</button>
+                     <button onClick={() => props.onUserMediaError && props.onUserMediaError({ name: 'OverconstrainedError' })}>Trigger Overconstrained Error</button>
+                     <button onClick={() => props.onUserMediaError && props.onUserMediaError({ name: 'NotAllowedError' })}>Trigger Permission Error</button>
+                     <button onClick={() => props.onUserMediaError && props.onUserMediaError('Unknown Error')}>Trigger Generic Error</button>
                      <button onClick={() => {
                         if (ref.current) {
                             // Simulate successful capture
@@ -74,14 +76,23 @@ describe('CameraCapture', () => {
         expect(mockVibrate).toHaveBeenCalledWith(50);
     });
 
-    it('shows error UI when camera permission is denied', async () => {
+    it('shows specific error UI when resolution is not supported', async () => {
         render(<CameraCapture onCapture={jest.fn()} />)
         
-        // Find the trigger button from our mock
-        fireEvent.click(screen.getByText('Trigger Error'))
+        fireEvent.click(screen.getByText('Trigger Overconstrained Error'))
 
         await waitFor(() => {
-            expect(screen.getByText(/Camera Access Needed/i)).toBeInTheDocument()
+            expect(screen.getByText(/Camera resolution not supported/i)).toBeInTheDocument()
+        })
+    })
+
+    it('shows specific error UI when permission is denied', async () => {
+        render(<CameraCapture onCapture={jest.fn()} />)
+        
+        fireEvent.click(screen.getByText('Trigger Permission Error'))
+
+        await waitFor(() => {
+            expect(screen.getByText(/Camera permission denied/i)).toBeInTheDocument()
         })
     })
 
@@ -96,7 +107,7 @@ describe('CameraCapture', () => {
          render(<CameraCapture onCapture={jest.fn()} />)
          
          // Trigger error
-         fireEvent.click(screen.getByText('Trigger Error'))
+         fireEvent.click(screen.getByText('Trigger Generic Error'))
          await screen.findByText(/Try Again/i);
 
          // Click retry

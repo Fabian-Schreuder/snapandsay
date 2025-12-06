@@ -17,11 +17,23 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
   const [error, setError] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [isFlashing, setIsFlashing] = useState(false);
+  
+  // Refs for cleanup
+  const flashTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const captureTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
+      if (captureTimeoutRef.current) clearTimeout(captureTimeoutRef.current);
+    };
+  }, []);
 
   const capture = useCallback(() => {
     // 1. Visual Flash Effect
     setIsFlashing(true);
-    setTimeout(() => setIsFlashing(false), 150); // Short flash
+    // Shorter, snappier flash (75ms)
+    flashTimeoutRef.current = setTimeout(() => setIsFlashing(false), 75); 
 
     // 2. Haptic Feedback
     if (typeof navigator !== 'undefined' && navigator.vibrate) {
@@ -30,8 +42,8 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
 
     const imageSrc = webcamRef.current?.getScreenshot();
     if (imageSrc) {
-      // Small delay to allow flash to register visually before unmounting/transitioning
-      setTimeout(() => {
+      // Wait for flash peak before transitioning
+      captureTimeoutRef.current = setTimeout(() => {
         onCapture(imageSrc);
       }, 100);
     }
@@ -40,7 +52,15 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
   const handleUserMediaError = useCallback((error: string | DOMException) => {
     console.error("Camera Error:", error);
     setPermissionDenied(true);
-    setError("We need camera access to see your meal.");
+    
+    // Distinguish between permission and constraint errors
+    if (typeof error === 'object' && 'name' in error && error.name === 'OverconstrainedError') {
+         setError("Camera resolution not supported. Please try a different device.");
+    } else if (typeof error === 'object' && 'name' in error && error.name === 'NotAllowedError') {
+         setError("Camera permission denied. Please allow access in settings.");
+    } else {
+         setError("We need camera access to see your meal.");
+    }
   }, []);
 
   const handleUserMedia = useCallback(() => {
@@ -49,19 +69,16 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
   }, []);
 
   const handleRetry = useCallback(() => {
-    // Reset state to try re-mounting/re-initializing the camera
     setError(null);
     setPermissionDenied(false);
-    // Force a re-render of the Webcam component might be needed if it internalizes error state,
-    // but React key change or state toggle is usually enough. 
-    // If simple state reset doesn't work with react-webcam, we might need a key.
   }, []);
 
-  // Standard HD landscape, but 'environment' facing mode is key
+  // Relaxed constraints: Use ideal instead of strict min to prevent OverconstrainedError on low-end devices
+  // while still preferring high resolution.
   const videoConstraintsWithResolution = {
     ...videoConstraints,
-    width: { min: 1280, ideal: 1920 },
-    height: { min: 720, ideal: 1080 }
+    width: { ideal: 1920 },
+    height: { ideal: 1080 }
   };
 
   if (error || permissionDenied) {
@@ -85,7 +102,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
   return (
     <div className="relative h-full w-full bg-black flex flex-col items-center justify-center overflow-hidden">
       <Webcam
-        key={permissionDenied ? 'error' : 'active'} // Force re-mount on state recover
+        key={permissionDenied ? 'error' : 'active'}
         audio={false}
         ref={webcamRef}
         screenshotFormat="image/jpeg"
@@ -98,7 +115,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
       {/* Visual Flash Overlay */}
       <div 
         className={cn(
-          "absolute inset-0 bg-white pointer-events-none transition-opacity duration-150 ease-out z-20",
+          "absolute inset-0 bg-white pointer-events-none transition-opacity duration-75 ease-out z-20",
            isFlashing ? "opacity-100" : "opacity-0"
         )}
       />
