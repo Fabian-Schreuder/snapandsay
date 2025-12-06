@@ -5,7 +5,9 @@ from app.core.security import verify_token, UserContext
 
 # Supabase Auth uses Bearer token, usually passed in Authorization header.
 # We set auto_error=False to handle 401 manually or allow optional auth.
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token", auto_error=False)
+# tokenUrl is required by OAuth2PasswordBearer for Swagger UI, but since we rely on Supabase/Client handles,
+# we point it to a placeholder. Users should paste their JWT manually in the 'Authorize' dialog.
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="https://api.supabase.com/v1/auth/token", auto_error=False)
 
 async def get_current_user(token: Annotated[str | None, Depends(oauth2_scheme)]) -> UserContext:
     if not token:

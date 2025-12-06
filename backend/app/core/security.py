@@ -14,7 +14,7 @@ def verify_token(token: str) -> UserContext:
             token,
             settings.SUPABASE_JWT_SECRET,
             algorithms=["HS256"],
-            audience="authenticated", # Supabase default audience
+            audience=settings.SUPABASE_AUTH_AUDIENCE, # Supabase audience
             options={"verify_aud": True} 
         )
         

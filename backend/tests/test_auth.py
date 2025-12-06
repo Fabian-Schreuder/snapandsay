@@ -7,7 +7,20 @@ from app.api.deps import get_current_user
 from app.config import settings
 
 # Override API key for testing
-settings.SUPABASE_JWT_SECRET = "supersecretkey"
+# Override API key for testing using a fixture to avoid side effects
+@pytest.fixture(autouse=True)
+def mock_settings():
+    original_secret = settings.SUPABASE_JWT_SECRET
+    original_aud = settings.SUPABASE_AUTH_AUDIENCE
+    
+    settings.SUPABASE_JWT_SECRET = "supersecretkey"
+    settings.SUPABASE_AUTH_AUDIENCE = "authenticated"
+    
+    yield
+    
+    # Restore
+    settings.SUPABASE_JWT_SECRET = original_secret
+    settings.SUPABASE_AUTH_AUDIENCE = original_aud
 
 def create_token(uid: str = None, aud: str = "authenticated", role: str = "authenticated"):
     if uid is None:

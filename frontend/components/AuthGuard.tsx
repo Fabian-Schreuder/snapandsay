@@ -20,7 +20,6 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         }
       } else if (event === 'SIGNED_OUT' || (!session && event === 'INITIAL_SESSION')) {
         if (!isSigningIn.current) {
-            console.log("No session, attempting anonymous sign in...");
             isSigningIn.current = true;
             try {
                 await signInAnonymously();

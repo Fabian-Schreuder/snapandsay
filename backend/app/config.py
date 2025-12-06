@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     
     # Auth
     SUPABASE_JWT_SECRET: str
+    SUPABASE_AUTH_AUDIENCE: str = "authenticated"
 
 
 

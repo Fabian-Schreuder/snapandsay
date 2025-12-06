@@ -100,6 +100,9 @@ so that I can start logging immediately without friction.
 - **CRITICAL FIX**: Added `test_verify_token_anon_role` in `test_auth.py` to verify anonymous token handling.
 - **FIX**: Added production integrity checks in `frontend/middleware.ts` for Supabase env vars.
 - **FIX**: Corrected Swagger UI `tokenUrl` path in `deps.py`.
+- **FIX**: Removed debug console logs from `AuthGuard.tsx`.
+- **FIX**: Added graceful error handling (500) in `middleware.ts` for missing env vars.
+- **FIX**: Added configurable `SUPABASE_AUTH_AUDIENCE` and fixed test suite setting mutation anti-pattern.
 
 ### File List
 
