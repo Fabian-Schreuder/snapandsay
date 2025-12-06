@@ -18,12 +18,21 @@ async def upload_analysis_data(
     Record a new dietary log entry after files have been uploaded to storage.
     """
     
+    # Parse timestamp safely
+    try:
+        parsed_timestamp = datetime.fromisoformat(request.client_timestamp.replace('Z', '+00:00'))
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Invalid timestamp format. Expected ISO 8601."
+        )
+
     # Create DB Entry
     new_log = DietaryLog(
         user_id=current_user.id,
         image_path=request.image_path,
         audio_path=request.audio_path,
-        client_timestamp=datetime.fromisoformat(request.client_timestamp.replace('Z', '+00:00')),
+        client_timestamp=parsed_timestamp,
         status="processing"
     )
     
