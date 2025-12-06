@@ -38,7 +38,7 @@ development_status:
 
   epic-2: in-progress
   2-1-camera-capture-component: done
-  2-2-voice-recorder-component: backlog
+  2-2-voice-recorder-component: ready-for-dev
   2-3-combined-capture-upload-service: backlog
   epic-2-retrospective: optional
 
