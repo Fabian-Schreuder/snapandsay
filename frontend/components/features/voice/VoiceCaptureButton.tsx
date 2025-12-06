@@ -24,12 +24,15 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
   } = useAudio();
 
   const [isSuccess, setIsSuccess] = useState(false);
+  const [a11yStatus, setA11yStatus] = useState(""); // For screen reader announcements
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const isPressed = useRef(false); // Track physical press state to prevent race conditions
 
   // Handle successful recording
   useEffect(() => {
     if (audioBlob) {
       setIsSuccess(true);
+      setA11yStatus("Recording stopped. Voice note captured.");
       // Vibrate for success: short, pause, short
       if (typeof navigator !== "undefined" && navigator.vibrate) {
         navigator.vibrate([20, 50, 20]);
@@ -39,6 +42,7 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
       // Reset success state after a delay
       const timer = setTimeout(() => {
         setIsSuccess(false);
+        setA11yStatus(""); // Clear status
       }, 1500);
       return () => clearTimeout(timer);
     }
@@ -47,19 +51,39 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
   // Handle start (Touch/Mouse Down)
   const handleStart = async (e: React.PointerEvent | React.TouchEvent | React.MouseEvent) => {
     // Prevent default context menus or selection on long press
-    // e.preventDefault(); // Note: Be careful with interfering with normal click behavior if mixed
+    if (e.cancelable) e.preventDefault(); 
     
+    isPressed.current = true;
+
     if (isRecording) return;
 
     if (typeof navigator !== "undefined" && navigator.vibrate) {
       navigator.vibrate(50); // Single bump for start
     }
-    await startRecording();
+
+    try {
+        await startRecording();
+        setA11yStatus("Recording started. Release to stop.");
+        
+        // RACE CONDITION FIX:
+        // If the user release the button while `startRecording` (getUserMedia) was pending,
+        // we must stop immediately after it starts.
+        if (!isPressed.current) {
+            stopRecording();
+            setA11yStatus("Recording cancelled.");
+        }
+    } catch (err) {
+        // Error is handled by hook state
+        setA11yStatus("Error starting recording.");
+    }
   };
 
   // Handle stop (Touch/Mouse Up/Leave)
   const handleStop = (e: React.PointerEvent | React.TouchEvent | React.MouseEvent) => {
-    // e.preventDefault();
+    if (e.cancelable) e.preventDefault();
+    
+    isPressed.current = false;
+    
     if (isRecording) {
       stopRecording();
     }
@@ -67,6 +91,11 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
 
   return (
     <div className="flex flex-col items-center gap-2">
+      {/* Hidden live region for screen readers */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {a11yStatus}
+      </div>
+
       <button
         ref={buttonRef}
         type="button"

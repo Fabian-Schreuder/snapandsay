@@ -36,11 +36,15 @@ describe('VoiceCaptureButton', () => {
     render(<VoiceCaptureButton onRecordingComplete={mockOnRecordingComplete} />);
     const button = screen.getByRole('button');
 
-    fireEvent.mouseDown(button);
+    // MouseDown should trigger start
+    await act(async () => {
+        fireEvent.mouseDown(button);
+    });
+
     expect(mockStartRecording).toHaveBeenCalled();
   });
 
-  it('stops recording on mouse up', () => {
+  it('stops recording on mouse up', async () => {
     mockUseAudio.mockReturnValue({
       startRecording: mockStartRecording,
       stopRecording: mockStopRecording,
