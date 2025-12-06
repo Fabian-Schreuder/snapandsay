@@ -14,6 +14,7 @@ CREATE TABLE dietary_logs (
     carbs INTEGER,
     fats INTEGER,
     status log_status_enum NOT NULL DEFAULT 'processing',
+    client_timestamp TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

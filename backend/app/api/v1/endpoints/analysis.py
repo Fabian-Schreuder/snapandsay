@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user, UserContext
@@ -22,7 +23,7 @@ async def upload_analysis_data(
         user_id=current_user.id,
         image_path=request.image_path,
         audio_path=request.audio_path,
-        client_timestamp=request.client_timestamp,
+        client_timestamp=datetime.fromisoformat(request.client_timestamp.replace('Z', '+00:00')),
         status="processing"
     )
     

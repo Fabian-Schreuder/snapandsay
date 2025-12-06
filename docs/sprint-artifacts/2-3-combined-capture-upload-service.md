@@ -1,6 +1,6 @@
 # Story 2.3: Combined Capture & Upload Service
 
-Status: review
+Status: done
 
 ## Story
 
@@ -38,7 +38,7 @@ So that the AI can analyze them.
 
 - [x] Database: Schema & Migrations
     - [x] Create `backend/app/models/log.py` defining the `DietaryLog` model (SQLAlchemy).
-        - Fields: `id` (UUID), `user_id` (FK), `image_path` (str), `audio_path` (str, nullable), `transcript` (str, nullable), `description` (str, nullable), `calories` (int, nullable), `protein`/`carbs`/`fats` (int, nullable), `status` (enum: processing, clarification, logged), `created_at` (with `server_default=func.now()`).
+        - Fields: `id` (UUID), `user_id` (FK), `image_path` (str), `audio_path` (str, nullable), `transcript` (str, nullable), `description` (str, nullable), `calories` (int, nullable), `protein`/`carbs`/`fats` (int, nullable), `status` (enum: processing, clarification, logged), `client_timestamp` (datetime), `created_at` (with `server_default=func.now()`).
     - [x] Create `supabase/migrations/YYYYMMDDHHMMSS_create_dietary_logs.sql`.
         - Define table `dietary_logs`.
         - Enable RLS (Users can select/insert/update/delete their own rows).
