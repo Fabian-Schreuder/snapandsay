@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import CameraCapture from '@/components/features/camera/CameraCapture'
 import ImagePreview from '@/components/features/camera/ImagePreview'
 import { VoiceCaptureButton } from '@/components/features/voice/VoiceCaptureButton'
-import { uploadFile, generateUploadPath } from '@/services/upload-service'
+import { uploadFile, generateUploadPath, deleteFile } from '@/services/upload-service'
 import { analysisApi } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 
@@ -41,6 +41,10 @@ export default function SnapPage() {
     setIsUploading(true);
     setErrorMessage(null);
 
+    // Define paths outside try block for access in cleanup
+    let imagePath: string | undefined;
+    let audioPath: string | undefined;
+
     try {
       // 1. Get User
       const { data: { user } } = await supabase.auth.getUser();
@@ -49,8 +53,8 @@ export default function SnapPage() {
       // 2. Prepare Files
       const imageBlob = await (await fetch(capturedImage)).blob();
       
-      const imagePath = generateUploadPath(user.id, 'image');
-      const audioPath = generateUploadPath(user.id, 'audio');
+      imagePath = generateUploadPath(user.id, 'image');
+      audioPath = generateUploadPath(user.id, 'audio');
 
       // 3. Parallel Uploads
       await Promise.all([
@@ -65,19 +69,23 @@ export default function SnapPage() {
         client_timestamp: new Date().toISOString()
       });
 
-      // 5. Success (Navigate or Show State)
-      // For this story, just show success state or console log, as per Dev Notes:
-      // "For now, just show the state; the actual streaming updates will come in Story 3.3."
-      // Maybe redirect to a log list or show a "Sent!" message. 
-      // Assuming redirect to dashboard or home for now, or just alert.
-      
-      // Let's reset for now or show a temporary success overlay.
+      // 5. Success
       alert("Meal saved! We are analyzing it.");
       router.push('/'); 
 
     } catch (error) {
       console.error("Upload sequence failed:", error);
       setErrorMessage("We couldn't save that. Please try again.");
+      
+      // Cleanup: Delete any files that might have been uploaded
+      const cleanupPromises: Promise<void>[] = [];
+      if (imagePath) cleanupPromises.push(deleteFile('raw_uploads', imagePath));
+      if (audioPath) cleanupPromises.push(deleteFile('raw_uploads', audioPath));
+      
+      if (cleanupPromises.length > 0) {
+          Promise.allSettled(cleanupPromises).then(() => console.log("Cleanup attempted"));
+      }
+
     } finally {
       setIsUploading(false);
     }

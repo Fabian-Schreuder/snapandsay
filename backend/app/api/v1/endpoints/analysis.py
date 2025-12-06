@@ -22,6 +22,7 @@ async def upload_analysis_data(
         user_id=current_user.id,
         image_path=request.image_path,
         audio_path=request.audio_path,
+        client_timestamp=request.client_timestamp,
         status="processing"
     )
     

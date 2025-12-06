@@ -23,3 +23,17 @@ export const generateUploadPath = (userId: string, type: 'image' | 'audio'): str
   const ext = type === 'image' ? 'jpg' : 'webm';
   return `${userId}/${timestamp}_${type}.${ext}`;
 };
+
+export const deleteFile = async (
+  bucket: string,
+  path: string
+): Promise<void> => {
+  const { error } = await supabase.storage
+    .from(bucket)
+    .remove([path]);
+
+  if (error) {
+    console.error(`Delete failed for ${path}:`, error);
+    // We log but don't re-throw so cleanup doesn't block other errors
+  }
+};

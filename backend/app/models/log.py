@@ -26,4 +26,7 @@ class DietaryLog(Base):
     # Status
     status = Column(Enum("processing", "clarification", "logged", name="log_status_enum"), default="processing", nullable=False)
     
+    # Metadata
+    client_timestamp = Column(DateTime(timezone=True), nullable=True)
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
