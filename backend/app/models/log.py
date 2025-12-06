@@ -7,7 +7,7 @@ class DietaryLog(Base):
     __tablename__ = "dietary_logs"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    user_id = Column(UUID(as_uuid=True), nullable=False, index=True)
     
     # Media
     image_path = Column(String, nullable=False)

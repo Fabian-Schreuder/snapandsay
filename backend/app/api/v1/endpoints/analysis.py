@@ -2,7 +2,7 @@ from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user, UserContext
-from app.core.database import get_async_session
+from app.database import get_async_session
 from app.models.log import DietaryLog
 from app.schemas.analysis import AnalysisUploadRequest, AnalysisUploadResponse
 

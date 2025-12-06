@@ -1,22 +1,22 @@
 import pytest
 from uuid import uuid4
 from app.api.deps import get_current_user
+from sqlalchemy import text
 from app.core.security import UserContext
 from app.main import app
 
-# Mock User
-class MockUser(UserContext):
-    def __init__(self, user_id):
-        self.id = user_id
-        self.email = "test@example.com"
-        self.role = "authenticated"
+# Mock User removed - using UserContext directly
 
 @pytest.mark.asyncio
 async def test_upload_analysis_success(test_client, db_session):
     # 1. Mock Authentication
     user_id = uuid4()
-    mock_user = MockUser(user_id)
+    mock_user = UserContext(id=user_id, aud="authenticated", role="authenticated")
     
+    
+    # Disable FK checks for this session to avoid creating auth.users record
+    await db_session.execute(text("SET session_replication_role = replica"))
+
     app.dependency_overrides[get_current_user] = lambda: mock_user
     
     # 2. Prepare Payload
