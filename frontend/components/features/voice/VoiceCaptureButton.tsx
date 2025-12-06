@@ -128,7 +128,7 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
 
       {isPermissionDenied && (
         <p className="text-xs text-red-500 text-center max-w-[150px]">
-          Microphone needed to record.
+          Please enable microphone access in your browser settings to record.
         </p>
       )}
       

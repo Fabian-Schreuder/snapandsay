@@ -1,6 +1,6 @@
 # Story 2.2: Voice Recorder Component
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -39,30 +39,30 @@ So that I can describe my meal naturally.
 
 ## Tasks / Subtasks
 
-- [ ] Frontend: Infrastructure & Hooks
-    - [ ] Create `src/hooks/use-audio.ts`.
-        - [ ] Implement `startRecording`: Check `MediaRecorder.isTypeSupported` to prefer `audio/webm;codecs=opus` but fallback to `audio/mp4` for iOS Safari compatibility.
-        - [ ] Implement `stopRecording`: Stop recorder, return Blob.
-        - [ ] **CRITICAL**: Implement cleanup function that iterates `stream.getTracks()` and calls `.stop()` to release microphone resource on unmount or stop.
-        - [ ] Handle `dataavailable` events to collect chunks.
-        - [ ] Manage permissions and error states (`NotAllowedError`, `NotFoundError`) with specific flags for "Permanently Denied".
-        - [ ] Return interface: `{ start, stop, isRecording, audioBlob, error, duration, isPermissionDenied }`.
-- [ ] Frontend: Component Implementation (`src/components/features/voice/VoiceCaptureButton.tsx`)
-    - [ ] Create component with `"use client"`.
-    - [ ] Define Props: `interface VoiceCaptureButtonProps { onRecordingComplete: (audio: Blob) => void; }`.
-    - [ ] Implement "Hold" interaction using `use-long-press` pattern or raw `onTouchStart`/`onTouchEnd` + `onMouseDown`/`onMouseUp`.
-    - [ ] Integrate `use-audio` hook.
-    - [ ] Implement Haptics (`navigator.vibrate([50])` start, `[20, 50, 20]` stop/success).
-    - [ ] Style states using Tailwind:
+- [x] Frontend: Infrastructure & Hooks
+    - [x] Create `src/hooks/use-audio.ts`.
+        - [x] Implement `startRecording`: Check `MediaRecorder.isTypeSupported` to prefer `audio/webm;codecs=opus` but fallback to `audio/mp4` for iOS Safari compatibility.
+        - [x] Implement `stopRecording`: Stop recorder, return Blob.
+        - [x] **CRITICAL**: Implement cleanup function that iterates `stream.getTracks()` and calls `.stop()` to release microphone resource on unmount or stop.
+        - [x] Handle `dataavailable` events to collect chunks.
+        - [x] Manage permissions and error states (`NotAllowedError`, `NotFoundError`) with specific flags for "Permanently Denied".
+        - [x] Return interface: `{ start, stop, isRecording, audioBlob, error, duration, isPermissionDenied }`.
+- [x] Frontend: Component Implementation (`src/components/features/voice/VoiceCaptureButton.tsx`)
+    - [x] Create component with `"use client"`.
+    - [x] Define Props: `interface VoiceCaptureButtonProps { onRecordingComplete: (audio: Blob) => void; }`.
+    - [x] Implement "Hold" interaction using `use-long-press` pattern or raw `onTouchStart`/`onTouchEnd` + `onMouseDown`/`onMouseUp`.
+    - [x] Integrate `use-audio` hook.
+    - [x] Implement Haptics (`navigator.vibrate([50])` start, `[20, 50, 20]` stop/success).
+    - [x] Style states using Tailwind:
         -   **Idle**: High contrast Mic icon (Lucide).
         -   **Recording**: `animate-pulse`, potentially color change (Red/Orange).
         -   **Success**: Green background/icon state for momentary feedback after recording.
         -   **Disabled**: Opacity reduced.
-    - [ ] Ensure minimum 60x60px touch target.
-- [ ] Frontend: Integration
-    - [ ] Integrate `VoiceCaptureButton` into `src/app/(dashboard)/snap/page.tsx`.
-    - [ ] **State Flow**: Show `VoiceCaptureButton` *after* `ImagePreview` is confirmed (or alongside if defining that UX). *Note: Epics imply "Snap then Say" or combined. UX Flow says: Snap -> Photo Captured -> Hold Mic Button (on same screen or next).*
-    - [ ] Ensure state (Image + Audio) is ready for the next step (Upload).
+    - [x] Ensure minimum 60x60px touch target.
+- [x] Frontend: Integration
+    - [x] Integrate `VoiceCaptureButton` into `src/app/(dashboard)/snap/page.tsx`.
+    - [x] **State Flow**: Show `VoiceCaptureButton` *after* `ImagePreview` is confirmed (or alongside if defining that UX). *Note: Epics imply "Snap then Say" or combined. UX Flow says: Snap -> Photo Captured -> Hold Mic Button (on same screen or next).*
+    - [x] Ensure state (Image + Audio) is ready for the next step (Upload).
 
 ## Dev Notes
 
@@ -113,6 +113,21 @@ So that I can describe my meal naturally.
 
 ### Debug Log References
 
+- Fixed weak unit test in `useAudio.test.ts` to properly verify data blob creation.
+- Improved permission error message to guide users to settings.
+- Cleaned up console logs in `SnapPage`.
+
 ### Completion Notes List
 
+- All Acceptance Criteria implemented.
+- Voice recording flow verified with unit tests.
+- UI feedback (Visual + Haptic) implemented.
+- Accessibility announcements implemented.
+
 ### File List
+
+- `frontend/hooks/use-audio.ts`
+- `frontend/components/features/voice/VoiceCaptureButton.tsx`
+- `frontend/app/(dashboard)/snap/page.tsx`
+- `frontend/__tests__/useAudio.test.ts`
+- `frontend/__tests__/VoiceCaptureButton.test.tsx`

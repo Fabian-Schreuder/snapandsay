@@ -81,22 +81,27 @@ describe('useAudio', () => {
       await result.current.startRecording();
     });
 
-    // Mock data availability
+    // Simulate data available event
     const mockBlob = new Blob(['audio data'], { type: 'audio/webm' });
-    // We need to simulate the implementation detail of how ondataavailable is hooked up
-    // But since we are testing the hook's public API, we'll assume the hook sets up the listener.
-    // In our mock, we can manually trigger it if we had access to the instance, 
-    // but here we might need to rely on the hook implementation to set the ondataavailable.
+    const dataEvent = { data: mockBlob };
     
-    // Instead of complex event simulation on the mock, let's verify stop calls the method
-    // and cleanup. The actual data gathering is hard to test without a more complex mock/implementation coupling.
-    // However, if we implement the hook to return a promise from stop, or update state.
+    await act(async () => {
+      if ((mockMediaRecorder as any).ondataavailable) {
+        (mockMediaRecorder as any).ondataavailable(dataEvent);
+      }
+    });
 
     await act(async () => {
       result.current.stopRecording();
+      // Simulate onstop event which creates the final blob
+      if ((mockMediaRecorder as any).onstop) {
+        (mockMediaRecorder as any).onstop();
+      }
     });
 
     expect(mockMediaRecorder.stop).toHaveBeenCalled();
     expect(result.current.isRecording).toBe(false);
+    expect(result.current.audioBlob).not.toBeNull();
+    expect(result.current.audioBlob?.size).toBe(mockBlob.size);
   });
 });

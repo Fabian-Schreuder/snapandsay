@@ -82,7 +82,7 @@ describe('VoiceCaptureButton', () => {
     });
 
     render(<VoiceCaptureButton onRecordingComplete={mockOnRecordingComplete} />);
-    expect(screen.getByText(/microphone needed/i)).toBeInTheDocument();
+    expect(screen.getByText(/Please enable microphone access in your browser settings to record/i)).toBeInTheDocument();
   });
   
   it('applies pulsing animation when recording', () => {

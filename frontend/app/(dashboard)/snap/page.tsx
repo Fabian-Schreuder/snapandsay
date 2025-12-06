@@ -25,7 +25,6 @@ export default function SnapPage() {
 
   const handleRecordingComplete = (blob: Blob) => {
     setAudioBlob(blob);
-    console.log("Recording complete", blob);
     // TODO: Proceed to upload (Story 2.3)
   };
 
