@@ -18,6 +18,26 @@ module.exports = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      keyframes: {
+        bloom: {
+          "0%": { transform: "scale(0)", opacity: "0" },
+          "50%": { transform: "scale(1.2)" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        fadeIn: {
+          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        checkmark: {
+          "0%": { strokeDashoffset: "24" },
+          "100%": { strokeDashoffset: "0" },
+        },
+      },
+      animation: {
+        bloom: "bloom 0.5s ease-out",
+        fadeIn: "fadeIn 0.2s ease-in-out",
+        checkmark: "checkmark 0.3s ease-out 0.2s both",
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

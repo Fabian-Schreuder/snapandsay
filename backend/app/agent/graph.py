@@ -1,7 +1,17 @@
+from typing import AsyncGenerator
 from langgraph.graph import StateGraph, START, END
 from app.agent.state import AgentState
-from app.agent.nodes import analyze_input, generate_clarification, finalize_log
+from app.agent.nodes import (
+    analyze_input,
+    generate_clarification,
+    finalize_log,
+    analyze_input_streaming,
+    generate_clarification_streaming,
+    finalize_log_streaming,
+)
 from app.agent.constants import ANALYZE_INPUT, GENERATE_CLARIFICATION, FINALIZE_LOG
+from app.schemas.sse import SSEEvent
+
 
 def get_agent_graph():
     """
@@ -25,3 +35,47 @@ def get_agent_graph():
     # Compile the graph
     app = workflow.compile()
     return app
+
+
+async def run_streaming_agent(
+    initial_state: AgentState,
+) -> AsyncGenerator[SSEEvent | dict, None]:
+    """
+    Run the agent graph with streaming SSE events.
+
+    This function executes the agent nodes in sequence, yielding
+    SSE events as each node processes, and returning the final state.
+
+    Args:
+        initial_state: The initial agent state with image_url/audio_url.
+
+    Yields:
+        SSEEvent objects during processing.
+        Final dict with the complete state update when done.
+    """
+    state = dict(initial_state)
+
+    # Run analyze_input_streaming
+    async for item in analyze_input_streaming(state):
+        if isinstance(item, SSEEvent):
+            yield item
+        else:
+            # State update
+            state.update(item)
+
+    # Run generate_clarification_streaming
+    async for item in generate_clarification_streaming(state):
+        if isinstance(item, SSEEvent):
+            yield item
+        else:
+            state.update(item)
+
+    # Run finalize_log_streaming
+    async for item in finalize_log_streaming(state):
+        if isinstance(item, SSEEvent):
+            yield item
+        else:
+            state.update(item)
+
+    # Final state is available in state dict
+    yield state
