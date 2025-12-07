@@ -93,6 +93,7 @@ So that we can manage the complex reasoning loop of the AI.
 - Added dependencies: `langgraph`, `langchain-core` to `backend/pyproject.toml` and updated `backend/requirements.txt`.
 - Added unit tests in `backend/tests/agent/test_graph.py` verifying graph compilation and basic structure.
 - **Review (Auto-Fix)**: Added `backend/app/agent/constants.py` and registered all nodes in graph to avoid dead code.
+- **Code Review Fix (2025-12-07)**: Connected disconnected nodes (`generate_clarification`, `finalize_log`) in `graph.py` to ensure complete graph validation.
 
 ### File List
 
