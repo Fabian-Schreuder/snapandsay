@@ -1,6 +1,6 @@
 # Story 3.1: LangGraph Agent Setup
 
-Status: ready-for-dev
+Status: Ready for Review
 
 ## Story
 
@@ -31,25 +31,25 @@ So that we can manage the complex reasoning loop of the AI.
 
 ## Tasks / Subtasks
 
-- [ ] Agent Foundation
-    - [ ] Update `backend/requirements.txt`:
+- [x] Agent Foundation
+    - [x] Update `backend/requirements.txt`:
         - Add `langgraph>=0.1.5`
         - Add `langchain-core`
-    - [ ] Create `backend/app/agent/state.py` defining `AgentState` (TypedDict).
+    - [x] Create `backend/app/agent/state.py` defining `AgentState` (TypedDict).
         - Use `langchain_core.messages.BaseMessage` for the messages list.
         - Use `langgraph.graph.message.add_messages` for the reducer.
-    - [ ] Create `backend/app/agent/nodes.py` with async placeholder functions.
+    - [x] Create `backend/app/agent/nodes.py` with async placeholder functions.
         - `async def analyze_input(state: AgentState)`
         - `async def generate_clarification(state: AgentState)`
         - `async def finalize_log(state: AgentState)`
-    - [ ] Create `backend/app/agent/graph.py`.
+    - [x] Create `backend/app/agent/graph.py`.
         - Initialize `StateGraph(AgentState)`.
         - Add nodes and edges (Start -> analyze_input).
         - Compile logic in a singleton or factory function `get_agent_graph()`.
 
-- [ ] Integration Verification
-    - [ ] Create a unit test `backend/tests/agent/test_graph.py` to verify graph compilation and structure.
-    - [ ] Verify state validation works as expected.
+- [x] Integration Verification
+    - [x] Create a unit test `backend/tests/agent/test_graph.py` to verify graph compilation and structure.
+    - [x] Verify state validation works as expected.
 
 ## Dev Notes
 
@@ -87,7 +87,11 @@ So that we can manage the complex reasoning loop of the AI.
 
 ### Completion Notes List
 
-- [To be filled by Dev Agent]
+- Implemented `AgentState` in `backend/app/agent/state.py` with required fields.
+- Implemented placeholder nodes in `backend/app/agent/nodes.py`.
+- Implemented `get_agent_graph` in `backend/app/agent/graph.py` with initial Start -> analyze_input -> End flow.
+- Added dependencies: `langgraph`, `langchain-core` to `backend/pyproject.toml` and updated `backend/requirements.txt`.
+- Added unit tests in `backend/tests/agent/test_graph.py` verifying graph compilation and basic structure.
 
 ### File List
 
@@ -96,3 +100,5 @@ So that we can manage the complex reasoning loop of the AI.
 - backend/app/agent/graph.py
 - backend/app/agent/__init__.py
 - backend/tests/agent/test_graph.py
+- backend/requirements.txt
+- backend/pyproject.toml
