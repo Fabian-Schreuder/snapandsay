@@ -1,6 +1,6 @@
 # Story 3.4: Clarification Logic (Probabilistic Silence)
 
-Status: review
+Status: done
 
 ## Story
 

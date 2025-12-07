@@ -42,12 +42,12 @@ development_status:
   2-3-combined-capture-upload-service: done
   epic-2-retrospective: done
 
-  epic-3: in-progress
+  epic-3: done
   3-1-langgraph-agent-setup: done
   3-2-vision-audio-analysis-node: done
   3-3-streaming-response-implementation-sse: done
-  3-4-clarification-logic-probabilistic-silence: review
-  epic-3-retrospective: optional
+  3-4-clarification-logic-probabilistic-silence: done
+  epic-3-retrospective: done
 
   epic-4: backlog
   4-1-daily-log-list-ui: backlog
