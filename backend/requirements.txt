@@ -756,3 +756,4 @@ zstandard==0.25.0 \
     --hash=sha256:f27662e4f7dbf9f9c12391cb37b4c4c3cb90ffbd3b1fb9284dadbbb8935fa708 \
     --hash=sha256:ffef5a74088f1e09947aecf91011136665152e0b4b359c42be3373897fb39b01
     # via langsmith
+openai>=1.0.0

@@ -19,6 +19,11 @@ class Settings(BaseSettings):
 
 
 
+    # OpenAI
+    OPENAI_API_KEY: str | None = None
+    OPENAI_MODEL_NAME: str = "gpt-4o"
+    WHISPER_MODEL_NAME: str = "whisper-1"
+
     # Email
     MAIL_USERNAME: str | None = None
     MAIL_PASSWORD: str | None = None

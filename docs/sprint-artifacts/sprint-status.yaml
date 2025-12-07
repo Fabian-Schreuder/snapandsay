@@ -44,7 +44,7 @@ development_status:
 
   epic-3: in-progress
   3-1-langgraph-agent-setup: done
-  3-2-vision-audio-analysis-node: ready-for-dev
+  3-2-vision-audio-analysis-node: done
   3-3-streaming-response-implementation-sse: backlog
   3-4-clarification-logic-probabilistic-silence: backlog
   epic-3-retrospective: optional

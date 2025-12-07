@@ -1,6 +1,6 @@
 # Story 3.2: Vision & Audio Analysis Node
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -31,34 +31,34 @@ So that it can identify the food items.
 
 ## Tasks / Subtasks
 
-- [ ] Core Services Customization
-    - [ ] Update `backend/requirements.txt`:
+- [x] Core Services Customization
+    - [x] Update `backend/requirements.txt`:
         - Add `openai>=1.0.0` (for GPT-4o and Whisper API)
-    - [ ] Update `backend/app/core/config.py`:
+    - [x] Update `backend/app/core/config.py`:
         - Add `OPENAI_API_KEY` setting.
         - Add `OPENAI_MODEL_NAME` (default: "gpt-4o") and `WHISPER_MODEL_NAME` (default: "whisper-1") for configurability.
-    - [ ] Create `backend/app/schemas/analysis.py`:
+    - [x] Create `backend/app/schemas/analysis.py`:
         - Define `FoodItem` (name, quantity, calories, confidence).
         - Define `AnalysisResult` (items: List[FoodItem], synthesis_comment).
 
-- [ ] Voice Service Implementation
-    - [ ] Create `backend/app/services/voice_service.py`.
-    - [ ] Implement `transcribe_audio(file_path: str) -> str`:
+- [x] Voice Service Implementation
+    - [x] Create `backend/app/services/voice_service.py`.
+    - [x] Implement `transcribe_audio(file_path: str) -> str`:
         - Use OpenAI `client.audio.transcriptions.create` (model=settings.WHISPER_MODEL_NAME).
         - Handle temp file management if needed (or streaming upload).
 
-- [ ] LLM Service Implementation
-    - [ ] Create `backend/app/services/llm_service.py`.
-    - [ ] Implement `analyze_multimodal(image_url: str | None, transcript: str | None) -> AnalysisResult`:
+- [x] LLM Service Implementation
+    - [x] Create `backend/app/services/llm_service.py`.
+    - [x] Implement `analyze_multimodal(image_url: str | None, transcript: str | None) -> AnalysisResult`:
         - Construct User Message with Image (base64 or URL) and Transcript.
         - System Prompt: Act as a dietary expert. **Inject current time** to assist with meal type inference (e.g., 8 AM -> Breakfast).
         - Use `client.beta.chat.completions.parse` (Structured Outputs) with `response_format=AnalysisResult` and `model=settings.OPENAI_MODEL_NAME`.
         - **Error Handling**: Wrap API calls in try/catch blocks. Raise custom `LLMGenerationError` on failure (rate limits, context errors) to allow graceful degradation.
 
-- [ ] Agent Node Implementation
-    - [ ] **Update `AgentState`**:
+- [x] Agent Node Implementation
+    - [x] **Update `AgentState`**:
         - Modify `backend/app/agent/state.py` to add `audio_url: Optional[str]`. This ensures strict typing for voice inputs.
-    - [ ] Modify `backend/app/agent/nodes.py`:
+    - [x] Modify `backend/app/agent/nodes.py`:
         - Implement `analyze_input(state: AgentState) -> dict`.
         - Logic:
             - Check `state["messages"]` or `state["image_url"]`.
@@ -67,10 +67,10 @@ So that it can identify the food items.
             - Call `llm_service.analyze_multimodal` with image and transcript.
             - Return `{"nutritional_data": result.model_dump()}`.
 
-- [ ] Testing
-    - [ ] Create `backend/tests/services/test_voice_service.py` (Mock OpenAI).
-    - [ ] Create `backend/tests/services/test_llm_service.py` (Mock OpenAI).
-    - [ ] Create `backend/tests/agent/test_nodes.py` (Test `analyze_input` logic).
+- [x] Testing
+    - [x] Create `backend/tests/services/test_voice_service.py` (Mock OpenAI).
+    - [x] Create `backend/tests/services/test_llm_service.py` (Mock OpenAI).
+    - [x] Create `backend/tests/agent/test_nodes.py` (Test `analyze_input` logic).
 
 ## Dev Notes
 

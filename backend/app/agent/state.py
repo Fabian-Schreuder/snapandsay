@@ -8,4 +8,5 @@ class AgentState(TypedDict):
     """
     messages: Annotated[List[BaseMessage], add_messages]
     image_url: Optional[str]
+    audio_url: Optional[str]
     nutritional_data: Optional[Dict[str, Any]]
