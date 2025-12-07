@@ -29,7 +29,7 @@ async def test_analyze_input_with_image_and_transcript():
         # But nodes.py logic: Check state["messages"] or state["image_url"].
         # If audio_url, transcribe.
         
-        mock_analyze.assert_called_once_with(image_url="http://example.com/image.jpg", transcript=None)
+        mock_analyze.assert_called_once_with(image_url="http://example.com/image.jpg", transcript=None, context=None)
         assert result["nutritional_data"] == analysis_result.model_dump()
 
 @pytest.mark.asyncio
@@ -53,5 +53,5 @@ async def test_analyze_input_with_audio():
         result = await analyze_input(state)
         
         mock_transcribe.assert_called_once_with("audio.mp3")
-        mock_analyze.assert_called_once_with(image_url=None, transcript=transcript)
+        mock_analyze.assert_called_once_with(image_url=None, transcript=transcript, context=None)
         assert result["nutritional_data"] == analysis_result.model_dump()

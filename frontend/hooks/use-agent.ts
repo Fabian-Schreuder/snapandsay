@@ -212,7 +212,8 @@ export const useAgent = (): UseAgentReturn => {
       if (!clarification) return;
 
       try {
-        setStatus("streaming");
+        setStatus("connecting"); // Show connecting instead of generic streaming during transition
+        const logId = clarification.log_id;
         setClarification(null);
 
         // Clear clarification timeout
@@ -221,7 +222,7 @@ export const useAgent = (): UseAgentReturn => {
         }
 
         // Submit clarification to backend
-        const res = await fetch(`/api/v1/analysis/clarify/${clarification.log_id}`, {
+        const res = await fetch(`/api/v1/analysis/clarify/${logId}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -236,21 +237,29 @@ export const useAgent = (): UseAgentReturn => {
           throw new Error(`Failed to submit clarification: ${res.status}`);
         }
 
-        // Re-trigger streaming for the log
+        // Re-trigger streaming for the log to get updated analysis
         const data = await res.json();
         if (data.status === "processing") {
-          // The backend will re-process - we should start streaming again
-          // For now, we'll just mark as complete since the backend handles it
-          triggerCompletionFeedback();
-          setStatus("complete");
+           // Reuse current image/audio paths if available
+           const currentRequest = currentRequestRef.current;
+           await startStreamingInternal(
+             logId, 
+             currentRequest?.imagePath, 
+             currentRequest?.audioPath
+           );
+        } else {
+             // Fallback if status isn't processing (unexpected)
+             setStatus("complete");
+             triggerCompletionFeedback();
         }
+
       } catch (err) {
         console.error("Clarification submission error:", err);
         setError("Failed to submit clarification. Try again.");
         setStatus("error");
       }
     },
-    [clarification, triggerCompletionFeedback]
+    [clarification, triggerCompletionFeedback, startStreamingInternal]
   );
 
   const startStreamingInternal = useCallback(

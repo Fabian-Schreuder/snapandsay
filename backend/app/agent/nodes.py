@@ -21,6 +21,11 @@ from app.agent.constants import (
 )
 from app.schemas.sse import SSEEvent, AgentThought, AgentResponse, AgentError, AgentClarification
 from app.schemas.analysis import FoodItem
+
+from app.database import async_session_maker
+from app.models.log import DietaryLog
+from sqlalchemy import select
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,11 +34,28 @@ logger = logging.getLogger(__name__)
 async def analyze_input(state: AgentState) -> dict:
     """
     Analyze the input (image or text) to determine the next step.
+    fetches clarification context from DB if log_id exists.
     """
     image_url = state.get("image_url")
     audio_url = state.get("audio_url")
+    log_id = state.get("log_id")
     transcript = None
+    context = None
     
+    # Fetch context from DB if this is a re-run
+    if log_id:
+        try:
+            async with async_session_maker() as session:
+                result = await session.execute(
+                    select(DietaryLog).where(DietaryLog.id == log_id)
+                )
+                log_entry = result.scalar_one_or_none()
+                if log_entry and log_entry.description:
+                    context = log_entry.description
+                    logger.info(f"Using context from log {log_id}: {context[:50]}...")
+        except Exception as e:
+            logger.warning(f"Failed to fetch log context: {e}")
+
     if audio_url:
         logger.info(f"Transcribing audio from {audio_url}")
         try:
@@ -48,7 +70,11 @@ async def analyze_input(state: AgentState) -> dict:
         
     logger.info("Analyzing multimodal input")
     try:
-        result = await llm_service.analyze_multimodal(image_url=image_url, transcript=transcript)
+        result = await llm_service.analyze_multimodal(
+            image_url=image_url, 
+            transcript=transcript,
+            context=context
+        )
         return {
             "nutritional_data": result.model_dump(),
             "overall_confidence": result.overall_confidence,
@@ -69,7 +95,23 @@ async def analyze_input_streaming(
     """
     image_url = state.get("image_url")
     audio_url = state.get("audio_url")
+    log_id = state.get("log_id")
     transcript = None
+    context = None
+    
+    # Fetch context from DB if this is a re-run
+    if log_id:
+        try:
+            async with async_session_maker() as session:
+                result = await session.execute(
+                    select(DietaryLog).where(DietaryLog.id == log_id)
+                )
+                log_entry = result.scalar_one_or_none()
+                if log_entry and log_entry.description:
+                    context = log_entry.description
+                    logger.info(f"Using context from log {log_id}: {context[:50]}...")
+        except Exception as e:
+            logger.warning(f"Failed to fetch log context: {e}")
 
     # Emit start thought
     yield SSEEvent(
@@ -111,31 +153,30 @@ async def analyze_input_streaming(
 
     # Token callback to emit thought events during LLM generation
     token_count = 0
-
-    async def on_token(token: str) -> None:
+    
+    async def on_token(token: str):
         nonlocal token_count
         token_count += 1
-        # Emit progress thoughts periodically (every ~10 tokens)
-        if token_count % 10 == 0:
-            # Note: We yield from the main generator, not here
-            pass
+        # Emit a thought event every 20 tokens to show liveness without flooding
+        if token_count % 20 == 0:
+            yield SSEEvent(
+                type=EVENT_THOUGHT,
+                payload=AgentThought(
+                    step=STEP_ANALYZING,
+                    message=MSG_ANALYZING_TOKENS,
+                    timestamp=datetime.utcnow(),
+                ),
+            )
 
     try:
-        # Emit tokens thought
-        yield SSEEvent(
-            type=EVENT_THOUGHT,
-            payload=AgentThought(
-                step=STEP_ANALYZING,
-                message=MSG_ANALYZING_TOKENS,
-                timestamp=datetime.utcnow(),
-            ),
-        )
-
         result = await llm_service.analyze_multimodal_streaming(
-            image_url=image_url, transcript=transcript, on_token=on_token
+            image_url=image_url, 
+            transcript=transcript,
+            context=context,
+            on_token=on_token
         )
-
-        # Emit completion thought
+        
+        # Emit complete thought
         yield SSEEvent(
             type=EVENT_THOUGHT,
             payload=AgentThought(
@@ -145,19 +186,17 @@ async def analyze_input_streaming(
             ),
         )
 
-        # Yield the state update with overall confidence
         yield {
             "nutritional_data": result.model_dump(),
             "overall_confidence": result.overall_confidence,
         }
-
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
+        logger.error(f"Analysis streaming failed: {e}")
         yield SSEEvent(
             type=EVENT_ERROR,
             payload=AgentError(
                 code="ANALYSIS_ERROR",
-                message="I'm having trouble analyzing your meal. Please try again.",
+                message="I encountered an error while analyzing your meal.",
             ),
         )
 

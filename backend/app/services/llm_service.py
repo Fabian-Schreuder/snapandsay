@@ -33,7 +33,7 @@ def _get_client() -> AsyncOpenAI:
 
 
 def _build_messages(
-    image_url: str | None, transcript: str | None
+    image_url: str | None, transcript: str | None, context: str | None = None
 ) -> list[dict]:
     """Build the message list for the LLM request."""
     current_time = datetime.now().strftime("%H:%M")
@@ -47,6 +47,9 @@ def _build_messages(
     messages = [{"role": "system", "content": system_prompt}]
 
     user_content = []
+    if context:
+        user_content.append({"type": "text", "text": f"Context/Clarification: {context}"})
+
     if transcript:
         user_content.append({"type": "text", "text": f"Audio Transcript: {transcript}"})
 
@@ -58,7 +61,9 @@ def _build_messages(
 
 
 async def analyze_multimodal(
-    image_url: str | None = None, transcript: str | None = None
+    image_url: str | None = None,
+    transcript: str | None = None,
+    context: str | None = None,
 ) -> AnalysisResult:
     """
     Analyze image and/or transcript using GPT-4o to extract dietary data.
@@ -66,6 +71,7 @@ async def analyze_multimodal(
     Args:
         image_url: URL of the image to analyze (optional).
         transcript: Audio transcript to analyze (optional).
+        context: Additional textual context (e.g. clarification response) (optional).
 
     Returns:
         AnalysisResult with identified food items and synthesis comment.
@@ -77,7 +83,7 @@ async def analyze_multimodal(
     if not image_url and not transcript:
         raise ValueError("No input provided (image_url or transcript required)")
 
-    messages = _build_messages(image_url, transcript)
+    messages = _build_messages(image_url, transcript, context)
 
     try:
         client = _get_client()
@@ -95,6 +101,7 @@ async def analyze_multimodal(
 async def analyze_multimodal_streaming(
     image_url: str | None = None,
     transcript: str | None = None,
+    context: str | None = None,
     on_token: Callable[[str], Awaitable[None]] | None = None,
 ) -> AnalysisResult:
     """
@@ -106,6 +113,7 @@ async def analyze_multimodal_streaming(
     Args:
         image_url: URL of the image to analyze (optional).
         transcript: Audio transcript to analyze (optional).
+        context: Additional textual context (e.g. clarification response) (optional).
         on_token: Optional async callback invoked with each text chunk.
 
     Returns:
@@ -118,12 +126,12 @@ async def analyze_multimodal_streaming(
     if not image_url and not transcript:
         raise ValueError("No input provided (image_url or transcript required)")
 
-    messages = _build_messages(image_url, transcript)
+    messages = _build_messages(image_url, transcript, context)
     accumulated_content = ""
 
     try:
         client = _get_client()
-        
+
         # Use streaming mode
         stream = await client.chat.completions.create(
             model=settings.OPENAI_MODEL_NAME,
@@ -136,7 +144,7 @@ async def analyze_multimodal_streaming(
             if chunk.choices and chunk.choices[0].delta.content:
                 content = chunk.choices[0].delta.content
                 accumulated_content += content
-                
+
                 # Call the token callback if provided
                 if on_token:
                     await on_token(content)
@@ -147,7 +155,9 @@ async def analyze_multimodal_streaming(
             return AnalysisResult.model_validate(parsed_data)
         except (json.JSONDecodeError, Exception) as parse_error:
             logger.error(f"Failed to parse streaming response: {parse_error}")
-            raise LLMGenerationError(f"Failed to parse LLM response: {str(parse_error)}")
+            raise LLMGenerationError(
+                f"Failed to parse LLM response: {str(parse_error)}"
+            )
 
     except Exception as e:
         logger.error(f"LLM streaming generation failed: {e}")
