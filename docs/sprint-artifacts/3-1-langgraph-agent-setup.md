@@ -1,6 +1,6 @@
 # Story 3.1: LangGraph Agent Setup
 
-Status: Ready for Review
+Status: Done
 
 ## Story
 
@@ -92,6 +92,7 @@ So that we can manage the complex reasoning loop of the AI.
 - Implemented `get_agent_graph` in `backend/app/agent/graph.py` with initial Start -> analyze_input -> End flow.
 - Added dependencies: `langgraph`, `langchain-core` to `backend/pyproject.toml` and updated `backend/requirements.txt`.
 - Added unit tests in `backend/tests/agent/test_graph.py` verifying graph compilation and basic structure.
+- **Review (Auto-Fix)**: Added `backend/app/agent/constants.py` and registered all nodes in graph to avoid dead code.
 
 ### File List
 
@@ -102,3 +103,4 @@ So that we can manage the complex reasoning loop of the AI.
 - backend/tests/agent/test_graph.py
 - backend/requirements.txt
 - backend/pyproject.toml
+- backend/app/agent/constants.py

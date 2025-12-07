@@ -1,5 +1,6 @@
 import pytest
 from app.agent.graph import get_agent_graph
+from app.agent.constants import ANALYZE_INPUT, GENERATE_CLARIFICATION, FINALIZE_LOG
 from langgraph.graph.state import CompiledStateGraph
 
 @pytest.mark.asyncio
@@ -22,4 +23,6 @@ async def test_graph_structure():
     # For a simple check, we can verify it runs without error on a dummy input.
     
     # We can inspect the graph nodes if exposed, otherwise simple invocation test
-    assert "analyze_input" in app.nodes
+    assert ANALYZE_INPUT in app.nodes
+    assert GENERATE_CLARIFICATION in app.nodes
+    assert FINALIZE_LOG in app.nodes
