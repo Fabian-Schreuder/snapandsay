@@ -3,12 +3,13 @@ import json
 import logging
 from datetime import datetime
 from functools import lru_cache
-from typing import AsyncGenerator, Callable, Awaitable
+from typing import AsyncGenerator, Callable, Awaitable, List
 
 from openai import AsyncOpenAI
+from pydantic import BaseModel
 
 from app.config import settings
-from app.schemas.analysis import AnalysisResult
+from app.schemas.analysis import AnalysisResult, FoodItem
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,12 @@ class LLMGenerationError(Exception):
     """Custom exception for LLM generation failures."""
 
     pass
+
+
+class ClarificationQuestion(BaseModel):
+    """Schema for generated clarification question."""
+    question: str
+    options: List[str]
 
 
 @lru_cache(maxsize=1)
@@ -145,4 +152,74 @@ async def analyze_multimodal_streaming(
     except Exception as e:
         logger.error(f"LLM streaming generation failed: {e}")
         raise LLMGenerationError(f"Failed to analyze input: {str(e)}")
+
+
+async def generate_clarification_question(
+    low_confidence_items: List[FoodItem],
+) -> ClarificationQuestion:
+    """
+    Generate a clarification question for low-confidence food items.
+    
+    Uses GPT-4o to create a simple, senior-friendly question with 2-3
+    suggested options based on the uncertain food items.
+    
+    Args:
+        low_confidence_items: List of FoodItem with low confidence scores.
+        
+    Returns:
+        ClarificationQuestion with question text and options.
+        
+    Raises:
+        LLMGenerationError: If the LLM call fails.
+    """
+    if not low_confidence_items:
+        return ClarificationQuestion(
+            question="I'm not sure what you ate. Can you describe it?",
+            options=["Breakfast", "Lunch", "Dinner"],
+        )
+    
+    # Build item descriptions for the prompt
+    item_descriptions = [
+        f"- {item.name} ({item.quantity}, confidence: {item.confidence:.0%})"
+        for item in low_confidence_items
+    ]
+    items_text = "\n".join(item_descriptions)
+    
+    system_prompt = (
+        "You are a friendly dietary assistant helping seniors log their meals. "
+        "Generate a single, simple clarification question about uncertain food items. "
+        "Requirements:\n"
+        "- Use 6th grade reading level\n"
+        "- Keep the question under 15 words\n"
+        "- Provide 2-3 common answer options\n"
+        "- Be friendly and patient\n"
+        "- Focus on the most uncertain item"
+    )
+    
+    user_prompt = (
+        f"The following food items have low confidence scores:\n{items_text}\n\n"
+        "Generate a simple clarification question to help identify them better."
+    )
+    
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt},
+    ]
+    
+    try:
+        client = _get_client()
+        completion = await client.beta.chat.completions.parse(
+            model=settings.OPENAI_MODEL_NAME,
+            messages=messages,
+            response_format=ClarificationQuestion,
+        )
+        return completion.choices[0].message.parsed
+    except Exception as e:
+        logger.error(f"Clarification generation failed: {e}")
+        # Fallback to generic question
+        return ClarificationQuestion(
+            question="Can you tell me more about what you ate?",
+            options=["Main dish", "Side dish", "Drink"],
+        )
+
 

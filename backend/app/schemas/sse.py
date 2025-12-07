@@ -1,6 +1,7 @@
 """SSE event schemas for agent streaming responses."""
 from datetime import datetime
-from typing import Literal, Any
+from typing import Literal, Any, List
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -32,12 +33,27 @@ class AgentError(BaseModel):
     message: str = Field(..., description="Human-friendly error message")
 
 
+class AgentClarification(BaseModel):
+    """Schema for agent clarification question events."""
+
+    question: str = Field(..., description="Clarification question text")
+    options: List[str] = Field(
+        default_factory=list,
+        description="Suggested answer options for quick selection",
+    )
+    context: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Low-confidence item details for context",
+    )
+    log_id: UUID = Field(..., description="Log ID for clarification response endpoint")
+
+
 class SSEEvent(BaseModel):
     """Base SSE event wrapper with type discrimination."""
 
-    type: Literal["agent.thought", "agent.response", "agent.error"] = Field(
-        ..., description="Event type for frontend routing"
-    )
-    payload: AgentThought | AgentResponse | AgentError = Field(
+    type: Literal[
+        "agent.thought", "agent.response", "agent.error", "agent.clarification"
+    ] = Field(..., description="Event type for frontend routing")
+    payload: AgentThought | AgentResponse | AgentError | AgentClarification = Field(
         ..., description="Event payload data"
     )

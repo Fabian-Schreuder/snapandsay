@@ -3,7 +3,11 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 
 // SSE Event Types
-type AgentEventType = "agent.thought" | "agent.response" | "agent.error";
+type AgentEventType =
+  | "agent.thought"
+  | "agent.response"
+  | "agent.error"
+  | "agent.clarification";
 
 interface AgentThought {
   step: string;
@@ -22,19 +26,35 @@ interface AgentError {
   message: string;
 }
 
-interface SSEEvent {
-  type: AgentEventType;
-  payload: AgentThought | AgentResponse | AgentError;
+interface AgentClarification {
+  question: string;
+  options: string[];
+  context: Record<string, unknown>;
+  log_id: string;
 }
 
-export type AgentStatus = "idle" | "connecting" | "streaming" | "complete" | "error";
+interface SSEEvent {
+  type: AgentEventType;
+  payload: AgentThought | AgentResponse | AgentError | AgentClarification;
+}
+
+export type AgentStatus =
+  | "idle"
+  | "connecting"
+  | "streaming"
+  | "clarifying"
+  | "complete"
+  | "error";
 
 export interface UseAgentReturn {
   status: AgentStatus;
   thoughts: string[];
   result: AgentResponse | null;
   error: string | null;
+  clarification: AgentClarification | null;
   startStreaming: (logId: string, imagePath?: string, audioPath?: string) => void;
+  submitClarificationResponse: (response: string, isVoice?: boolean) => Promise<void>;
+  skipClarification: () => void;
   reset: () => void;
 }
 
@@ -42,18 +62,27 @@ export interface UseAgentReturn {
 const DING_SOUND_URL = "/sounds/ding.mp3";
 const MAX_RETRIES = 3;
 const RETRY_DELAYS = [1000, 2000, 4000]; // Exponential backoff
+const CLARIFICATION_TIMEOUT_MS = 30000; // 30 seconds
 
 export const useAgent = (): UseAgentReturn => {
   const [status, setStatus] = useState<AgentStatus>("idle");
   const [thoughts, setThoughts] = useState<string[]>([]);
   const [result, setResult] = useState<AgentResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [clarification, setClarification] = useState<AgentClarification | null>(
+    null
+  );
 
   const eventSourceRef = useRef<EventSource | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const retryCountRef = useRef(0);
   const heartbeatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const currentRequestRef = useRef<{logId: string; imagePath?: string; audioPath?: string} | null>(null);
+  const clarificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const currentRequestRef = useRef<{
+    logId: string;
+    imagePath?: string;
+    audioPath?: string;
+  } | null>(null);
 
   // Preload the ding sound
   useEffect(() => {
@@ -70,6 +99,9 @@ export const useAgent = (): UseAgentReturn => {
       if (heartbeatTimeoutRef.current) {
         clearTimeout(heartbeatTimeoutRef.current);
       }
+      if (clarificationTimeoutRef.current) {
+        clearTimeout(clarificationTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -80,7 +112,10 @@ export const useAgent = (): UseAgentReturn => {
       if (status === "connecting" && currentRequestRef.current) {
         const { logId, imagePath, audioPath } = currentRequestRef.current;
         // Reset and retry after brief delay
-        setTimeout(() => startStreamingInternal(logId, imagePath, audioPath), 1000);
+        setTimeout(
+          () => startStreamingInternal(logId, imagePath, audioPath),
+          1000
+        );
       }
     };
 
@@ -108,6 +143,10 @@ export const useAgent = (): UseAgentReturn => {
       clearTimeout(heartbeatTimeoutRef.current);
       heartbeatTimeoutRef.current = null;
     }
+    if (clarificationTimeoutRef.current) {
+      clearTimeout(clarificationTimeoutRef.current);
+      clarificationTimeoutRef.current = null;
+    }
   }, []);
 
   const reset = useCallback(() => {
@@ -116,6 +155,7 @@ export const useAgent = (): UseAgentReturn => {
     setThoughts([]);
     setResult(null);
     setError(null);
+    setClarification(null);
     retryCountRef.current = 0;
     currentRequestRef.current = null;
   }, [cleanup]);
@@ -141,15 +181,77 @@ export const useAgent = (): UseAgentReturn => {
     // Expect heartbeat every 15s + some buffer
     heartbeatTimeoutRef.current = setTimeout(() => {
       // Heartbeat missed - connection may be stale
-      if (status === "streaming" && currentRequestRef.current && retryCountRef.current < MAX_RETRIES) {
+      if (
+        status === "streaming" &&
+        currentRequestRef.current &&
+        retryCountRef.current < MAX_RETRIES
+      ) {
         cleanup();
         const { logId, imagePath, audioPath } = currentRequestRef.current;
         retryCountRef.current++;
         const delay = RETRY_DELAYS[retryCountRef.current - 1] ?? 4000;
-        setTimeout(() => startStreamingInternal(logId, imagePath, audioPath), delay);
+        setTimeout(
+          () => startStreamingInternal(logId, imagePath, audioPath),
+          delay
+        );
       }
     }, 20000); // 15s heartbeat + 5s buffer
   }, [status, cleanup]);
+
+  const skipClarification = useCallback(() => {
+    if (clarification && currentRequestRef.current) {
+      // Clear clarification state and continue with analysis
+      setClarification(null);
+      setStatus("streaming");
+      // The backend will handle max attempts and proceed to finalize
+    }
+  }, [clarification]);
+
+  const submitClarificationResponse = useCallback(
+    async (response: string, isVoice = false) => {
+      if (!clarification) return;
+
+      try {
+        setStatus("streaming");
+        setClarification(null);
+
+        // Clear clarification timeout
+        if (clarificationTimeoutRef.current) {
+          clearTimeout(clarificationTimeoutRef.current);
+        }
+
+        // Submit clarification to backend
+        const res = await fetch(`/api/v1/analysis/clarify/${clarification.log_id}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            response,
+            is_voice: isVoice,
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error(`Failed to submit clarification: ${res.status}`);
+        }
+
+        // Re-trigger streaming for the log
+        const data = await res.json();
+        if (data.status === "processing") {
+          // The backend will re-process - we should start streaming again
+          // For now, we'll just mark as complete since the backend handles it
+          triggerCompletionFeedback();
+          setStatus("complete");
+        }
+      } catch (err) {
+        console.error("Clarification submission error:", err);
+        setError("Failed to submit clarification. Try again.");
+        setStatus("error");
+      }
+    },
+    [clarification, triggerCompletionFeedback]
+  );
 
   const startStreamingInternal = useCallback(
     async (logId: string, imagePath?: string, audioPath?: string) => {
@@ -232,6 +334,19 @@ export const useAgent = (): UseAgentReturn => {
                   setStatus("error");
                   cleanup();
                   return;
+                } else if (event.type === "agent.clarification") {
+                  const clarify = event.payload as AgentClarification;
+                  setClarification(clarify);
+                  setStatus("clarifying");
+
+                  // Start clarification timeout
+                  clarificationTimeoutRef.current = setTimeout(() => {
+                    // Auto-skip after timeout
+                    skipClarification();
+                  }, CLARIFICATION_TIMEOUT_MS);
+
+                  cleanup();
+                  return;
                 }
               } catch (parseError) {
                 console.error("Failed to parse SSE event:", parseError);
@@ -253,7 +368,10 @@ export const useAgent = (): UseAgentReturn => {
           retryCountRef.current++;
           const delay = RETRY_DELAYS[retryCountRef.current - 1] ?? 4000;
           setError("Reconnecting...");
-          setTimeout(() => startStreamingInternal(logId, imagePath, audioPath), delay);
+          setTimeout(
+            () => startStreamingInternal(logId, imagePath, audioPath),
+            delay
+          );
         } else {
           setError(err instanceof Error ? err.message : "Connection failed");
           setStatus("error");
@@ -261,7 +379,7 @@ export const useAgent = (): UseAgentReturn => {
         }
       }
     },
-    [cleanup, resetHeartbeatTimer, triggerCompletionFeedback]
+    [cleanup, resetHeartbeatTimer, triggerCompletionFeedback, skipClarification]
   );
 
   const startStreaming = useCallback(
@@ -271,6 +389,7 @@ export const useAgent = (): UseAgentReturn => {
       retryCountRef.current = 0;
       setThoughts([]);
       setResult(null);
+      setClarification(null);
       startStreamingInternal(logId, imagePath, audioPath);
     },
     [startStreamingInternal]
@@ -281,7 +400,10 @@ export const useAgent = (): UseAgentReturn => {
     thoughts,
     result,
     error,
+    clarification,
     startStreaming,
+    submitClarificationResponse,
+    skipClarification,
     reset,
   };
 };

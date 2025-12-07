@@ -1,5 +1,6 @@
 from typing import AsyncGenerator
 from datetime import datetime
+from uuid import UUID
 
 from app.agent.state import AgentState
 from app.services import voice_service, llm_service
@@ -15,8 +16,11 @@ from app.agent.constants import (
     EVENT_THOUGHT,
     EVENT_RESPONSE,
     EVENT_ERROR,
+    EVENT_CLARIFICATION,
+    CONFIDENCE_THRESHOLD,
 )
-from app.schemas.sse import SSEEvent, AgentThought, AgentResponse, AgentError
+from app.schemas.sse import SSEEvent, AgentThought, AgentResponse, AgentError, AgentClarification
+from app.schemas.analysis import FoodItem
 import logging
 
 logger = logging.getLogger(__name__)
@@ -45,7 +49,10 @@ async def analyze_input(state: AgentState) -> dict:
     logger.info("Analyzing multimodal input")
     try:
         result = await llm_service.analyze_multimodal(image_url=image_url, transcript=transcript)
-        return {"nutritional_data": result.model_dump()}
+        return {
+            "nutritional_data": result.model_dump(),
+            "overall_confidence": result.overall_confidence,
+        }
     except Exception as e:
         logger.error(f"Analysis failed: {e}")
         raise e
@@ -58,7 +65,7 @@ async def analyze_input_streaming(
     Analyze input with streaming SSE events.
 
     Yields SSEEvent objects during processing, and finally yields
-    the state update dict with nutritional_data.
+    the state update dict with nutritional_data and overall_confidence.
     """
     image_url = state.get("image_url")
     audio_url = state.get("audio_url")
@@ -138,8 +145,11 @@ async def analyze_input_streaming(
             ),
         )
 
-        # Yield the state update
-        yield {"nutritional_data": result.model_dump()}
+        # Yield the state update with overall confidence
+        yield {
+            "nutritional_data": result.model_dump(),
+            "overall_confidence": result.overall_confidence,
+        }
 
     except Exception as e:
         logger.error(f"Analysis failed: {e}")
@@ -154,10 +164,26 @@ async def analyze_input_streaming(
 
 async def generate_clarification(state: AgentState) -> dict:
     """
-    Generate a clarification question if the input is ambiguous.
-    This is a placeholder implementation.
+    Generate a clarification question for low-confidence items.
     """
-    return {}
+    nutritional_data = state.get("nutritional_data", {})
+    items = nutritional_data.get("items", [])
+    clarification_count = state.get("clarification_count", 0)
+    
+    # Find low-confidence items
+    low_confidence_items = [
+        FoodItem(**item) for item in items 
+        if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD
+    ]
+    
+    if low_confidence_items:
+        question = await llm_service.generate_clarification_question(low_confidence_items)
+        return {
+            "needs_clarification": True,
+            "clarification_count": clarification_count + 1,
+        }
+    
+    return {"needs_clarification": False}
 
 
 async def generate_clarification_streaming(
@@ -172,16 +198,68 @@ async def generate_clarification_streaming(
             timestamp=datetime.utcnow(),
         ),
     )
-    # Placeholder - actual clarification logic would go here
-    yield {}
+    
+    nutritional_data = state.get("nutritional_data", {})
+    items = nutritional_data.get("items", [])
+    clarification_count = state.get("clarification_count", 0)
+    log_id = state.get("log_id")
+    
+    # Find low-confidence items
+    low_confidence_items = [
+        FoodItem(**item) for item in items 
+        if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD
+    ]
+    
+    if low_confidence_items and log_id:
+        try:
+            question = await llm_service.generate_clarification_question(low_confidence_items)
+            
+            # Build context with low-confidence items for the clarification payload
+            context = {
+                "items": [
+                    {"name": item.name, "confidence": item.confidence}
+                    for item in low_confidence_items
+                ]
+            }
+            
+            # Emit clarification event
+            yield SSEEvent(
+                type=EVENT_CLARIFICATION,
+                payload=AgentClarification(
+                    question=question.question,
+                    options=question.options,
+                    context=context,
+                    log_id=log_id,
+                ),
+            )
+            
+            yield {
+                "needs_clarification": True,
+                "clarification_count": clarification_count + 1,
+            }
+        except Exception as e:
+            logger.error(f"Clarification generation failed: {e}")
+            yield {"needs_clarification": False}
+    else:
+        yield {"needs_clarification": False}
 
 
 async def finalize_log(state: AgentState) -> dict:
     """
     Finalize the log entry after sufficient information has been gathered.
-    This is a placeholder implementation.
+    Updates the DietaryLog record with nutritional data and final status.
     """
-    return {}
+    needs_review = state.get("needs_review", False)
+    clarification_count = state.get("clarification_count", 0)
+    overall_confidence = state.get("overall_confidence", 0.0)
+    
+    # Mark for review if confidence is still low after max attempts
+    if overall_confidence < CONFIDENCE_THRESHOLD and clarification_count >= 2:
+        needs_review = True
+    
+    return {
+        "needs_review": needs_review,
+    }
 
 
 async def finalize_log_streaming(
@@ -196,6 +274,30 @@ async def finalize_log_streaming(
             timestamp=datetime.utcnow(),
         ),
     )
-    # Placeholder - actual finalization logic would go here
-    yield {}
+    
+    log_id = state.get("log_id")
+    nutritional_data = state.get("nutritional_data", {})
+    needs_review = state.get("needs_review", False)
+    clarification_count = state.get("clarification_count", 0)
+    overall_confidence = state.get("overall_confidence", 0.0)
+    
+    # Mark for review if confidence is still low after max attempts
+    if overall_confidence < CONFIDENCE_THRESHOLD and clarification_count >= 2:
+        needs_review = True
+    
+    # Emit final response event
+    if log_id:
+        yield SSEEvent(
+            type=EVENT_RESPONSE,
+            payload=AgentResponse(
+                log_id=str(log_id),
+                nutritional_data=nutritional_data,
+                status="logged" if not needs_review else "needs_review",
+            ),
+        )
+    
+    yield {
+        "needs_review": needs_review,
+    }
+
 
