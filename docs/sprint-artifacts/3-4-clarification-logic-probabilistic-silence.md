@@ -1,6 +1,6 @@
 # Story 3.4: Clarification Logic (Probabilistic Silence)
 
-Status: done
+Status: review
 
 ## Story
 
@@ -67,7 +67,7 @@ So that I'm not annoyed by obvious questions and can log meals faster.
     - [x] Create LLM prompt to generate contextual clarification questions with suggested options based on low-confidence items
     - [x] Update `backend/app/agent/constants.py` - Add `EVENT_CLARIFICATION = "agent.clarification"`, `CLARIFICATION_TIMEOUT_SECONDS = 30` and related constants
     - [x] Update `backend/app/schemas/sse.py` - Add `AgentClarification` schema with `question: str`, `options: List[str]`, `context: dict` fields
-    - [ ] Update `DietaryLog.status` to `"clarification"` when entering clarification state
+    - [x] Update `DietaryLog.status` to `"clarification"` when entering clarification state
 
 - [x] **Task 5: Implement Clarification Response Handling** (AC: #4, #5)
     - [x] Create `POST /api/v1/analysis/clarify/{log_id}` endpoint in `backend/app/api/v1/endpoints/analysis.py`
@@ -85,7 +85,7 @@ So that I'm not annoyed by obvious questions and can log meals faster.
 
 - [x] **Task 7: Implement Finalize Log Persistence** (AC: #7)
     - [x] Modify `backend/app/agent/nodes.py` - Implement real logic in `finalize_log()` and `finalize_log_streaming()`
-    - [ ] Update `DietaryLog` record in database with nutritional data and `status: "logged"`
+    - [x] Update `DietaryLog` record in database with nutritional data and `status: "logged"`
     - [x] Handle `needs_review` flag persistence
 
 - [x] **Task 8: Update Frontend for Clarification Flow** (AC: #3, #4)
@@ -101,7 +101,7 @@ So that I'm not annoyed by obvious questions and can log meals faster.
 - [x] **Task 9: Testing**
     - [x] Create `backend/tests/agent/test_routing.py` - 5+ tests for routing logic (high/low confidence, max attempts)
     - [x] Update `backend/tests/agent/test_graph.py` - Tests for conditional edge behavior
-    - [ ] Update `backend/tests/agent/test_nodes.py` - Tests for clarification and finalize nodes
+    - [x] Update `backend/tests/agent/test_nodes.py` - Tests for clarification and finalize nodes (11 tests added)
     - [ ] Create `frontend/__tests__/components/ClarificationPrompt.test.tsx` - UI and accessibility tests
     - [ ] Update `frontend/__tests__/hooks/use-agent.test.ts` - Clarification event handling tests
 
@@ -267,12 +267,19 @@ Gemini 2.5 (via Antigravity agent)
 - **Task 1**: Extended `AgentState` with `log_id`, `overall_confidence`, `clarification_count`, `needs_clarification`, `needs_review` fields. Added `overall_confidence` property to `AnalysisResult`. Added `needs_review` column to `DietaryLog` model and created migration.
 - **Task 2**: Created `routing.py` with `route_by_confidence()` function implementing probabilistic silence pattern (threshold 0.85, max 2 attempts).
 - **Task 3**: Replaced sequential edges with `add_conditional_edges()` in agent graph. Updated `run_streaming_agent()` for conditional routing.
-- **Task 4**: Implemented `generate_clarification_streaming()` with LLM-based question generation via `generate_clarification_question()`. Added `AgentClarification` schema and `EVENT_CLARIFICATION` constant.
-- **Task 5**: Created `POST /api/v1/analysis/clarify/{log_id}` endpoint with `ClarifyRequest` schema.
+- **Task 4**: Implemented `generate_clarification_streaming()` with LLM-based question generation via `generate_clarification_question()`. Added `AgentClarification` schema and `EVENT_CLARIFICATION` constant. **[Code Review Fix]**: Added DB status update to `"clarification"`.
+- **Task 5**: Created `POST /api/v1/analysis/clarify/{log_id}` endpoint with `ClarifyRequest` schema. Note: Full re-analysis loop is triggered via frontend `use-agent.ts` calling streaming endpoint again.
 - **Task 6**: Max clarification guard implemented in `route_by_confidence()`.
-- **Task 7**: Implemented `finalize_log_streaming()` with `needs_review` flagging logic.
-- **Task 8**: Updated `use-agent.ts` with clarification event handling, timeout (30s), and `submitClarificationResponse`/`skipClarification` functions. Created `ClarificationPrompt.tsx` component with senior-friendly UI.
-- **Task 9**: Created 10 routing tests and 6 graph tests, all passing.
+- **Task 7**: Implemented `finalize_log_streaming()` with `needs_review` flagging logic. **[Code Review Fix]**: Added full DB persistence - updates status to `"logged"`, persists calories, synthesis comment as description.
+- **Task 8**: Updated `use-agent.ts` with clarification event handling, timeout (30s), and `submitClarificationResponse`/`skipClarification` functions. Created `ClarificationPrompt.tsx` component with senior-friendly UI. **Deferred**: `snap/page.tsx` integration.
+- **Task 9**: Created 10 routing tests, 6 graph tests, and **[Code Review Fix]** 11 node tests (clarification + finalize). **Deferred**: Frontend tests for ClarificationPrompt and use-agent clarification handling.
+
+### Deferred Items (For Future Stories)
+
+- `frontend/app/(dashboard)/snap/page.tsx` - Clarification UI integration (will be addressed in Epic 4 or as tech debt)
+- `frontend/__tests__/components/ClarificationPrompt.test.tsx` - Frontend component tests
+- `frontend/__tests__/hooks/use-agent.test.ts` - Clarification event handling tests
+- Voice response in ClarificationPrompt is placeholder - needs actual transcription integration
 
 ### File List
 
@@ -284,7 +291,7 @@ Gemini 2.5 (via Antigravity agent)
 **Backend - Modified Files**
 - `backend/app/agent/state.py`
 - `backend/app/agent/graph.py`
-- `backend/app/agent/nodes.py`
+- `backend/app/agent/nodes.py` **[Code Review Fix]**: Added DB persistence
 - `backend/app/agent/constants.py`
 - `backend/app/schemas/analysis.py`
 - `backend/app/schemas/sse.py`
@@ -292,6 +299,7 @@ Gemini 2.5 (via Antigravity agent)
 - `backend/app/api/v1/endpoints/analysis.py`
 - `backend/app/services/llm_service.py`
 - `backend/tests/agent/test_graph.py`
+- `backend/tests/agent/test_nodes.py` **[Code Review Fix]**: Added 11 tests
 
 **Frontend - New Files**
 - `frontend/components/features/analysis/ClarificationPrompt.tsx`
@@ -302,3 +310,5 @@ Gemini 2.5 (via Antigravity agent)
 ### Change Log
 
 - 2025-12-07: Implemented Story 3.4 Clarification Logic (Probabilistic Silence) - confidence-based routing, clarification generation, frontend UI
+- 2025-12-07: **[Code Review Fixes]** Added DB persistence in `finalize_log_streaming()`, added status update to "clarification" in `generate_clarification_streaming()`, added 11 tests for clarification/finalize nodes
+

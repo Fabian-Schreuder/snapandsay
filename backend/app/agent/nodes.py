@@ -253,6 +253,17 @@ async def generate_clarification_streaming(
         try:
             question = await llm_service.generate_clarification_question(low_confidence_items)
             
+            # Update log status to clarification in database
+            async with async_session_maker() as session:
+                result = await session.execute(
+                    select(DietaryLog).where(DietaryLog.id == log_id)
+                )
+                log_entry = result.scalar_one_or_none()
+                if log_entry:
+                    log_entry.status = "clarification"
+                    await session.commit()
+                    logger.info(f"Updated log {log_id} status to 'clarification'")
+            
             # Build context with low-confidence items for the clarification payload
             context = {
                 "items": [
@@ -304,7 +315,7 @@ async def finalize_log(state: AgentState) -> dict:
 async def finalize_log_streaming(
     state: AgentState,
 ) -> AsyncGenerator[SSEEvent | dict, None]:
-    """Finalize log with streaming events."""
+    """Finalize log with streaming events and DB persistence."""
     yield SSEEvent(
         type=EVENT_THOUGHT,
         payload=AgentThought(
@@ -323,6 +334,37 @@ async def finalize_log_streaming(
     # Mark for review if confidence is still low after max attempts
     if overall_confidence < CONFIDENCE_THRESHOLD and clarification_count >= 2:
         needs_review = True
+    
+    # Persist to database
+    if log_id:
+        try:
+            async with async_session_maker() as session:
+                result = await session.execute(
+                    select(DietaryLog).where(DietaryLog.id == log_id)
+                )
+                log_entry = result.scalar_one_or_none()
+                
+                if log_entry:
+                    # Update status
+                    log_entry.status = "logged"
+                    log_entry.needs_review = needs_review
+                    
+                    # Persist nutritional data
+                    items = nutritional_data.get("items", [])
+                    if items:
+                        # Calculate totals from items
+                        total_calories = sum(item.get("calories", 0) or 0 for item in items)
+                        log_entry.calories = total_calories if total_calories > 0 else None
+                        
+                        # Store synthesis comment as description if not already set
+                        synthesis = nutritional_data.get("synthesis_comment", "")
+                        if synthesis and not log_entry.description:
+                            log_entry.description = synthesis
+                    
+                    await session.commit()
+                    logger.info(f"Finalized log {log_id} with status='logged', needs_review={needs_review}")
+        except Exception as e:
+            logger.error(f"Failed to persist finalized log: {e}")
     
     # Emit final response event
     if log_id:
