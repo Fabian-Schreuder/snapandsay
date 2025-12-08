@@ -1,6 +1,6 @@
 # Story 4.1: Daily Log List UI
 
-Status: Ready for Review
+Status: done
 
 ## Story
 
@@ -237,8 +237,11 @@ const getImageUrl = (path: string) =>
 - Built FoodEntryCard, skeleton, empty state, error state, and daily summary components
 - Added QueryProvider to app layout for React Query support
 - Added query invalidation on snap page after successful log upload
-- All backend tests pass (54 tests), frontend component tests pass (9 tests)
+- All backend tests pass (54 tests), frontend component tests pass (10 tests)
 - Pre-existing TypeScript errors in unrelated test files don't affect this story
+- [Code Review] Fixed image URL generation in FoodEntryCard (added bucket name)
+- [Code Review] Improved DailySummary logic for 0-calorie logs
+- [Code Review] Added unit tests for DailySummary component
 
 ### File List
 

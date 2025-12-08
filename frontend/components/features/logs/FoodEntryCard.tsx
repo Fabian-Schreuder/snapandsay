@@ -14,7 +14,8 @@ interface FoodEntryCardProps {
  */
 function getImageUrl(path: string): string {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  return `${supabaseUrl}/storage/v1/object/public/${path}`;
+  // Use raw_uploads bucket for images
+  return `${supabaseUrl}/storage/v1/object/public/raw_uploads/${path}`;
 }
 
 /**

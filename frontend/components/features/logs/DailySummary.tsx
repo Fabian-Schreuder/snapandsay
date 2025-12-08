@@ -27,7 +27,7 @@ export function DailySummary({ logs }: DailySummaryProps) {
     <div className="mb-6">
       <h1 className="text-2xl font-bold">{formatDate()}</h1>
       <p className="text-lg text-muted-foreground">
-        {totalCalories > 0 ? (
+        {logs.length > 0 ? (
           <>Total: <span className="font-medium text-foreground">{totalCalories} calories</span></>
         ) : (
           'Start tracking your meals'
