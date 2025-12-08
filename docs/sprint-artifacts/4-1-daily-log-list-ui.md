@@ -242,6 +242,8 @@ const getImageUrl = (path: string) =>
 - [Code Review] Fixed image URL generation in FoodEntryCard (added bucket name)
 - [Code Review] Improved DailySummary logic for 0-calorie logs
 - [Code Review] Added unit tests for DailySummary component
+- [Code Review] Added unit tests for LogListError component (4 tests)
+- [Code Review] Added unit tests for FoodEntryCardSkeleton component (4 tests)
 
 ### File List
 
@@ -267,6 +269,9 @@ const getImageUrl = (path: string) =>
 - frontend/app/(dashboard)/page.tsx
 - frontend/__tests__/components/FoodEntryCard.test.tsx
 - frontend/__tests__/components/EmptyLogState.test.tsx
+- frontend/__tests__/components/LogListError.test.tsx
+- frontend/__tests__/components/FoodEntryCardSkeleton.test.tsx
+- frontend/__tests__/components/DailySummary.test.tsx
 
 **Frontend (Modified):**
 - frontend/lib/api.ts
