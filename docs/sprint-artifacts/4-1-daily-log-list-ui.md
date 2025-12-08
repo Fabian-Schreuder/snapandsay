@@ -1,6 +1,6 @@
 # Story 4.1: Daily Log List UI
 
-Status: ready-for-dev
+Status: Ready for Review
 
 ## Story
 
@@ -47,7 +47,7 @@ So that I can keep track of my eating and review what I've logged.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 1: Create Logs Service & API Endpoint** (AC: #1, #2)
+- [x] **Task 1: Create Logs Service & API Endpoint** (AC: #1, #2)
     - [ ] Create `backend/app/services/log_service.py`:
         - `get_logs_for_date(db, user_id, date) -> List[DietaryLog]` - Filter by date (UTC), status="logged", order DESC
     - [ ] Create `backend/app/api/v1/endpoints/logs.py`:
@@ -70,7 +70,7 @@ So that I can keep track of my eating and review what I've logged.
         - `test_get_logs_only_returns_logged_status` (excludes processing/clarification)
         - `test_get_logs_handles_timezone_correctly` (UTC boundaries)
 
-- [ ] **Task 2: Create Frontend API Client** (AC: #1, #6)
+- [x] **Task 2: Create Frontend API Client** (AC: #1, #6)
     - [ ] Extend `frontend/lib/api.ts` matching existing pattern:
         ```typescript
         export const logsApi = {
@@ -92,7 +92,7 @@ So that I can keep track of my eating and review what I've logged.
         }
         ```
 
-- [ ] **Task 3: Create FoodEntryCard Component** (AC: #2, #5)
+- [x] **Task 3: Create FoodEntryCard Component** (AC: #2, #5)
     - [ ] Create `frontend/components/features/logs/FoodEntryCard.tsx`:
         - Props: `log: DietaryLog`, `onClick?: () => void`
         - Layout: 80x80 thumbnail | description + time | calories badge
@@ -102,7 +102,7 @@ So that I can keep track of my eating and review what I've logged.
         - Use existing `frontend/components/ui/skeleton.tsx` (Shadcn Skeleton)
         - Match FoodEntryCard layout
 
-- [ ] **Task 4: Create Dashboard Page** (AC: #1, #3, #4, #6)
+- [x] **Task 4: Create Dashboard Page** (AC: #1, #3, #4, #6)
     - [ ] Create `frontend/app/(dashboard)/page.tsx`:
         - Uses `useLogs()` hook
         - Loading: Render 3x `FoodEntryCardSkeleton`
@@ -114,17 +114,17 @@ So that I can keep track of my eating and review what I've logged.
     - [ ] Create `frontend/components/features/logs/LogListError.tsx`:
         - Error message + "Retry" button calling `refetch()`
 
-- [ ] **Task 5: Create Daily Summary Header** (AC: #2)
+- [x] **Task 5: Create Daily Summary Header** (AC: #2)
     - [ ] Create `frontend/components/features/logs/DailySummary.tsx`:
         - Today's date (e.g., "Sunday, December 8")
         - Total calories: `logs.reduce((sum, log) => sum + (log.calories || 0), 0)`
         - Typography: text-2xl heading
 
-- [ ] **Task 6: Integrate with Navigation** (AC: #7)
+- [x] **Task 6: Integrate with Navigation** (AC: #7)
     - [ ] Bottom navigation "Home" tab → dashboard
     - [ ] Invalidate `['logs']` query key after successful log on snap page
 
-- [ ] **Task 7: Testing**
+- [x] **Task 7: Testing**
     - [ ] Backend: 5 test cases specified in Task 1
     - [ ] Frontend: `FoodEntryCard.test.tsx`, `EmptyLogState.test.tsx`
 
@@ -231,4 +231,42 @@ const getImageUrl = (path: string) =>
 
 ### Completion Notes List
 
+- Implemented GET /api/v1/logs endpoint with date filtering and UTC timezone handling
+- Created service layer pattern in log_service.py for DB queries
+- Added logsApi client and useLogs hook with React Query for caching
+- Built FoodEntryCard, skeleton, empty state, error state, and daily summary components
+- Added QueryProvider to app layout for React Query support
+- Added query invalidation on snap page after successful log upload
+- All backend tests pass (54 tests), frontend component tests pass (9 tests)
+- Pre-existing TypeScript errors in unrelated test files don't affect this story
+
 ### File List
+
+**Backend (New):**
+- backend/app/services/log_service.py
+- backend/app/api/v1/endpoints/logs.py
+- backend/app/schemas/log.py
+- backend/tests/api/v1/test_logs.py
+
+**Backend (Modified):**
+- backend/app/api/v1/api.py
+
+**Frontend (New):**
+- frontend/types/log.ts
+- frontend/hooks/use-logs.ts
+- frontend/components/ui/skeleton.tsx
+- frontend/components/features/logs/FoodEntryCard.tsx
+- frontend/components/features/logs/FoodEntryCardSkeleton.tsx
+- frontend/components/features/logs/EmptyLogState.tsx
+- frontend/components/features/logs/LogListError.tsx
+- frontend/components/features/logs/DailySummary.tsx
+- frontend/components/providers/QueryProvider.tsx
+- frontend/app/(dashboard)/page.tsx
+- frontend/__tests__/components/FoodEntryCard.test.tsx
+- frontend/__tests__/components/EmptyLogState.test.tsx
+
+**Frontend (Modified):**
+- frontend/lib/api.ts
+- frontend/app/layout.tsx
+- frontend/app/(dashboard)/snap/page.tsx
+- frontend/package.json (added @tanstack/react-query)

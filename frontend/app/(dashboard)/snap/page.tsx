@@ -1,6 +1,7 @@
 "use client"
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import CameraCapture from '@/components/features/camera/CameraCapture'
 import ImagePreview from '@/components/features/camera/ImagePreview'
 import { VoiceCaptureButton } from '@/components/features/voice/VoiceCaptureButton'
@@ -10,6 +11,7 @@ import { supabase } from '@/lib/supabase'
 
 export default function SnapPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [step, setStep] = useState<'capture' | 'preview' | 'record'>('capture');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -69,7 +71,8 @@ export default function SnapPage() {
         client_timestamp: new Date().toISOString()
       });
 
-      // 5. Success
+      // 5. Success - invalidate logs query so dashboard refreshes
+      await queryClient.invalidateQueries({ queryKey: ['logs'] });
       alert("Meal saved! We are analyzing it.");
       router.push('/'); 
 
