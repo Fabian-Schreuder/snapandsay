@@ -1,5 +1,5 @@
 """SSE event schemas for agent streaming responses."""
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Literal, Any, List
 from uuid import UUID
 
@@ -12,7 +12,7 @@ class AgentThought(BaseModel):
     step: str = Field(..., description="Current processing step identifier")
     message: str = Field(..., description="Human-readable thought message")
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="When this thought was generated"
+        default_factory=lambda: datetime.now(timezone.utc), description="When this thought was generated"
     )
 
 

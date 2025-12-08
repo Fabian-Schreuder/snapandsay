@@ -1,5 +1,5 @@
 from typing import AsyncGenerator
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from app.agent.state import AgentState
@@ -119,7 +119,7 @@ async def analyze_input_streaming(
         payload=AgentThought(
             step=STEP_ANALYZING,
             message=MSG_ANALYZING_START,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
         ),
     )
 
@@ -164,7 +164,7 @@ async def analyze_input_streaming(
                 payload=AgentThought(
                     step=STEP_ANALYZING,
                     message=MSG_ANALYZING_TOKENS,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                 ),
             )
 
@@ -182,7 +182,7 @@ async def analyze_input_streaming(
             payload=AgentThought(
                 step=STEP_ANALYZING,
                 message=MSG_ANALYZING_COMPLETE,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
             ),
         )
 
@@ -234,7 +234,7 @@ async def generate_clarification_streaming(
         payload=AgentThought(
             step=STEP_CLARIFYING,
             message=MSG_CLARIFYING,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
         ),
     )
     
@@ -321,7 +321,7 @@ async def finalize_log_streaming(
         payload=AgentThought(
             step=STEP_FINALIZING,
             message=MSG_FINALIZING,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
         ),
     )
     

@@ -296,6 +296,33 @@ So that I'm not annoyed by obvious questions.
 - If high confidence -> Go to `finalize_log`.
 - If low confidence -> Go to `generate_clarification`.
 
+### Story 3.5: Snap Page Streaming UI Integration
+
+As a user,
+I want to see real-time thinking indicators and clarification prompts on the Snap page,
+So that I understand what the AI is doing and can answer questions when needed.
+
+**Acceptance Criteria:**
+**Given** I have captured a photo and voice note
+**When** The upload completes and analysis begins
+**Then** The "Analyzing..." overlay shows real-time agent thoughts (via SSE)
+**And** If the agent needs clarification, the ClarificationPrompt component appears
+**And** When I respond, the agent continues processing with my answer
+**And** On completion, I am navigated to the dashboard
+
+**UX Integration:**
+- `ThinkingIndicator` component for streaming thoughts.
+- `ClarificationPrompt` component for questions.
+- Timeout with graceful skip option.
+- Progress bar during processing.
+
+**Technical Notes:**
+- File: `app/(dashboard)/snap/page.tsx`.
+- Import `useStreamingAnalysis` hook from Epic 3 SSE work.
+- Import `ClarificationPrompt` and `ThinkingIndicator` components.
+- Add `'streaming'` step to page state machine.
+- Handle SSE events: `agent.thought`, `agent.clarification`, `agent.response`.
+
 ---
 
 ## Epic 4: Dietary Log Management & History

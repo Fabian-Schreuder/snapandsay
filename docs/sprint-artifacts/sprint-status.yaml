@@ -47,9 +47,10 @@ development_status:
   3-2-vision-audio-analysis-node: done
   3-3-streaming-response-implementation-sse: done
   3-4-clarification-logic-probabilistic-silence: done
+  3-5-snap-page-streaming-ui-integration: backlog
   epic-3-retrospective: done
 
-  epic-4: in-progress
+  epic-4: done
   4-1-daily-log-list-ui: done
   4-2-edit-delete-log: done
   epic-4-retrospective: done
