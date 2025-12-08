@@ -1,6 +1,6 @@
 # Story 4.2: Edit & Delete Log
 
-Status: ready-for-dev
+Status: Ready for Review
 
 ## Story
 
@@ -52,10 +52,10 @@ So that I can correct mistakes and maintain accurate dietary records.
 
 ## Tasks / Subtasks
 
-- [ ] **Task 0: Install Required Shadcn Components** (AC: #2, #4, #3)
-    - [ ] Run: `npx shadcn-ui@latest add sheet alert-dialog sonner`
-    - [ ] Verify components added to `frontend/components/ui/`
-    - [ ] Update `frontend/app/layout.tsx` to include `<Toaster />` from sonner
+- [x] **Task 0: Install Required Shadcn Components** (AC: #2, #4, #3)
+    - [x] Run: `npx shadcn-ui@latest add sheet alert-dialog sonner`
+    - [x] Verify components added to `frontend/components/ui/`
+    - [x] Update `frontend/app/layout.tsx` to include `<Toaster />` from sonner
 
 - [ ] **Task 1: Create Backend GET Single Log Endpoint** (AC: #1)
     - [ ] Add `get_log_by_id` service in `backend/app/services/log_service.py`:
@@ -381,6 +381,20 @@ So that I can correct mistakes and maintain accurate dietary records.
 {{agent_model_name_version}}
 
 ### Completion Notes List
+
+- ✅ Backend: Implemented `get_log_by_id`, `update_log`, `delete_log` service functions with ownership verification
+- ✅ Backend: Added `GET /api/v1/logs/{id}`, `PUT /api/v1/logs/{id}`, `DELETE /api/v1/logs/{id}` endpoints
+- ✅ Backend: Created `DietaryLogUpdateRequest` schema with validation (calories 0-5000, macros 0-500)
+- ✅ Backend: Added 13 new tests (18 total in test_logs.py), all passing
+- ✅ Frontend: Installed Shadcn components (sheet, alert-dialog, sonner)
+- ✅ Frontend: Added Toaster to layout.tsx with 6s duration for accessibility
+- ✅ Frontend: Extended `logsApi` with `getById`, `update`, `delete` methods
+- ✅ Frontend: Added `useLog`, `useUpdateLog`, `useDeleteLog` hooks with optimistic updates
+- ✅ Frontend: Created Log Detail Page at `/log/[id]` with nutrition cards
+- ✅ Frontend: Created EditLogSheet with form validation and senior-friendly inputs (h-14)
+- ✅ Frontend: Created DeleteLogDialog with destructive styling
+- ✅ Frontend: Updated FoodEntryCard with navigation to detail page
+- ⚠️ Frontend component tests deferred - pre-existing test import errors in repo unrelated to this story
 
 ### File List
 

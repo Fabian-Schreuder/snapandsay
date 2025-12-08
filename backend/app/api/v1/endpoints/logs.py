@@ -1,14 +1,20 @@
 """API endpoints for dietary log operations."""
 from datetime import datetime, timezone, date
 from typing import Optional
+from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_user, UserContext
 from app.database import get_async_session
-from app.schemas.log import DietaryLogListResponse, DietaryLogResponse, LogListMeta
-from app.services.log_service import get_logs_for_date
+from app.schemas.log import (
+    DietaryLogListResponse,
+    DietaryLogResponse,
+    DietaryLogUpdateRequest,
+    LogListMeta,
+)
+from app.services import log_service
 
 router = APIRouter()
 
@@ -41,7 +47,7 @@ async def get_logs(
         target_date = datetime.now(timezone.utc).date()
     
     # Fetch logs from service layer
-    logs = await get_logs_for_date(db, current_user.id, target_date)
+    logs = await log_service.get_logs_for_date(db, current_user.id, target_date)
     
     # Convert to response schema
     log_responses = [
@@ -52,3 +58,81 @@ async def get_logs(
         data=log_responses,
         meta=LogListMeta(total=len(log_responses))
     )
+
+
+@router.get("/{log_id}", response_model=DietaryLogResponse)
+async def get_log(
+    log_id: UUID,
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_session),
+) -> DietaryLogResponse:
+    """
+    Get a single dietary log by ID.
+    
+    Args:
+        log_id: UUID of the log to retrieve
+        current_user: Authenticated user context
+        db: Database session
+    
+    Returns:
+        Dietary log entry
+    
+    Raises:
+        HTTPException: 404 if log not found or not owned by user
+    """
+    log = await log_service.get_log_by_id(db, current_user.id, log_id)
+    if not log:
+        raise HTTPException(status_code=404, detail="Log not found")
+    return DietaryLogResponse.model_validate(log)
+
+
+@router.put("/{log_id}", response_model=DietaryLogResponse)
+async def update_log(
+    log_id: UUID,
+    update_data: DietaryLogUpdateRequest,
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_session),
+) -> DietaryLogResponse:
+    """
+    Update a dietary log entry.
+    
+    Args:
+        log_id: UUID of the log to update
+        update_data: Fields to update (partial update supported)
+        current_user: Authenticated user context
+        db: Database session
+    
+    Returns:
+        Updated dietary log entry
+    
+    Raises:
+        HTTPException: 404 if log not found or not owned by user
+    """
+    updated = await log_service.update_log(
+        db, current_user.id, log_id, update_data.model_dump(exclude_unset=True)
+    )
+    if not updated:
+        raise HTTPException(status_code=404, detail="Log not found")
+    return DietaryLogResponse.model_validate(updated)
+
+
+@router.delete("/{log_id}", status_code=204)
+async def delete_log(
+    log_id: UUID,
+    current_user: UserContext = Depends(get_current_user),
+    db: AsyncSession = Depends(get_async_session),
+) -> None:
+    """
+    Delete a dietary log entry.
+    
+    Args:
+        log_id: UUID of the log to delete
+        current_user: Authenticated user context
+        db: Database session
+    
+    Raises:
+        HTTPException: 404 if log not found or not owned by user
+    """
+    deleted = await log_service.delete_log(db, current_user.id, log_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Log not found")

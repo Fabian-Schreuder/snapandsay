@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import AuthGuard from "@/components/AuthGuard";
 import { QueryProvider } from "@/components/providers/QueryProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -30,6 +31,7 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <QueryProvider>
           <AuthGuard>{children}</AuthGuard>
+          <Toaster position="top-center" duration={6000} richColors closeButton />
         </QueryProvider>
       </body>
     </html>

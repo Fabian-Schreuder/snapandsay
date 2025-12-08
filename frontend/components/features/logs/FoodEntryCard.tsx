@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { AlertTriangle } from 'lucide-react';
 import type { DietaryLog } from '@/types/log';
 
@@ -31,6 +32,7 @@ function formatTime(isoString: string): string {
 
 /**
  * FoodEntryCard displays a single meal log entry.
+ * Tapping navigates to the log detail page.
  * 
  * Layout:
  * ┌─────────────────────────────────────────┐
@@ -41,13 +43,22 @@ function formatTime(isoString: string): string {
  * └─────────────────────────────────────────┘
  */
 export function FoodEntryCard({ log, onClick }: FoodEntryCardProps) {
+  const router = useRouter();
   const displayText = log.description || log.transcript || 'Meal logged';
   const imageUrl = getImageUrl(log.image_path);
   const timeDisplay = formatTime(log.created_at);
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick();
+    } else {
+      router.push(`/log/${log.id}`);
+    }
+  };
+
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       className="flex w-full items-center gap-4 p-4 min-h-[100px] rounded-xl bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       type="button"
     >

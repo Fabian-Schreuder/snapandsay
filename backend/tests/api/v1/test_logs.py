@@ -183,3 +183,353 @@ async def test_get_logs_handles_timezone_correctly(test_client, db_session):
     # Only the late night snack should be returned for 2024-01-15
     assert data["meta"]["total"] == 1
     assert data["data"][0]["description"] == "Late night snack"
+
+
+# ============================================================================
+# GET Single Log Tests
+# ============================================================================
+
+
+@pytest.mark.asyncio
+async def test_get_log_by_id_success(test_client, db_session):
+    """Test successfully retrieving a single log by ID."""
+    user_id = uuid4()
+    mock_user = UserContext(id=user_id, aud="authenticated", role="authenticated")
+    
+    await db_session.execute(text("SET session_replication_role = replica"))
+    
+    log = DietaryLog(
+        user_id=user_id,
+        image_path=f"{user_id}/meal.jpg",
+        status="logged",
+        calories=450,
+        protein=25,
+        carbs=40,
+        fats=20,
+        description="Grilled chicken salad",
+        created_at=datetime.now(timezone.utc),
+    )
+    db_session.add(log)
+    await db_session.commit()
+    
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    
+    response = await test_client.get(f"/api/v1/logs/{log.id}")
+    
+    app.dependency_overrides = {}
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == str(log.id)
+    assert data["description"] == "Grilled chicken salad"
+    assert data["calories"] == 450
+    assert data["protein"] == 25
+
+
+@pytest.mark.asyncio
+async def test_get_log_by_id_not_found(test_client, db_session):
+    """Test 404 when log does not exist."""
+    user_id = uuid4()
+    mock_user = UserContext(id=user_id, aud="authenticated", role="authenticated")
+    
+    await db_session.execute(text("SET session_replication_role = replica"))
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    
+    fake_id = uuid4()
+    response = await test_client.get(f"/api/v1/logs/{fake_id}")
+    
+    app.dependency_overrides = {}
+    
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Log not found"
+
+
+@pytest.mark.asyncio
+async def test_get_log_by_id_wrong_user(test_client, db_session):
+    """Test that users cannot access other users' logs."""
+    owner_id = uuid4()
+    other_user_id = uuid4()
+    mock_other_user = UserContext(id=other_user_id, aud="authenticated", role="authenticated")
+    
+    await db_session.execute(text("SET session_replication_role = replica"))
+    
+    log = DietaryLog(
+        user_id=owner_id,
+        image_path=f"{owner_id}/meal.jpg",
+        status="logged",
+        calories=300,
+        created_at=datetime.now(timezone.utc),
+    )
+    db_session.add(log)
+    await db_session.commit()
+    
+    app.dependency_overrides[get_current_user] = lambda: mock_other_user
+    
+    response = await test_client.get(f"/api/v1/logs/{log.id}")
+    
+    app.dependency_overrides = {}
+    
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Log not found"
+
+
+# ============================================================================
+# UPDATE Log Tests
+# ============================================================================
+
+
+@pytest.mark.asyncio
+async def test_update_log_success(test_client, db_session):
+    """Test successfully updating a log with all fields."""
+    user_id = uuid4()
+    mock_user = UserContext(id=user_id, aud="authenticated", role="authenticated")
+    
+    await db_session.execute(text("SET session_replication_role = replica"))
+    
+    log = DietaryLog(
+        user_id=user_id,
+        image_path=f"{user_id}/meal.jpg",
+        status="logged",
+        calories=300,
+        protein=15,
+        carbs=30,
+        fats=10,
+        description="Original description",
+        created_at=datetime.now(timezone.utc),
+    )
+    db_session.add(log)
+    await db_session.commit()
+    
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    
+    update_data = {
+        "description": "Updated description",
+        "calories": 450,
+        "protein": 25,
+        "carbs": 40,
+        "fats": 15,
+    }
+    response = await test_client.put(f"/api/v1/logs/{log.id}", json=update_data)
+    
+    app.dependency_overrides = {}
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert data["description"] == "Updated description"
+    assert data["calories"] == 450
+    assert data["protein"] == 25
+    assert data["carbs"] == 40
+    assert data["fats"] == 15
+
+
+@pytest.mark.asyncio
+async def test_update_log_partial_update(test_client, db_session):
+    """Test updating only specific fields (partial update)."""
+    user_id = uuid4()
+    mock_user = UserContext(id=user_id, aud="authenticated", role="authenticated")
+    
+    await db_session.execute(text("SET session_replication_role = replica"))
+    
+    log = DietaryLog(
+        user_id=user_id,
+        image_path=f"{user_id}/meal.jpg",
+        status="logged",
+        calories=300,
+        protein=15,
+        description="Keep this description",
+        created_at=datetime.now(timezone.utc),
+    )
+    db_session.add(log)
+    await db_session.commit()
+    
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    
+    # Only update calories
+    response = await test_client.put(f"/api/v1/logs/{log.id}", json={"calories": 500})
+    
+    app.dependency_overrides = {}
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert data["calories"] == 500
+    # Other fields should remain unchanged
+    assert data["description"] == "Keep this description"
+    assert data["protein"] == 15
+
+
+@pytest.mark.asyncio
+async def test_update_log_not_found(test_client, db_session):
+    """Test 404 when updating non-existent log."""
+    user_id = uuid4()
+    mock_user = UserContext(id=user_id, aud="authenticated", role="authenticated")
+    
+    await db_session.execute(text("SET session_replication_role = replica"))
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    
+    fake_id = uuid4()
+    response = await test_client.put(f"/api/v1/logs/{fake_id}", json={"calories": 500})
+    
+    app.dependency_overrides = {}
+    
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Log not found"
+
+
+@pytest.mark.asyncio
+async def test_update_log_wrong_user(test_client, db_session):
+    """Test that users cannot update other users' logs."""
+    owner_id = uuid4()
+    other_user_id = uuid4()
+    mock_other_user = UserContext(id=other_user_id, aud="authenticated", role="authenticated")
+    
+    await db_session.execute(text("SET session_replication_role = replica"))
+    
+    log = DietaryLog(
+        user_id=owner_id,
+        image_path=f"{owner_id}/meal.jpg",
+        status="logged",
+        calories=300,
+        created_at=datetime.now(timezone.utc),
+    )
+    db_session.add(log)
+    await db_session.commit()
+    
+    app.dependency_overrides[get_current_user] = lambda: mock_other_user
+    
+    response = await test_client.put(f"/api/v1/logs/{log.id}", json={"calories": 999})
+    
+    app.dependency_overrides = {}
+    
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Log not found"
+
+
+@pytest.mark.asyncio
+async def test_update_log_requires_authentication(test_client, db_session):
+    """Test that update endpoint returns 401 without authentication."""
+    fake_id = uuid4()
+    response = await test_client.put(f"/api/v1/logs/{fake_id}", json={"calories": 500})
+    
+    assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_update_log_validation_error(test_client, db_session):
+    """Test validation error for calories > 5000."""
+    user_id = uuid4()
+    mock_user = UserContext(id=user_id, aud="authenticated", role="authenticated")
+    
+    await db_session.execute(text("SET session_replication_role = replica"))
+    
+    log = DietaryLog(
+        user_id=user_id,
+        image_path=f"{user_id}/meal.jpg",
+        status="logged",
+        calories=300,
+        created_at=datetime.now(timezone.utc),
+    )
+    db_session.add(log)
+    await db_session.commit()
+    
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    
+    # Attempt to set calories > 5000
+    response = await test_client.put(f"/api/v1/logs/{log.id}", json={"calories": 6000})
+    
+    app.dependency_overrides = {}
+    
+    assert response.status_code == 422  # Validation error
+
+
+# ============================================================================
+# DELETE Log Tests
+# ============================================================================
+
+
+@pytest.mark.asyncio
+async def test_delete_log_success(test_client, db_session):
+    """Test successfully deleting a log."""
+    user_id = uuid4()
+    mock_user = UserContext(id=user_id, aud="authenticated", role="authenticated")
+    
+    await db_session.execute(text("SET session_replication_role = replica"))
+    
+    log = DietaryLog(
+        user_id=user_id,
+        image_path=f"{user_id}/meal.jpg",
+        status="logged",
+        calories=300,
+        created_at=datetime.now(timezone.utc),
+    )
+    db_session.add(log)
+    await db_session.commit()
+    log_id = log.id
+    
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    
+    response = await test_client.delete(f"/api/v1/logs/{log_id}")
+    
+    assert response.status_code == 204
+    
+    # Verify log is actually deleted
+    get_response = await test_client.get(f"/api/v1/logs/{log_id}")
+    
+    app.dependency_overrides = {}
+    
+    assert get_response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_delete_log_not_found(test_client, db_session):
+    """Test 404 when deleting non-existent log."""
+    user_id = uuid4()
+    mock_user = UserContext(id=user_id, aud="authenticated", role="authenticated")
+    
+    await db_session.execute(text("SET session_replication_role = replica"))
+    app.dependency_overrides[get_current_user] = lambda: mock_user
+    
+    fake_id = uuid4()
+    response = await test_client.delete(f"/api/v1/logs/{fake_id}")
+    
+    app.dependency_overrides = {}
+    
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Log not found"
+
+
+@pytest.mark.asyncio
+async def test_delete_log_wrong_user(test_client, db_session):
+    """Test that users cannot delete other users' logs."""
+    owner_id = uuid4()
+    other_user_id = uuid4()
+    mock_other_user = UserContext(id=other_user_id, aud="authenticated", role="authenticated")
+    
+    await db_session.execute(text("SET session_replication_role = replica"))
+    
+    log = DietaryLog(
+        user_id=owner_id,
+        image_path=f"{owner_id}/meal.jpg",
+        status="logged",
+        calories=300,
+        created_at=datetime.now(timezone.utc),
+    )
+    db_session.add(log)
+    await db_session.commit()
+    
+    app.dependency_overrides[get_current_user] = lambda: mock_other_user
+    
+    response = await test_client.delete(f"/api/v1/logs/{log.id}")
+    
+    app.dependency_overrides = {}
+    
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Log not found"
+
+
+@pytest.mark.asyncio
+async def test_delete_log_requires_authentication(test_client, db_session):
+    """Test that delete endpoint returns 401 without authentication."""
+    fake_id = uuid4()
+    response = await test_client.delete(f"/api/v1/logs/{fake_id}")
+    
+    assert response.status_code == 401

@@ -15,6 +15,14 @@ export interface DietaryLog {
   created_at: string;
 }
 
+export interface LogUpdateRequest {
+  description?: string;
+  calories?: number;
+  protein?: number;
+  carbs?: number;
+  fats?: number;
+}
+
 export interface LogListMeta {
   total: number;
 }

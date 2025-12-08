@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class DietaryLogResponse(BaseModel):
@@ -19,6 +19,15 @@ class DietaryLogResponse(BaseModel):
     fats: Optional[int] = None
     needs_review: bool
     created_at: datetime
+
+
+class DietaryLogUpdateRequest(BaseModel):
+    """Request schema for updating a dietary log entry."""
+    description: Optional[str] = Field(None, max_length=500)
+    calories: Optional[int] = Field(None, ge=0, le=5000)
+    protein: Optional[int] = Field(None, ge=0, le=500)
+    carbs: Optional[int] = Field(None, ge=0, le=500)
+    fats: Optional[int] = Field(None, ge=0, le=500)
 
 
 class LogListMeta(BaseModel):

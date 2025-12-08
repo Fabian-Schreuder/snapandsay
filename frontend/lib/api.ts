@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import type { DietaryLogListResponse } from '@/types/log';
+import type { DietaryLogListResponse, DietaryLog, LogUpdateRequest } from '@/types/log';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
@@ -61,5 +61,83 @@ export const logsApi = {
     }
     
     return response.json();
-  }
+  },
+
+  /**
+   * Fetch a single dietary log by ID.
+   * @param logId - UUID of the log to retrieve.
+   */
+  getById: async (logId: string): Promise<DietaryLog> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error('No active session');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/logs/${logId}`, {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Failed to fetch log');
+    }
+    
+    return response.json();
+  },
+
+  /**
+   * Update a dietary log entry.
+   * @param logId - UUID of the log to update.
+   * @param data - Partial update data.
+   */
+  update: async (logId: string, data: LogUpdateRequest): Promise<DietaryLog> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error('No active session');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/logs/${logId}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Failed to update log');
+    }
+    
+    return response.json();
+  },
+
+  /**
+   * Delete a dietary log entry.
+   * @param logId - UUID of the log to delete.
+   */
+  delete: async (logId: string): Promise<void> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error('No active session');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/logs/${logId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || 'Failed to delete log');
+    }
+  },
 };
