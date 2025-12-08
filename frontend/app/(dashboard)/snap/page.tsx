@@ -37,9 +37,17 @@ export default function SnapPage() {
   // Completion Handling
   React.useEffect(() => {
     if (status === 'complete') {
-        router.push('/');
+        const handleCompletion = async () => {
+             // Refresh logs to get the final analyzed result
+             await queryClient.invalidateQueries({ queryKey: ['logs'] });
+             // Wait for animation
+             setTimeout(() => {
+                 router.push('/');
+             }, 1500);
+        };
+        handleCompletion();
     }
-  }, [status, router]);
+  }, [status, router, queryClient]);
 
   // Error Handling
   React.useEffect(() => {
@@ -139,10 +147,14 @@ export default function SnapPage() {
         <div className="absolute top-8 left-4 right-4 z-50 bg-red-500/90 text-white p-4 rounded-xl text-center shadow-lg backdrop-blur animate-in slide-in-from-top">
           <p className="font-medium">{errorMessage}</p>
           <button 
-            onClick={() => setErrorMessage(null)}
+            onClick={() => {
+              setErrorMessage(null);
+              reset();
+              setStep('capture');
+            }}
             className="mt-2 text-sm bg-white/20 px-4 py-1 rounded-full hover:bg-white/30"
           >
-            Dismiss
+            Retry
           </button>
         </div>
       )}

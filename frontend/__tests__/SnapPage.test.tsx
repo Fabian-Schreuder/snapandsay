@@ -272,13 +272,24 @@ describe('SnapPage', () => {
             skipClarification: jest.fn()
         });
 
-        render(<SnapPage />);
-        // Trigger flow (or if status is checked in useEffect, it might trigger immediately if defaults allow)
-        // With mocked hook, if the effect is present, it should run on mount
+        // Use fake timers to fast forward the delay
+        jest.useFakeTimers();
         
+        render(<SnapPage />);
+        
+        // Wait for invalidate
+        await waitFor(() => {
+            expect(mockInvalidateQueries).toHaveBeenCalledWith({ queryKey: ['logs'] });
+        });
+
+        // Fast forward
+        jest.advanceTimersByTime(1500);
+
         await waitFor(() => {
             expect(mockPush).toHaveBeenCalledWith('/');
         });
+
+        jest.useRealTimers();
     })
 
     it('shows error message when agent errors', async () => {
@@ -313,5 +324,13 @@ describe('SnapPage', () => {
         await waitFor(() => {
             expect(screen.getByText('AI Connection Failed')).toBeInTheDocument();
         });
-    })
+
+        // Test Retry
+        const retryBtn = screen.getByText('Retry');
+        fireEvent.click(retryBtn);
+
+        expect(mockReset).toHaveBeenCalled();
+        // Should go back to capture (camera capture visible)
+        expect(screen.getByTestId('camera-capture')).toBeInTheDocument();
+  })
 })
