@@ -50,53 +50,54 @@ So that I understand what the AI is doing and can answer questions when needed.
 ## Tasks / Subtasks
 
 - [ ] **Task 1: Extend Page State Machine** (AC: #1, #6)
-    - [ ] Add `'streaming' | 'clarifying'` to step type in `useState`
-    - [ ] Add state: `const [logId, setLogId] = useState<string | null>(null)`
-    - [ ] Import `useAgent` hook from `@/hooks/use-agent`
+- [x] **Task 1: Extend Page State Machine** (AC: #1, #6)
+    - [x] Add `'streaming' | 'clarifying'` to step type in `useState`
+    - [x] Add state: `const [logId, setLogId] = useState<string | null>(null)`
+    - [x] Import `useAgent` hook from `@/hooks/use-agent`
 
-- [ ] **Task 2: Integrate useAgent Hook** (AC: #1, #2)
-    - [ ] Extract return values: `{ status, thoughts, result, error, clarification, startStreaming, submitClarificationResponse, skipClarification, reset }`
-    - [ ] Update `handleUpload` to get `log_id` from API response
-    - [ ] Call `startStreaming(logId, imagePath, audioPath)` after successful upload
-    - [ ] Set step to `'streaming'` after starting
+- [x] **Task 2: Integrate useAgent Hook** (AC: #1, #2)
+    - [x] Extract return values: `{ status, thoughts, result, error, clarification, startStreaming, submitClarificationResponse, skipClarification, reset }`
+    - [x] Update `handleUpload` to get `log_id` from API response
+    - [x] Call `startStreaming(logId, imagePath, audioPath)` after successful upload
+    - [x] Set step to `'streaming'` after starting
 
-- [ ] **Task 3: Replace Spinner with ThinkingIndicator** (AC: #2)
-    - [ ] Import `ThinkingIndicator` from `@/components/features/analysis/ThinkingIndicator`
-    - [ ] Replace lines 113-121 (spinner overlay) with `ThinkingIndicator` component
-    - [ ] Pass `thoughts` and `status` from `useAgent` hook
-    - [ ] Render when `step === 'streaming'` and clarification is null
+- [x] **Task 3: Replace Spinner with ThinkingIndicator** (AC: #2)
+    - [x] Import `ThinkingIndicator` from `@/components/features/analysis/ThinkingIndicator`
+    - [x] Replace lines 113-121 (spinner overlay) with `ThinkingIndicator` component
+    - [x] Pass `thoughts` and `status` from `useAgent` hook
+    - [x] Render when `step === 'streaming'` and clarification is null
 
-- [ ] **Task 4: Add ClarificationPrompt Integration** (AC: #3, #4, #5)
-    - [ ] Import `ClarificationPrompt` from `@/components/features/analysis/ClarificationPrompt`
-    - [ ] Render `ClarificationPrompt` when `clarification` state is not null
-    - [ ] Pass `onSubmit` handler that calls `submitClarificationResponse(response, isVoice)`
-    - [ ] Pass `onSkip` handler that calls `skipClarification()`
-    - [ ] Set step to `'clarifying'` when clarification appears
+- [x] **Task 4: Add ClarificationPrompt Integration** (AC: #3, #4, #5)
+    - [x] Import `ClarificationPrompt` from `@/components/features/analysis/ClarificationPrompt`
+    - [x] Render `ClarificationPrompt` when `clarification` state is not null
+    - [x] Pass `onSubmit` handler that calls `submitClarificationResponse(response, isVoice)`
+    - [x] Pass `onSkip` handler that calls `skipClarification()`
+    - [x] Set step to `'clarifying'` when clarification appears
 
-- [ ] **Task 5: Handle Completion and Navigation** (AC: #6)
-    - [ ] Add `useEffect` to watch `result` from useAgent
-    - [ ] When result is received:
-        - Invalidate logs query (`queryClient.invalidateQueries({ queryKey: ['logs'] })`)
-        - Wait 1.5s for animation/sound to complete
-        - Navigate to dashboard (`router.push('/')`)
+- [x] **Task 5: Handle Completion and Navigation** (AC: #6)
+    - [x] Add `useEffect` to watch `result` from useAgent
+    - [x] When result is received:
+        - [x] Invalidate logs query (`queryClient.invalidateQueries({ queryKey: ['logs'] })`)
+        - [x] Wait 1.5s for animation/sound to complete
+        - [x] Navigate to dashboard (`router.push('/')`)
 
-- [ ] **Task 6: Handle Error States** (AC: #7)
-    - [ ] Add `useEffect` to watch `error` from useAgent
-    - [ ] Display error using existing error overlay pattern
-    - [ ] Add retry button that calls `reset()` and returns to `'capture'` step
+- [x] **Task 6: Handle Error States** (AC: #7)
+    - [x] Add `useEffect` to watch `error` from useAgent
+    - [x] Display error using existing error overlay pattern
+    - [x] Add retry button that calls `reset()` and returns to `'capture'` step
 
-- [ ] **Task 7: Update API Response Handling**
-    - [ ] Ensure `analysisApi.upload()` returns `log_id` in response
-    - [ ] Store `log_id` in state for streaming initiation
-    - [ ] Check backend endpoint returns `log_id` field
+- [x] **Task 7: Update API Response Handling**
+    - [x] Ensure `analysisApi.upload()` returns `log_id` in response
+    - [x] Store `log_id` in state for streaming initiation
+    - [x] Check backend endpoint returns `log_id` field
 
-- [ ] **Task 8: Testing** (AC: All)
-    - [ ] Create/update `frontend/__tests__/SnapPage.test.tsx`
-        - Test streaming state renders ThinkingIndicator
-        - Test clarification state renders ClarificationPrompt
-        - Test completion triggers navigation
-        - Test error state displays error overlay
-    - [ ] Manual testing: Full flow with real backend
+- [x] **Task 8: Testing** (AC: All)
+    - [x] Create/update `frontend/__tests__/SnapPage.test.tsx`
+        - [x] Test streaming state renders ThinkingIndicator
+        - [x] Test clarification state renders ClarificationPrompt
+        - [x] Test completion triggers navigation
+        - [x] Test error state displays error overlay
+    - [x] Manual testing: Full flow with real backend
 
 ## Dev Notes
 
