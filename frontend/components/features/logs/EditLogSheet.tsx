@@ -62,38 +62,65 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
 
   const isValid =
     description.length <= 500 &&
-    (caloriesNum === null || (caloriesNum >= 0 && caloriesNum <= 5000)) &&
-    (proteinNum === null || (proteinNum >= 0 && proteinNum <= 500)) &&
-    (carbsNum === null || (carbsNum >= 0 && carbsNum <= 500)) &&
-    (fatsNum === null || (fatsNum >= 0 && fatsNum <= 500));
+    (caloriesNum === null || (!isNaN(caloriesNum) && caloriesNum >= 0 && caloriesNum <= 5000)) &&
+    (proteinNum === null || (!isNaN(proteinNum) && proteinNum >= 0 && proteinNum <= 500)) &&
+    (carbsNum === null || (!isNaN(carbsNum) && carbsNum >= 0 && carbsNum <= 500)) &&
+    (fatsNum === null || (!isNaN(fatsNum) && fatsNum >= 0 && fatsNum <= 500));
 
   const handleSave = () => {
     const data: LogUpdateRequest = {};
     
+    // Check description
     if (description !== (log.description || '')) {
-      data.description = description || undefined;
-    }
-    if (calories !== (log.calories?.toString() || '')) {
-      data.calories = calories ? Number(calories) : undefined;
-    }
-    if (protein !== (log.protein?.toString() || '')) {
-      data.protein = protein ? Number(protein) : undefined;
-    }
-    if (carbs !== (log.carbs?.toString() || '')) {
-      data.carbs = carbs ? Number(carbs) : undefined;
-    }
-    if (fats !== (log.fats?.toString() || '')) {
-      data.fats = fats ? Number(fats) : undefined;
+      data.description = description || null;
     }
 
-    updateLog.mutate(
-      { logId: log.id, data },
-      {
-        onSuccess: () => {
-          onOpenChange(false);
-        },
+    // Helper to process numeric fields
+    const processNumeric = (
+      currentVal: string, 
+      originalVal: number | null | undefined
+    ): number | null | undefined => {
+      // If current is empty string...
+      if (!currentVal) {
+        // ...and original was not null/undefined, we want to clear it (send null)
+        if (originalVal != null) return null;
+        // ...and original was already null/undefined, no change needed (return undefined)
+        return undefined;
       }
-    );
+      // If current has value, parse it
+      const numVal = Number(currentVal);
+      // If different from original, return new value
+      if (numVal !== originalVal) return numVal;
+      // No change
+      return undefined;
+    };
+
+    const caloriesUpdate = processNumeric(calories, log.calories);
+    if (caloriesUpdate !== undefined) data.calories = caloriesUpdate;
+
+    const proteinUpdate = processNumeric(protein, log.protein);
+    if (proteinUpdate !== undefined) data.protein = proteinUpdate;
+
+    const carbsUpdate = processNumeric(carbs, log.carbs);
+    if (carbsUpdate !== undefined) data.carbs = carbsUpdate;
+
+    const fatsUpdate = processNumeric(fats, log.fats);
+    if (fatsUpdate !== undefined) data.fats = fatsUpdate;
+
+    // Only mutate if we have updates
+    if (Object.keys(data).length > 0) {
+      updateLog.mutate(
+        { logId: log.id, data },
+        {
+          onSuccess: () => {
+            onOpenChange(false);
+          },
+        }
+      );
+    } else {
+      // No changes detected (or reverted to original), just close
+      onOpenChange(false);
+    }
   };
 
   return (

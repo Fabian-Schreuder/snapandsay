@@ -31,6 +31,7 @@ export function useLog(logId: string) {
     queryKey: ['log', logId],
     queryFn: () => logsApi.getById(logId),
     enabled: !!logId,
+    staleTime: 30000, // 30 seconds
   });
 }
 
@@ -62,7 +63,7 @@ export function useUpdateLog() {
       
       return { previous };
     },
-    onError: (err, variables, context) => {
+    onError: (_err, variables, context) => {
       // Rollback on error
       if (context?.previous) {
         queryClient.setQueryData(['log', variables.logId], context.previous);

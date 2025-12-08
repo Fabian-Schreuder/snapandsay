@@ -1,6 +1,6 @@
 # Story 4.2: Edit & Delete Log
 
-Status: Ready for Review
+Status: Done
 
 ## Story
 

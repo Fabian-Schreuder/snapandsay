@@ -16,11 +16,11 @@ export interface DietaryLog {
 }
 
 export interface LogUpdateRequest {
-  description?: string;
-  calories?: number;
-  protein?: number;
-  carbs?: number;
-  fats?: number;
+  description?: string | null;
+  calories?: number | null;
+  protein?: number | null;
+  carbs?: number | null;
+  fats?: number | null;
 }
 
 export interface LogListMeta {
