@@ -19,6 +19,7 @@ class DietaryLogResponse(BaseModel):
     protein: Optional[int] = None
     carbs: Optional[int] = None
     fats: Optional[int] = None
+    meal_type: Optional[str] = None
     needs_review: bool
     created_at: datetime
 

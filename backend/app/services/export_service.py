@@ -10,7 +10,7 @@ def export_logs_as_csv(logs: List[DietaryLog]) -> Generator[str, None, None]:
     Export logs to CSV format.
     Returns a generator of CSV strings.
     """
-    header = ["Log ID", "User Email", "Meal Type", "Food Items", "Calories", "Created At", "Transcription"]
+    header = ["Log ID", "Anonymous ID", "Meal Type", "Food Items", "Calories", "Created At", "Transcription"]
     
     output = io.StringIO()
     # csv module doesn't strictly support async/generators well with writer, 
@@ -24,17 +24,17 @@ def export_logs_as_csv(logs: List[DietaryLog]) -> Generator[str, None, None]:
     output.truncate(0)
 
     for log in logs:
-        # Determine User Email
-        user_email = "Unknown"
-        if hasattr(log, "user") and log.user and hasattr(log.user, "email"):
-            user_email = log.user.email
+        # Determine Anonymous ID
+        user_anon_id = "Unknown"
+        if hasattr(log, "user") and log.user and hasattr(log.user, "anonymous_id"):
+            user_anon_id = log.user.anonymous_id
         
         # Determine Meal Type
         meal_type = log.meal_type or "Unknown"
         
         row = [
             str(log.id),
-            user_email,
+            user_anon_id,
             meal_type,
             log.description or "",
             log.calories or 0,
@@ -59,13 +59,13 @@ def export_logs_as_json(logs: List[DietaryLog]) -> Generator[str, None, None]:
             yield ","
         first = False
         
-        user_email = "Unknown"
-        if hasattr(log, "user") and log.user and hasattr(log.user, "email"):
-            user_email = log.user.email
+        user_anon_id = "Unknown"
+        if hasattr(log, "user") and log.user and hasattr(log.user, "anonymous_id"):
+            user_anon_id = log.user.anonymous_id
 
         data = {
             "id": str(log.id),
-            "user_email": user_email,
+            "anonymous_id": user_anon_id,
             "meal_type": log.meal_type or "Unknown",
             "food_items": log.description,
             "calories": log.calories,

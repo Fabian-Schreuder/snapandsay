@@ -1,7 +1,9 @@
 import uuid
 from sqlalchemy import Column, String, Integer, ForeignKey, Enum, DateTime, Boolean, func
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from . import Base
+from .user import User  # noqa: F401
 
 
 class DietaryLog(Base):
@@ -9,7 +11,9 @@ class DietaryLog(Base):
     __tablename__ = "dietary_logs"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
+    
+    user = relationship("User", backref="logs")
 
     # Media
     image_path = Column(String, nullable=False)
