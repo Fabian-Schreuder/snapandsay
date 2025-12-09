@@ -19,7 +19,7 @@ def get_jwks_client():
     if _jwks_client is None:
         if not settings.SUPABASE_URL:
             raise ValueError("SUPABASE_URL is not set in settings, but is required for JWKS verification.")
-        jwks_url = f"{settings.SUPABASE_URL}/.well-known/jwks.json"
+        jwks_url = f"{settings.SUPABASE_URL}/auth/v1/.well-known/jwks.json"
         # PyJWKClient handles caching of keys internally
         _jwks_client = jwt.PyJWKClient(jwks_url)
     return _jwks_client
