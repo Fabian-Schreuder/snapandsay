@@ -116,6 +116,7 @@ async def event_generator(request: StreamAnalysisRequest, token: str | None = No
 @router.post("/stream")
 async def stream_analysis(
     request: StreamAnalysisRequest,
+    current_user: deps.UserContext = Depends(deps.get_current_user),
     token: str = Depends(deps.oauth2_scheme)
 ) -> StreamingResponse:
     """

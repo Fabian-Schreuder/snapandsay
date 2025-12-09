@@ -4,6 +4,11 @@ from fastapi.security import OAuth2PasswordBearer
 from app.core.security import verify_token, UserContext
 from app.config import settings
 from app.database import get_async_session as get_db
+from app.models.user import User
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
+import secrets
 
 # Supabase Auth uses Bearer token, usually passed in Authorization header.
 # We set auto_error=False to handle 401 manually or allow optional auth.
@@ -11,7 +16,10 @@ from app.database import get_async_session as get_db
 # we point it to a placeholder. Users should paste their JWT manually in the 'Authorize' dialog.
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="https://api.supabase.com/v1/auth/token", auto_error=False)
 
-async def get_current_user(token: Annotated[str | None, Depends(oauth2_scheme)]) -> UserContext:
+async def get_current_user(
+    token: Annotated[str | None, Depends(oauth2_scheme)],
+    db: AsyncSession = Depends(get_db)
+) -> UserContext:
     if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -19,8 +27,28 @@ async def get_current_user(token: Annotated[str | None, Depends(oauth2_scheme)])
             headers={"WWW-Authenticate": "Bearer"},
         )
     try:
-        user = verify_token(token)
-        return user
+        user_ctx = verify_token(token)
+        
+        # Ensure user exists in local database (sync with Supabase Auth)
+        # This prevents ForeignKeyViolationError in log tables
+        result = await db.execute(select(User).where(User.id == user_ctx.id))
+        db_user = result.scalar_one_or_none()
+        
+        if not db_user:
+            # Create user profile if missing
+            new_user = User(
+                id=user_ctx.id,
+                # Generate a random anonymous ID if one doesn't exist
+                anonymous_id=f"user_{secrets.token_hex(4)}" 
+            )
+            db.add(new_user)
+            try:
+                await db.commit()
+            except IntegrityError:
+                # Handle race condition where user might have been created concurrently
+                await db.rollback()
+                
+        return user_ctx
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
