@@ -9,5 +9,9 @@
 		"@seontechnologies/playwright-utils": "^3.10.0",
 		"concurrently": "^9.2.1",
 		"dotenv": "^17.2.3"
-	}
+	},
+	"dependencies": {
+		"vercel": "^49.1.2"
+	},
+	"packageManager": "pnpm@10.25.0+sha256.0f3726654b0b5e52e5800904de168afc3c667e2abf84bdb06d9ac1386104bd90"
 }
