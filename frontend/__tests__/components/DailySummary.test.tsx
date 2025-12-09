@@ -15,6 +15,8 @@ const mockLogs: DietaryLog[] = [
     fats: 10,
     needs_review: false,
     created_at: '2023-12-08T12:00:00Z',
+    user_id: 'user-1',
+    status: 'completed',
   },
   {
     id: '2',
@@ -27,6 +29,8 @@ const mockLogs: DietaryLog[] = [
     fats: 20,
     needs_review: false,
     created_at: '2023-12-08T18:00:00Z',
+    user_id: 'user-1',
+    status: 'completed',
   },
 ];
 

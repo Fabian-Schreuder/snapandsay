@@ -93,10 +93,10 @@ const mockStartStreaming = jest.fn();
 const mockReset = jest.fn();
 const mockUseAgent = jest.fn(() => ({
     status: 'idle',
-    thoughts: [],
+    thoughts: [] as string[],
     result: null,
-    error: null,
-    clarification: null,
+    error: null as string | null,
+    clarification: null as any,
     startStreaming: mockStartStreaming,
     reset: mockReset,
     submitClarificationResponse: jest.fn(),
