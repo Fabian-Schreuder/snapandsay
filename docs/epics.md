@@ -436,3 +436,29 @@ So that I can perform statistical analysis.
 _For implementation: Use the `create-story` workflow to generate individual story implementation plans from this epic breakdown._
 
 _This document will be updated after UX Design and Architecture workflows to incorporate interaction details and technical decisions._
+
+## Epic 6: Deployment & Hardening
+
+**Goal:** Prepare the application for production release, establish CI/CD pipelines, and ensure system stability.
+**User Value:** Users can access the application in a reliable, production-grade environment.
+**PRD Coverage:** Non-Functional Requirements (Deployment, Stability).
+**Technical Context:** Vercel (Frontend), Railway (Backend), Supabase (Prod Project).
+**Dependencies:** Epic 5.
+
+### Story 6.1: Production Deployment Pipeline
+
+As a developer,
+I want to set up the production deployment pipeline,
+So that code changes are automatically deployed to the production environment.
+
+**Acceptance Criteria:**
+**Given** Code is merged to `main`
+**Then** The frontend is deployed to Vercel (Production)
+**And** The backend is deployed to Railway
+**And** Database migrations are applied
+**And** Environment variables are correctly configured in both environments
+
+**Technical Notes:**
+- Frontend: Configure `vercel.json` if needed, set up Vercel Project.
+- Backend: Configure `nixpacks.toml` or `Dockerfile` for Railway, set up Railway Project.
+- Monorepo handling: Ensure independent builds.

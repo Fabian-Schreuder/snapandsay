@@ -59,3 +59,6 @@ development_status:
   5-1-admin-dashboard-view: done
   5-2-data-export: done
   epic-5-retrospective: done
+
+  epic-6: contexted
+  6-1-production-deployment-pipeline: ready-for-dev
