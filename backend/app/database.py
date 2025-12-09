@@ -1,5 +1,5 @@
 from collections.abc import AsyncGenerator
-from urllib.parse import urlparse
+
 
 from sqlalchemy import NullPool
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -7,15 +7,14 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from .config import settings
 from .models import Base
 
-parsed_db_url = urlparse(settings.DATABASE_URL)
-
-async_db_connection_url = (
-    f"postgresql+asyncpg://{parsed_db_url.username}:"
-    f"{parsed_db_url.password}@{parsed_db_url.hostname}"
-    f"{':' + str(parsed_db_url.port) if parsed_db_url.port else ''}"
-    f"{parsed_db_url.path}"
-    f"{'?' + parsed_db_url.query if parsed_db_url.query else ''}"
-)
+# Handle the protocol replacement for asyncpg safely without deconstructing the URL
+# This avoids issues with special characters in passwords
+if settings.DATABASE_URL.startswith("postgresql://"):
+    async_db_connection_url = settings.DATABASE_URL.replace(
+        "postgresql://", "postgresql+asyncpg://", 1
+    )
+else:
+    async_db_connection_url = settings.DATABASE_URL
 
 # Disable connection pooling for serverless environments like Vercel
 engine = create_async_engine(async_db_connection_url, poolclass=NullPool)
