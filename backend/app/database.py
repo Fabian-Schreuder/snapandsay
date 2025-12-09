@@ -17,7 +17,12 @@ else:
     async_db_connection_url = settings.DATABASE_URL
 
 # Disable connection pooling for serverless environments like Vercel
-engine = create_async_engine(async_db_connection_url, poolclass=NullPool)
+# Disable statement cache for compatibility with transaction poolers (like Supavisor on port 6543)
+engine = create_async_engine(
+    async_db_connection_url,
+    poolclass=NullPool,
+    connect_args={"statement_cache_size": 0},
+)
 
 async_session_maker = async_sessionmaker(
     engine, expire_on_commit=settings.EXPIRE_ON_COMMIT
