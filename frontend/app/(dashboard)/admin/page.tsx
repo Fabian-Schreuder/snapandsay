@@ -143,7 +143,7 @@ export default function AdminDashboardPage() {
                  <div className="p-8 text-center text-muted-foreground">Loading logs...</div>
              ) : (
                 <>
-                    <AdminLogsTable logs={logs} onView={(log) => console.log(log)} />
+                    <AdminLogsTable logs={logs} onView={() => {}} />
                     <PagePagination 
                         currentPage={page}
                         totalPages={Math.ceil(meta.total / limit)}

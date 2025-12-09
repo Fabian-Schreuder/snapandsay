@@ -1,6 +1,6 @@
 # Story 5.1: Admin Dashboard View
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
