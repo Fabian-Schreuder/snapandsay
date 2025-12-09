@@ -160,15 +160,10 @@ async def analyze_input_streaming(
         nonlocal token_count
         token_count += 1
         # Emit a thought event every 20 tokens to show liveness without flooding
+        # yield removed to strictly TypeCheck: on_token must be Awaitable[None] (coroutine), not AsyncGenerator.
+        # Use a Queue or other mechanism if streaming feedback is strictly required while blocked.
         if token_count % 20 == 0:
-            yield SSEEvent(
-                type=EVENT_THOUGHT,
-                payload=AgentThought(
-                    step=STEP_ANALYZING,
-                    message=MSG_ANALYZING_TOKENS,
-                    timestamp=datetime.now(timezone.utc),
-                ),
-            )
+            logger.debug(f"Streaming token count: {token_count}")
 
     try:
         result = await llm_service.analyze_multimodal_streaming(
