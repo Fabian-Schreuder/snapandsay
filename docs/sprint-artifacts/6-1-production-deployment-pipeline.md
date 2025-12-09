@@ -24,15 +24,15 @@ so that code changes are automatically deployed to the production environment.
   - [x] Add Environment Variables to Vercel (SUPABASE_URL, SUPABASE_ANON_KEY, NEXT_PUBLIC_API_URL).
 - [ ] Task 2: Backend Railway Setup (AC: 2, 3, 4)
   - [x] clean up `backend/vercel.json` (Delete).
-  - [ ] Set up Railway Project (link to repo).
-  - [ ] Configure Railway Service (Docker-based build using `backend/Dockerfile`).
-  - [ ] Add Environment Variables to Railway (DATABASE_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY, SECRET_KEY).
-  - [ ] Configure `CORS_ORIGINS` in Railway with the Vercel production domain (e.g., `https://snapandsay.vercel.app`).
+  - [x] Set up Railway Project (link to repo).
+  - [x] Configure Railway Service (Docker-based build using `backend/Dockerfile`).
+  - [x] Add Environment Variables to Railway (DATABASE_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY, SECRET_KEY).
+  - [x] Configure `CORS_ORIGINS` in Railway with the Vercel production domain (e.g., `https://snapandsay.vercel.app`).
   - [x] Implement database table creation on startup (ensure `create_db_and_tables` from `app/database.py` is called via `main.py` lifespan or init script).
   - [x] Ensure `backend/start.sh` is executable (`git update-index --chmod=+x backend/start.sh`).
   - [ ] Verify `start.sh` executes correctly in Railway environment.
 - [ ] Task 3: Verification (AC: 1, 2)
-  - [ ] Trigger a deployment by pushing to `main`.
+  - [x] Trigger a deployment by pushing to `main`.
   - [ ] Verify Frontend can access Backend (CORS check).
   - [ ] Verify Backend can access Database.
 
