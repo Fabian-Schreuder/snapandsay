@@ -14,6 +14,7 @@ async_db_connection_url = (
     f"{parsed_db_url.password}@{parsed_db_url.hostname}"
     f"{':' + str(parsed_db_url.port) if parsed_db_url.port else ''}"
     f"{parsed_db_url.path}"
+    f"{'?' + parsed_db_url.query if parsed_db_url.query else ''}"
 )
 
 # Disable connection pooling for serverless environments like Vercel
