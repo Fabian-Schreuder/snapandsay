@@ -41,7 +41,8 @@ def _build_messages(
         f"You are a dietary expert. The current time is {current_time}. "
         "Analyze the provided input (image and/or audio transcript) to identify food items, "
         "estimate quantities, calories, and provide a confidence score. "
-        "Infer the meal type (Breakfast, Lunch, Dinner, Snack) based on time and content."
+        "Infer the meal type (Breakfast, Lunch, Dinner, Snack) based on time and content. "
+        "Provide the output in JSON format."
     )
 
     messages = [{"role": "system", "content": system_prompt}]
