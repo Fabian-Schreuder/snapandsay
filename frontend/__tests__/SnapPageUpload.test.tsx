@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import SnapPage from '../app/(dashboard)/snap/page';
 import { analysisApi } from '../lib/api';
 import * as uploadService from '../services/upload-service';
@@ -7,9 +8,7 @@ import { supabase } from '../lib/supabase';
 import { useRouter } from 'next/navigation';
 
 // Mock dependencies
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn()
-}));
+// jest.mock('next/navigation'); // handled in jest.setup.ts
 jest.mock('../lib/api');
 jest.mock('../services/upload-service');
 jest.mock('../lib/supabase', () => ({
@@ -29,14 +28,23 @@ jest.mock('@/components/features/camera/ImagePreview', () => {
         return <button onClick={onConfirm}>Confirm Photo</button>
     }
 });
-jest.mock('@/components/features/voice/VoiceCaptureButton', () => {
-    return function MockVoiceCaptureButton({ onRecordingComplete }: any) {
+jest.mock('@/components/features/voice/VoiceCaptureButton', () => ({
+    VoiceCaptureButton: function MockVoiceCaptureButton({ onRecordingComplete }: any) {
         return <button onClick={() => onRecordingComplete(new Blob(['audio'], { type: 'audio/webm' }))}>Finish Recording</button>
     }
-});
+}));
 
 describe('SnapPage Upload Flow', () => {
   const mockPush = jest.fn();
+  const queryClient = new QueryClient();
+
+  const renderWithProviders = (ui: React.ReactNode) => {
+    return render(
+      <QueryClientProvider client={queryClient}>
+        {ui}
+      </QueryClientProvider>
+    );
+  };
   
   beforeEach(() => {
     jest.clearAllMocks();
@@ -49,19 +57,38 @@ describe('SnapPage Upload Flow', () => {
     (uploadService.generateUploadPath as jest.Mock).mockImplementation((uid, type) => `${uid}/mock_${type}`);
     (analysisApi.upload as jest.Mock).mockResolvedValue({ log_id: '123', status: 'processing' });
     
-    // Mock global fetch for image blob conversion
-    global.fetch = jest.fn(() => 
-        Promise.resolve({
+    // Mock global fetch
+    global.fetch = jest.fn((url: string | Request) => {
+        if (typeof url === 'string' && url.includes('/api/v1/analysis/stream')) {
+             return Promise.resolve({
+                ok: true,
+                status: 200,
+                headers: new Headers(),
+                body: {
+                    getReader: () => ({
+                        read: jest.fn()
+                            .mockResolvedValueOnce({ 
+                                done: false, 
+                                value: new TextEncoder().encode('event: complete\ndata: {"summary": "Done"}\n\n') 
+                            })
+                            .mockResolvedValueOnce({ done: true })
+                    })
+                }
+            });
+        }
+        return Promise.resolve({
+            ok: true,
+            status: 200,
             blob: () => Promise.resolve(new Blob(['fake-image'], { type: 'image/jpeg' }))
-        })
-    ) as jest.Mock;
+        });
+    }) as jest.Mock;
     
-    // Mock global alert
+    // Mock global alert (though unused now, keep just in case of regressions)
     global.alert = jest.fn();
   });
 
   it('completes the full flow: capture -> confirm -> record -> upload', async () => {
-    render(<SnapPage />);
+    renderWithProviders(<SnapPage />);
 
     // 1. Capture
     fireEvent.click(screen.getByText('Capture Photo'));
@@ -73,9 +100,6 @@ describe('SnapPage Upload Flow', () => {
     fireEvent.click(screen.getByText('Finish Recording'));
 
     // Verify "Thinking" state appears
-    // It might happen fast, so we might miss it in assertions depending on timing, 
-    // but we can check if upload functions are called.
-    
     await waitFor(() => {
         expect(supabase.auth.getUser).toHaveBeenCalled();
     });
@@ -92,17 +116,16 @@ describe('SnapPage Upload Flow', () => {
         client_timestamp: expect.any(String)
     });
 
-    // Verify Success Handling
+    // Verify Success Handling (Router push)
     await waitFor(() => {
-       expect(global.alert).toHaveBeenCalledWith("Meal saved! We are analyzing it.");
        expect(mockPush).toHaveBeenCalledWith('/');
-    });
+    }, { timeout: 3000 }); // Increase timeout for the 1500ms delay in component
   });
 
   it('handles upload errors gracefully', async () => {
     (analysisApi.upload as jest.Mock).mockRejectedValue(new Error('API Error'));
 
-    render(<SnapPage />);
+    renderWithProviders(<SnapPage />);
 
     // Fast forward to upload
     fireEvent.click(screen.getByText('Capture Photo'));

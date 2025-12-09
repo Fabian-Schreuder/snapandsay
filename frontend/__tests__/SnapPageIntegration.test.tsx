@@ -1,4 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
 import SnapPage from '../app/(dashboard)/snap/page';
 
@@ -31,7 +32,12 @@ jest.mock('../components/features/voice/VoiceCaptureButton', () => ({
 
 describe('SnapPage Integration', () => {
   it('navigates through the capture flow', () => {
-    render(<SnapPage />);
+    const queryClient = new QueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SnapPage />
+      </QueryClientProvider>
+    );
 
     // 1. Initial State: Camera Capture
     const captureBtn = screen.getByText('Capture');
@@ -59,7 +65,12 @@ describe('SnapPage Integration', () => {
   });
 
   it('allows retaking photo', () => {
-    render(<SnapPage />);
+    const queryClient = new QueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SnapPage />
+      </QueryClientProvider>
+    );
     
     // Capture
     fireEvent.click(screen.getByText('Capture'));

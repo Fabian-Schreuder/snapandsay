@@ -207,61 +207,6 @@ export const useAgent = (): UseAgentReturn => {
     }
   }, [clarification]);
 
-  const submitClarificationResponse = useCallback(
-    async (response: string, isVoice = false) => {
-      if (!clarification) return;
-
-      try {
-        setStatus("connecting"); // Show connecting instead of generic streaming during transition
-        const logId = clarification.log_id;
-        setClarification(null);
-
-        // Clear clarification timeout
-        if (clarificationTimeoutRef.current) {
-          clearTimeout(clarificationTimeoutRef.current);
-        }
-
-        // Submit clarification to backend
-        const res = await fetch(`/api/v1/analysis/clarify/${logId}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            response,
-            is_voice: isVoice,
-          }),
-        });
-
-        if (!res.ok) {
-          throw new Error(`Failed to submit clarification: ${res.status}`);
-        }
-
-        // Re-trigger streaming for the log to get updated analysis
-        const data = await res.json();
-        if (data.status === "processing") {
-           // Reuse current image/audio paths if available
-           const currentRequest = currentRequestRef.current;
-           await startStreamingInternal(
-             logId, 
-             currentRequest?.imagePath, 
-             currentRequest?.audioPath
-           );
-        } else {
-             // Fallback if status isn't processing (unexpected)
-             setStatus("complete");
-             triggerCompletionFeedback();
-        }
-
-      } catch (err) {
-        console.error("Clarification submission error:", err);
-        setError("Failed to submit clarification. Try again.");
-        setStatus("error");
-      }
-    },
-    [clarification, triggerCompletionFeedback, startStreamingInternal]
-  );
-
   const startStreamingInternal = useCallback(
     async (logId: string, imagePath?: string, audioPath?: string) => {
       cleanup();
@@ -389,6 +334,61 @@ export const useAgent = (): UseAgentReturn => {
       }
     },
     [cleanup, resetHeartbeatTimer, triggerCompletionFeedback, skipClarification]
+  );
+
+  const submitClarificationResponse = useCallback(
+    async (response: string, isVoice = false) => {
+      if (!clarification) return;
+
+      try {
+        setStatus("connecting"); // Show connecting instead of generic streaming during transition
+        const logId = clarification.log_id;
+        setClarification(null);
+
+        // Clear clarification timeout
+        if (clarificationTimeoutRef.current) {
+          clearTimeout(clarificationTimeoutRef.current);
+        }
+
+        // Submit clarification to backend
+        const res = await fetch(`/api/v1/analysis/clarify/${logId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            response,
+            is_voice: isVoice,
+          }),
+        });
+
+        if (!res.ok) {
+          throw new Error(`Failed to submit clarification: ${res.status}`);
+        }
+
+        // Re-trigger streaming for the log to get updated analysis
+        const data = await res.json();
+        if (data.status === "processing") {
+           // Reuse current image/audio paths if available
+           const currentRequest = currentRequestRef.current;
+           await startStreamingInternal(
+             logId, 
+             currentRequest?.imagePath, 
+             currentRequest?.audioPath
+           );
+        } else {
+             // Fallback if status isn't processing (unexpected)
+             setStatus("complete");
+             triggerCompletionFeedback();
+        }
+
+      } catch (err) {
+        console.error("Clarification submission error:", err);
+        setError("Failed to submit clarification. Try again.");
+        setStatus("error");
+      }
+    },
+    [clarification, triggerCompletionFeedback, startStreamingInternal]
   );
 
   const startStreaming = useCallback(
