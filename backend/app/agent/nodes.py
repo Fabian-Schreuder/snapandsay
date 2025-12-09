@@ -38,7 +38,7 @@ async def analyze_input(state: AgentState) -> dict:
     """
     image_url = state.get("image_url")
     audio_url = state.get("audio_url")
-    log_id = state.get("log_id")
+    user_token = state.get("user_token")
     transcript = None
     context = None
     
@@ -59,7 +59,7 @@ async def analyze_input(state: AgentState) -> dict:
     if audio_url:
         logger.info(f"Transcribing audio from {audio_url}")
         try:
-            transcript = await voice_service.transcribe_audio(audio_url)
+            transcript = await voice_service.transcribe_audio(audio_url, token=user_token)
         except Exception as e:
             logger.error(f"Failed to transcribe audio: {e}")
             raise e
@@ -96,6 +96,7 @@ async def analyze_input_streaming(
     image_url = state.get("image_url")
     audio_url = state.get("audio_url")
     log_id = state.get("log_id")
+    user_token = state.get("user_token")
     transcript = None
     context = None
     
@@ -126,7 +127,7 @@ async def analyze_input_streaming(
     if audio_url:
         logger.info(f"Transcribing audio from {audio_url}")
         try:
-            transcript = await voice_service.transcribe_audio(audio_url)
+            transcript = await voice_service.transcribe_audio(audio_url, token=user_token)
         except Exception as e:
             logger.error(f"Failed to transcribe audio: {e}")
             yield SSEEvent(

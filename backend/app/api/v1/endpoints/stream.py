@@ -6,6 +6,8 @@ from typing import AsyncGenerator
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 
+from app.api import deps
+
 from app.schemas.stream import StreamAnalysisRequest
 from app.schemas.sse import SSEEvent, AgentResponse, AgentError
 from app.agent.graph import run_streaming_agent
@@ -23,7 +25,7 @@ PROCESSING_TIMEOUT = 60
 HEARTBEAT_INTERVAL = 15
 
 
-async def event_generator(request: StreamAnalysisRequest) -> AsyncGenerator[str, None]:
+async def event_generator(request: StreamAnalysisRequest, token: str | None = None) -> AsyncGenerator[str, None]:
     """
     Generate SSE events from the agent processing.
 
@@ -35,9 +37,11 @@ async def event_generator(request: StreamAnalysisRequest) -> AsyncGenerator[str,
     """
     initial_state: AgentState = {
         "messages": [],
+        "messages": [],
         "image_url": request.image_path,
         "audio_url": request.audio_path,
         "nutritional_data": None,
+        "user_token": token,
     }
 
     last_heartbeat = asyncio.get_event_loop().time()
@@ -110,7 +114,10 @@ async def event_generator(request: StreamAnalysisRequest) -> AsyncGenerator[str,
 
 
 @router.post("/stream")
-async def stream_analysis(request: StreamAnalysisRequest) -> StreamingResponse:
+async def stream_analysis(
+    request: StreamAnalysisRequest,
+    token: str = Depends(deps.oauth2_scheme)
+) -> StreamingResponse:
     """
     Stream agent analysis results via Server-Sent Events.
 
@@ -126,7 +133,7 @@ async def stream_analysis(request: StreamAnalysisRequest) -> StreamingResponse:
         StreamingResponse with media_type text/event-stream
     """
     return StreamingResponse(
-        event_generator(request),
+        event_generator(request, token),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

@@ -32,3 +32,4 @@ class AgentState(TypedDict):
     clarification_count: int
     needs_clarification: bool
     needs_review: bool
+    user_token: Optional[str]
