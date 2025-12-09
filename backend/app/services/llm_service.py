@@ -97,6 +97,7 @@ async def _get_image_content(image_path: str, token: str | None = None) -> str:
                 return f"data:{mime_type};base64,{b64_image}"
             else:
                  logger.warning(f"Failed to download image from Supabase: {response.status_code}")
+                 logger.debug(f"Failed URL: {url}")
 
     # Fallback: return original path (likely to fail if private)
     return image_path or ""
@@ -197,20 +198,31 @@ async def analyze_multimodal_streaming(
         )
 
         async for chunk in stream:
-            if chunk.choices and chunk.choices[0].delta.content:
-                content = chunk.choices[0].delta.content
-                accumulated_content += content
+            if chunk.choices:
+                delta = chunk.choices[0].delta
+                if delta.content:
+                    content = delta.content
+                    accumulated_content += content
 
-                # Call the token callback if provided
-                if on_token:
-                    await on_token(content)
+                    # Call the token callback if provided
+                    if on_token:
+                        await on_token(content)
+                
+                if chunk.choices[0].finish_reason:
+                    logger.info(f"LLM Stream Finished. Reason: {chunk.choices[0].finish_reason}")
+
+        if not accumulated_content:
+            logger.error("LLM returned empty response")
+            raise LLMGenerationError("LLM returned empty response")
+
+        logger.info(f"LLM Response Content (first 200 chars): {accumulated_content[:200]}")
 
         # Parse the accumulated JSON into AnalysisResult
         try:
             parsed_data = json.loads(accumulated_content)
             return AnalysisResult.model_validate(parsed_data)
         except (json.JSONDecodeError, Exception) as parse_error:
-            logger.error(f"Failed to parse streaming response: {parse_error}")
+            logger.error(f"Failed to parse streaming response: {parse_error}. Content: {accumulated_content}")
             raise LLMGenerationError(
                 f"Failed to parse LLM response: {str(parse_error)}"
             )
