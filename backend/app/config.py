@@ -3,6 +3,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    # Project
+    PROJECT_NAME: str = "SnapAndSay"
+    
     # OpenAPI docs
     OPENAPI_URL: str = "/openapi.json"
     API_V1_STR: str = "/api/v1"
