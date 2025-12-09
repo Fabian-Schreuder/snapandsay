@@ -141,3 +141,41 @@ export const logsApi = {
     }
   },
 };
+
+export const adminApi = {
+  getLogs: async (params: {
+    page: number;
+    limit: number;
+    user_id?: string;
+    start_date?: string;
+    end_date?: string;
+  }): Promise<DietaryLogListResponse> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error('No active session');
+    }
+
+    const queryParams = new URLSearchParams({
+        page: params.page.toString(),
+        limit: params.limit.toString()
+    });
+    
+    if (params.user_id) queryParams.append('user_id', params.user_id);
+    if (params.start_date) queryParams.append('start_date', params.start_date);
+    if (params.end_date) queryParams.append('end_date', params.end_date);
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/admin/logs?${queryParams}`, {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Failed to fetch admin logs');
+    }
+    
+    return response.json();
+  }
+};

@@ -10,6 +10,8 @@ class DietaryLogResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
     id: UUID
+    user_id: UUID
+    status: str
     image_path: str
     transcript: Optional[str] = None
     description: Optional[str] = None

@@ -3,10 +3,68 @@ from datetime import datetime, time, timezone, date
 from typing import List, Optional
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.log import DietaryLog
+
+
+async def get_all_logs(
+    db: AsyncSession,
+    page: int = 1,
+    limit: int = 50,
+    user_id: Optional[UUID] = None,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None
+) -> List[DietaryLog]:
+    """
+    Retrieve all logs with filtering and pagination for admin.
+    """
+    query = select(DietaryLog).order_by(DietaryLog.created_at.desc())
+    
+    if user_id:
+        query = query.where(DietaryLog.user_id == user_id)
+        
+    if start_date:
+        start_dt = datetime.combine(start_date, time.min, tzinfo=timezone.utc)
+        query = query.where(DietaryLog.created_at >= start_dt)
+        
+    if end_date:
+        end_dt = datetime.combine(end_date, time.max, tzinfo=timezone.utc)
+        query = query.where(DietaryLog.created_at <= end_dt)
+        
+    offset = (page - 1) * limit
+    query = query.offset(offset).limit(limit)
+    
+    result = await db.execute(query)
+    return list(result.scalars().all())
+
+
+async def count_all_logs(
+    db: AsyncSession,
+    user_id: Optional[UUID] = None,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None
+) -> int:
+    """
+    Count total logs matching filters.
+    """
+    query = select(func.count()).select_from(DietaryLog)
+    
+    if user_id:
+        query = query.where(DietaryLog.user_id == user_id)
+        
+    if start_date:
+        start_dt = datetime.combine(start_date, time.min, tzinfo=timezone.utc)
+        query = query.where(DietaryLog.created_at >= start_dt)
+        
+    if end_date:
+        end_dt = datetime.combine(end_date, time.max, tzinfo=timezone.utc)
+        query = query.where(DietaryLog.created_at <= end_dt)
+        
+    result = await db.execute(query)
+    return result.scalar() or 0
+
 
 
 async def get_logs_for_date(

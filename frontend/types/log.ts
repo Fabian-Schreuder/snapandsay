@@ -4,6 +4,8 @@
 
 export interface DietaryLog {
   id: string;
+  user_id: string;
+  status: string;
   image_path: string;
   transcript: string | null;
   description: string | null;

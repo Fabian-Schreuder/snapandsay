@@ -7,6 +7,8 @@ class UserContext(BaseModel):
     id: UUID
     aud: str
     role: str
+    email: str | None = None
+    app_metadata: dict | None = None
 
 def verify_token(token: str) -> UserContext:
     try:
@@ -25,7 +27,9 @@ def verify_token(token: str) -> UserContext:
         return UserContext(
             id=UUID(user_id),
             aud=payload.get("aud", ""),
-            role=payload.get("role", "")
+            role=payload.get("role", ""),
+            email=payload.get("email"),
+            app_metadata=payload.get("app_metadata")
         )
     except jwt.PyJWTError as e:
         raise ValueError(f"Invalid token: {e}")

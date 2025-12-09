@@ -2,6 +2,8 @@ from typing import Annotated
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.core.security import verify_token, UserContext
+from app.config import settings
+from app.database import get_async_session as get_db
 
 # Supabase Auth uses Bearer token, usually passed in Authorization header.
 # We set auto_error=False to handle 401 manually or allow optional auth.
@@ -25,3 +27,19 @@ async def get_current_user(token: Annotated[str | None, Depends(oauth2_scheme)])
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+async def get_current_admin(user: Annotated[UserContext, Depends(get_current_user)]) -> UserContext:
+    # Check if user has admin role in app_metadata
+    if user.app_metadata and user.app_metadata.get("role") == "admin":
+        return user
+    
+    # Check if user email is in ADMIN_EMAILS
+    if user.email and settings.ADMIN_EMAILS:
+        admin_emails = [e.strip() for e in settings.ADMIN_EMAILS.split(",")]
+        if user.email in admin_emails:
+            return user
+            
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Not authorized",
+    )

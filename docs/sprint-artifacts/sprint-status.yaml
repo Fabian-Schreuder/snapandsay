@@ -55,7 +55,7 @@ development_status:
   4-2-edit-delete-log: done
   epic-4-retrospective: done
 
-  epic-5: backlog
-  5-1-admin-dashboard-view: backlog
+  epic-5: in-progress
+  5-1-admin-dashboard-view: review
   5-2-data-export: backlog
   epic-5-retrospective: optional
