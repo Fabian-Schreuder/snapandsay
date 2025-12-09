@@ -85,15 +85,23 @@ so that I can monitor the study progress and analyze data patterns.
 -   `backend/app/api/v1/api.py`
 -   `backend/app/config.py`
 -   `backend/app/core/security.py`
+
 -   `backend/tests/api/test_admin.py`
 -   `backend/tests/api/test_admin_auth.py`
+-   `frontend/components/features/admin/AdminFilters.tsx`
+-   `frontend/app/(dashboard)/admin/page.tsx`
+-   `backend/tests/services/test_admin_log_service.py`
 
 ## Change Log
 
 -   2025-12-09: Implemented Admin API foundation (auth, endpoint scaffolding).
+-   2025-12-09: Refactored Admin Dashboard to use `useQuery` and extracted `AdminFilters.tsx`. Improved backend tests.
 
-## Dev Agent Record
+## Completion Notes
 
-### Implementation Plan
--   [x] **Backend: Admin API Endpoints**: Implemented `get_current_admin` using `ADMIN_EMAILS` or `app_metadata` role. Created `/admin/logs` endpoint (currently mocks response). Tests added for auth and routing.
+-   **Refactoring:**
+    -   Extracted `AdminFilters` from `page.tsx` to handle URL search params and UI.
+    -   Switched `page.tsx` to use `@tanstack/react-query` with `placeholderData: keepPreviousData` for better UX.
+    -   Updated `backend/tests/api/test_admin.py` to use Mock-based testing for the API endpoint logic, ensuring filtering and pagination parameters are correctly passed to the service layer.
+
 
