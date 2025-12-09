@@ -59,6 +59,17 @@ def _build_messages(
         user_content.append({"type": "image_url", "image_url": {"url": image_url}})
 
     messages.append({"role": "user", "content": user_content})
+    
+    # Debug logging
+    log_content = []
+    for item in user_content:
+        if item["type"] == "text":
+            log_content.append(f"Text: {item['text'][:50]}...")
+        elif item["type"] == "image_url":
+            url = item["image_url"]["url"]
+            log_content.append(f"Image: {url[:30]}... (len={len(url)})")
+    logger.info(f"Constructed LLM messages: {log_content}")
+    
     return messages
 
 

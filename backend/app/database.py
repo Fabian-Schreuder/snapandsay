@@ -21,7 +21,10 @@ else:
 engine = create_async_engine(
     async_db_connection_url,
     poolclass=NullPool,
-    connect_args={"statement_cache_size": 0},
+    connect_args={
+        "statement_cache_size": 0,
+        "prepare_threshold": None,
+    },
 )
 
 async_session_maker = async_sessionmaker(
