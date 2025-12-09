@@ -72,7 +72,7 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
             stopRecording();
             setA11yStatus("Recording cancelled.");
         }
-    } catch (err) {
+    } catch {
         // Error is handled by hook state
         setA11yStatus("Error starting recording.");
     }

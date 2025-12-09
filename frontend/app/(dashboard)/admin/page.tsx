@@ -9,7 +9,9 @@ import { PagePagination } from "@/components/page-pagination";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import type { DietaryLogListResponse } from "@/types/log";
 
-export default function AdminDashboardPage() {
+import { Suspense } from "react";
+
+function AdminDashboardContent() {
   const searchParams = useSearchParams();
   
   const page = Number(searchParams.get('page')) || 1;
@@ -33,38 +35,46 @@ export default function AdminDashboardPage() {
   const meta = data?.meta || { total: 0, page: 1, limit: 20, pages: 0 };
 
   return (
-    <AdminGuard>
-      <div className="container mx-auto py-8 space-y-8">
-        <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-            <ExportDataButton />
-        </div>
-        
-        <AdminFilters />
-
-        {error && (
-            <div className="rounded bg-red-100 p-4 text-red-700">
-                {error instanceof Error ? error.message : 'Failed to fetch logs'}
-            </div>
-        )}
-
-        <div className="space-y-4">
-             {isLoading ? (
-                 <div className="p-8 text-center text-muted-foreground">Loading logs...</div>
-             ) : (
-                <>
-                    <AdminLogsTable logs={logs} onView={() => {}} />
-                    <PagePagination 
-                        currentPage={page}
-                        totalPages={Math.ceil(meta.total / limit)}
-                        pageSize={limit}
-                        totalItems={meta.total}
-                        basePath="/admin"
-                     />
-                </>
-             )}
-        </div>
+    <div className="container mx-auto py-8 space-y-8">
+      <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <ExportDataButton />
       </div>
+      
+      <AdminFilters />
+
+      {error && (
+          <div className="rounded bg-red-100 p-4 text-red-700">
+              {error instanceof Error ? error.message : 'Failed to fetch logs'}
+          </div>
+      )}
+
+      <div className="space-y-4">
+            {isLoading ? (
+                <div className="p-8 text-center text-muted-foreground">Loading logs...</div>
+            ) : (
+              <>
+                  <AdminLogsTable logs={logs} onView={() => {}} />
+                  <PagePagination 
+                      currentPage={page}
+                      totalPages={Math.ceil(meta.total / limit)}
+                      pageSize={limit}
+                      totalItems={meta.total}
+                      basePath="/admin"
+                    />
+              </>
+            )}
+      </div>
+    </div>
+  );
+}
+
+export default function AdminDashboardPage() {
+  return (
+    <AdminGuard>
+      <Suspense fallback={<div className="p-8 text-center">Loading dashboard...</div>}>
+         <AdminDashboardContent />
+      </Suspense>
     </AdminGuard>
   );
 }

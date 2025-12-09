@@ -58,7 +58,7 @@ export function ClarificationPrompt({
     }
   }, [textInput, onSubmit])
 
-  const handleVoiceComplete = useCallback(async (blob: Blob) => {
+  const handleVoiceComplete = useCallback(async () => {
     // Convert blob to text for voice input
     // The backend will handle transcription if needed
     // For now, we'll submit a placeholder

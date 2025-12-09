@@ -20,7 +20,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     checkUser();
 
     // Listen for auth changes (e.g. after login)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, _session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
             checkUser();
         } else if (event === 'SIGNED_OUT') {
@@ -59,7 +59,7 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
             setError(error.message);
         } 
         // onAuthStateChange will trigger checkUser -> setIsAdmin(true)
-    } catch (_err) {
+    } catch {
         setError("An unexpected error occurred");
     }
   };

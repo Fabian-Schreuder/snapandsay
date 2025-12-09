@@ -16,16 +16,14 @@ export default function SnapPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [step, setStep] = useState<'capture' | 'preview' | 'record' | 'streaming' | 'clarifying'>('capture');
-  const [logId, setLogId] = useState<string | null>(null);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { 
     status, 
     thoughts, 
-    result,
+
     error: agentError,
     clarification,
     startStreaming, 
@@ -71,7 +69,6 @@ export default function SnapPage() {
   };
 
   const handleRecordingComplete = async (blob: Blob) => {
-    setAudioBlob(blob);
     await handleUpload(blob);
   };
 
@@ -109,7 +106,7 @@ export default function SnapPage() {
         client_timestamp: new Date().toISOString()
       });
       const newLogId = response.log_id;
-      setLogId(newLogId);
+
 
       // 5. Success - invalidate logs query so dashboard refreshes
       await queryClient.invalidateQueries({ queryKey: ['logs'] });
@@ -175,7 +172,7 @@ export default function SnapPage() {
       {step === 'streaming' && !clarification && (
         <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-300">
            <ThinkingIndicator 
-              status={status === 'clarifying' ? 'streaming' : status as any} 
+              status={status === 'clarifying' ? 'streaming' : status as "idle" | "connecting" | "streaming" | "complete" | "error"}  
               thoughts={thoughts} 
            />
         </div>
@@ -216,7 +213,7 @@ export default function SnapPage() {
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
             <div className="absolute bottom-4 left-0 right-0 text-center">
-               <p className="text-white/90 font-medium">What's in this meal?</p>
+               <p className="text-white/90 font-medium">What&apos;s in this meal?</p>
             </div>
           </div>
 
