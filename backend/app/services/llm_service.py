@@ -60,18 +60,60 @@ def _build_messages(
     return messages
 
 
+async def _get_image_content(image_path: str, token: str | None = None) -> str:
+    """
+    Get image content as base64 data URI.
+    Handles private Supabase Storage paths by downloading with user token.
+    """
+    import base64
+    import httpx
+    
+    # Return as-is if it's already a public URL or data URI
+    if image_path.startswith(("http://", "https://", "data:")) and "supabase" not in image_path:
+        return image_path
+
+    if token and settings.SUPABASE_URL and "supabase" not in image_path:
+         # Construct authenticated storage URL
+        url = f"{settings.SUPABASE_URL}/storage/v1/object/authenticated/raw_uploads/{image_path}"
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                url, 
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            
+            if response.status_code == 200:
+                # Encode to base64
+                b64_image = base64.b64encode(response.content).decode('utf-8')
+                # Determine mime type (default to jpeg)
+                mime_type = "image/jpeg"
+                if image_path.lower().endswith(".png"):
+                    mime_type = "image/png"
+                elif image_path.lower().endswith(".webp"):
+                    mime_type = "image/webp"
+                    
+                return f"data:{mime_type};base64,{b64_image}"
+            else:
+                 logger.warning(f"Failed to download image from Supabase: {response.status_code}")
+
+    # Fallback: return original path (likely to fail if private)
+    return image_path or ""
+
+
 async def analyze_multimodal(
     image_url: str | None = None,
     transcript: str | None = None,
     context: str | None = None,
+    user_token: str | None = None,
 ) -> AnalysisResult:
     """
     Analyze image and/or transcript using GPT-4o to extract dietary data.
 
     Args:
-        image_url: URL of the image to analyze (optional).
+        image_url: URL or path of the image to analyze (optional).
         transcript: Audio transcript to analyze (optional).
         context: Additional textual context (e.g. clarification response) (optional).
+        user_token: User JWT for accessing private images (optional).
 
     Returns:
         AnalysisResult with identified food items and synthesis comment.
@@ -83,7 +125,12 @@ async def analyze_multimodal(
     if not image_url and not transcript:
         raise ValueError("No input provided (image_url or transcript required)")
 
-    messages = _build_messages(image_url, transcript, context)
+    # Process image if provided
+    final_image_url = image_url
+    if image_url:
+        final_image_url = await _get_image_content(image_url, user_token)
+
+    messages = _build_messages(final_image_url, transcript, context)
 
     try:
         client = _get_client()
@@ -103,6 +150,7 @@ async def analyze_multimodal_streaming(
     transcript: str | None = None,
     context: str | None = None,
     on_token: Callable[[str], Awaitable[None]] | None = None,
+    user_token: str | None = None,
 ) -> AnalysisResult:
     """
     Analyze image and/or transcript using GPT-4o with streaming tokens.
@@ -111,10 +159,11 @@ async def analyze_multimodal_streaming(
     chunk to enable real-time progress feedback in the UI.
 
     Args:
-        image_url: URL of the image to analyze (optional).
+        image_url: URL or path of the image to analyze (optional).
         transcript: Audio transcript to analyze (optional).
         context: Additional textual context (e.g. clarification response) (optional).
         on_token: Optional async callback invoked with each text chunk.
+        user_token: User JWT for accessing private images (optional).
 
     Returns:
         AnalysisResult with identified food items and synthesis comment.
@@ -126,7 +175,12 @@ async def analyze_multimodal_streaming(
     if not image_url and not transcript:
         raise ValueError("No input provided (image_url or transcript required)")
 
-    messages = _build_messages(image_url, transcript, context)
+    # Process image if provided
+    final_image_url = image_url
+    if image_url:
+        final_image_url = await _get_image_content(image_url, user_token)
+
+    messages = _build_messages(final_image_url, transcript, context)
     accumulated_content = ""
 
     try:

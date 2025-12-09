@@ -73,7 +73,8 @@ async def analyze_input(state: AgentState) -> dict:
         result = await llm_service.analyze_multimodal(
             image_url=image_url, 
             transcript=transcript,
-            context=context
+            context=context,
+            user_token=user_token
         )
         return {
             "nutritional_data": result.model_dump(),
@@ -174,7 +175,8 @@ async def analyze_input_streaming(
             image_url=image_url, 
             transcript=transcript,
             context=context,
-            on_token=on_token
+            on_token=on_token,
+            user_token=user_token
         )
         
         # Emit complete thought
