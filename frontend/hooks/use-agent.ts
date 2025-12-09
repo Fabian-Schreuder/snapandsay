@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { useQueryClient } from '@tanstack/react-query';
 
 // SSE Event Types
 type AgentEventType =
@@ -70,6 +71,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PU
 import { supabase } from "@/lib/supabase";
 
 export const useAgent = (): UseAgentReturn => {
+  const queryClient = useQueryClient();
   const [status, setStatus] = useState<AgentStatus>("idle");
   const [thoughts, setThoughts] = useState<string[]>([]);
   const [result, setResult] = useState<AgentResponse | null>(null);
@@ -288,6 +290,8 @@ export const useAgent = (): UseAgentReturn => {
                   setResult(response);
                   setStatus("complete");
                   triggerCompletionFeedback();
+                  // Invalidate logs query to update dashboard
+                  queryClient.invalidateQueries({ queryKey: ['logs'] });
                   cleanup();
                   return;
                 } else if (event.type === "agent.error") {
