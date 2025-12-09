@@ -64,6 +64,11 @@ const MAX_RETRIES = 3;
 const RETRY_DELAYS = [1000, 2000, 4000]; // Exponential backoff
 const CLARIFICATION_TIMEOUT_MS = 30000; // 30 seconds
 
+// Define API Base URL to match api.ts logic, but inclusive of NEXT_PUBLIC_API_URL from env
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+
+import { supabase } from "@/lib/supabase";
+
 export const useAgent = (): UseAgentReturn => {
   const [status, setStatus] = useState<AgentStatus>("idle");
   const [thoughts, setThoughts] = useState<string[]>([]);
@@ -213,13 +218,16 @@ export const useAgent = (): UseAgentReturn => {
       setStatus("connecting");
       setError(null);
 
-      // We're using POST for SSE, which EventSource doesn't support natively.
-      // Use fetch with ReadableStream instead.
       try {
-        const response = await fetch("/api/v1/analysis/stream", {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        // We're using POST for SSE, which EventSource doesn't support natively.
+        // Use fetch with ReadableStream instead.
+        const response = await fetch(`${API_BASE_URL}/api/v1/analysis/stream`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            ...(session?.access_token ? { "Authorization": `Bearer ${session.access_token}` } : {})
           },
           body: JSON.stringify({
             log_id: logId,
@@ -350,11 +358,14 @@ export const useAgent = (): UseAgentReturn => {
           clearTimeout(clarificationTimeoutRef.current);
         }
 
+        const { data: { session } } = await supabase.auth.getSession();
+
         // Submit clarification to backend
-        const res = await fetch(`/api/v1/analysis/clarify/${logId}`, {
+        const res = await fetch(`${API_BASE_URL}/api/v1/analysis/clarify/${logId}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            ...(session?.access_token ? { "Authorization": `Bearer ${session.access_token}` } : {})
           },
           body: JSON.stringify({
             response,
