@@ -3,6 +3,7 @@ import { useSearchParams } from "next/navigation";
 import AdminGuard from "@/components/AdminGuard";
 import { AdminLogsTable } from "@/components/features/admin/AdminLogsTable";
 import { AdminFilters } from "@/components/features/admin/AdminFilters";
+import { ExportDataButton } from "@/components/features/admin/ExportDataButton";
 import { adminApi } from "@/lib/api";
 import { PagePagination } from "@/components/page-pagination";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
@@ -21,7 +22,9 @@ export default function AdminDashboardPage() {
       limit,
       user_id: searchParams.get('user_id') || undefined,
       start_date: searchParams.get('start_date') || undefined,
-      end_date: searchParams.get('end_date') || undefined
+      end_date: searchParams.get('end_date') || undefined,
+      min_calories: searchParams.get('min_calories') ? Number(searchParams.get('min_calories')) : undefined,
+      max_calories: searchParams.get('max_calories') ? Number(searchParams.get('max_calories')) : undefined,
     }),
     placeholderData: keepPreviousData
   });
@@ -34,6 +37,7 @@ export default function AdminDashboardPage() {
       <div className="container mx-auto py-8 space-y-8">
         <div className="flex items-center justify-between">
             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <ExportDataButton />
         </div>
         
         <AdminFilters />

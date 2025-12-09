@@ -149,6 +149,8 @@ export const adminApi = {
     user_id?: string;
     start_date?: string;
     end_date?: string;
+    min_calories?: number;
+    max_calories?: number;
   }): Promise<DietaryLogListResponse> => {
     const { data: { session } } = await supabase.auth.getSession();
     
@@ -164,6 +166,8 @@ export const adminApi = {
     if (params.user_id) queryParams.append('user_id', params.user_id);
     if (params.start_date) queryParams.append('start_date', params.start_date);
     if (params.end_date) queryParams.append('end_date', params.end_date);
+    if (params.min_calories) queryParams.append('min_calories', params.min_calories.toString());
+    if (params.max_calories) queryParams.append('max_calories', params.max_calories.toString());
 
     const response = await fetch(`${API_BASE_URL}/api/v1/admin/logs?${queryParams}`, {
       headers: {
@@ -177,5 +181,43 @@ export const adminApi = {
     }
     
     return response.json();
+  },
+
+  exportLogs: async (params: {
+    format: 'csv' | 'json';
+    user_id?: string;
+    start_date?: string;
+    end_date?: string;
+    min_calories?: number;
+    max_calories?: number;
+  }): Promise<Blob> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error('No active session');
+    }
+
+    const queryParams = new URLSearchParams({
+        format: params.format
+    });
+    
+    if (params.user_id) queryParams.append('user_id', params.user_id);
+    if (params.start_date) queryParams.append('start_date', params.start_date);
+    if (params.end_date) queryParams.append('end_date', params.end_date);
+    if (params.min_calories) queryParams.append('min_calories', params.min_calories.toString());
+    if (params.max_calories) queryParams.append('max_calories', params.max_calories.toString());
+
+    const response = await fetch(`${API_BASE_URL}/api/v1/admin/export?${queryParams}`, {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || 'Failed to export logs');
+    }
+    
+    return response.blob();
   }
 };

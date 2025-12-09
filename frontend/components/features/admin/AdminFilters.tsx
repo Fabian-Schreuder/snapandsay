@@ -16,6 +16,8 @@ export function AdminFilters() {
   const [userId, setUserId] = useState(searchParams.get('user_id') || "");
   const [startDate, setStartDate] = useState(searchParams.get('start_date') || "");
   const [endDate, setEndDate] = useState(searchParams.get('end_date') || "");
+  const [minCalories, setMinCalories] = useState(searchParams.get('min_calories') || "");
+  const [maxCalories, setMaxCalories] = useState(searchParams.get('max_calories') || "");
 
   const handleFilterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +32,12 @@ export function AdminFilters() {
     if (endDate) params.set('end_date', endDate);
     else params.delete('end_date');
     
+    if (minCalories) params.set('min_calories', minCalories);
+    else params.delete('min_calories');
+
+    if (maxCalories) params.set('max_calories', maxCalories);
+    else params.delete('max_calories');
+    
     params.set('page', '1'); // Reset page on filter change
     
     router.push(`${pathname}?${params.toString()}`);
@@ -39,6 +47,8 @@ export function AdminFilters() {
      setUserId("");
      setStartDate("");
      setEndDate("");
+     setMinCalories("");
+     setMaxCalories("");
      router.push(pathname);
   };
 
@@ -56,7 +66,7 @@ export function AdminFilters() {
                         placeholder="UUID..." 
                         value={userId}
                         onChange={(e) => setUserId(e.target.value)}
-                        className="w-[300px]"
+                        className="w-[250px]"
                     />
                 </div>
                 <div className="space-y-2">
@@ -75,6 +85,28 @@ export function AdminFilters() {
                         type="date" 
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="minCal">Min Calories</Label>
+                    <Input 
+                        id="minCal" 
+                        type="number"
+                        placeholder="0"
+                        className="w-[100px]"
+                        value={minCalories}
+                        onChange={(e) => setMinCalories(e.target.value)}
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="maxCal">Max Calories</Label>
+                    <Input 
+                        id="maxCal" 
+                        type="number"
+                        placeholder="2000"
+                        className="w-[100px]"
+                        value={maxCalories}
+                        onChange={(e) => setMaxCalories(e.target.value)}
                     />
                 </div>
                 <div className="flex gap-2">

@@ -24,6 +24,7 @@ class DietaryLog(Base):
     protein = Column(Integer, nullable=True)
     carbs = Column(Integer, nullable=True)
     fats = Column(Integer, nullable=True)
+    meal_type = Column(String, nullable=True)
 
     # Status
     status = Column(

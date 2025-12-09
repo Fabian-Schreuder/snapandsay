@@ -9,18 +9,26 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.log import DietaryLog
 
 
+from sqlalchemy.orm import joinedload
+
 async def get_all_logs(
     db: AsyncSession,
     page: int = 1,
     limit: int = 50,
     user_id: Optional[UUID] = None,
     start_date: Optional[date] = None,
-    end_date: Optional[date] = None
+    end_date: Optional[date] = None,
+    min_calories: Optional[int] = None,
+    max_calories: Optional[int] = None,
+    with_user: bool = False
 ) -> List[DietaryLog]:
     """
     Retrieve all logs with filtering and pagination for admin.
     """
     query = select(DietaryLog).order_by(DietaryLog.created_at.desc())
+    
+    if with_user:
+        query = query.options(joinedload(DietaryLog.user))
     
     if user_id:
         query = query.where(DietaryLog.user_id == user_id)
@@ -32,19 +40,28 @@ async def get_all_logs(
     if end_date:
         end_dt = datetime.combine(end_date, time.max, tzinfo=timezone.utc)
         query = query.where(DietaryLog.created_at <= end_dt)
+
+    if min_calories is not None:
+        query = query.where(DietaryLog.calories >= min_calories)
+
+    if max_calories is not None:
+        query = query.where(DietaryLog.calories <= max_calories)
         
     offset = (page - 1) * limit
     query = query.offset(offset).limit(limit)
     
     result = await db.execute(query)
-    return list(result.scalars().all())
+    return list(result.unique().scalars().all())
 
 
 async def count_all_logs(
     db: AsyncSession,
     user_id: Optional[UUID] = None,
+    dataset = None, # unused but kept for signature compatibility if needed? No, just addargs
     start_date: Optional[date] = None,
-    end_date: Optional[date] = None
+    end_date: Optional[date] = None,
+    min_calories: Optional[int] = None,
+    max_calories: Optional[int] = None
 ) -> int:
     """
     Count total logs matching filters.
@@ -61,6 +78,12 @@ async def count_all_logs(
     if end_date:
         end_dt = datetime.combine(end_date, time.max, tzinfo=timezone.utc)
         query = query.where(DietaryLog.created_at <= end_dt)
+        
+    if min_calories is not None:
+        query = query.where(DietaryLog.calories >= min_calories)
+
+    if max_calories is not None:
+        query = query.where(DietaryLog.calories <= max_calories)
         
     result = await db.execute(query)
     return result.scalar() or 0
