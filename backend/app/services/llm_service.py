@@ -42,7 +42,8 @@ def _build_messages(
         "Analyze the provided input (image and/or audio transcript) to identify food items, "
         "estimate quantities, calories, and provide a confidence score. "
         "Infer the meal type (Breakfast, Lunch, Dinner, Snack) based on time and content. "
-        "Provide the output in JSON format."
+        "Provide the output in JSON format complying with this schema: "
+        f"{json.dumps(AnalysisResult.model_json_schema(), ensure_ascii=False)}"
     )
 
     messages = [{"role": "system", "content": system_prompt}]
