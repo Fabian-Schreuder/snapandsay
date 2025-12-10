@@ -17,6 +17,13 @@ export default defineConfig({
     timeout: 15 * 1000, // Assertion timeout: 15s
   },
 
+  webServer: {
+    command: 'pnpm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+  },
+
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
     trace: 'retain-on-failure',
