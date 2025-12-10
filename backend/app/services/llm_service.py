@@ -209,21 +209,26 @@ async def analyze_multimodal_streaming(
         )
 
         async for chunk in stream:
-            if chunk.choices:
-                delta = chunk.choices[0].delta
-                if delta.content:
-                    content = delta.content
-                    accumulated_content += content
+                if chunk.choices:
+                    logger.debug(f"Chunk received: {chunk.choices[0]}")
+                    delta = chunk.choices[0].delta
+                    if delta.content:
+                        content = delta.content
+                        accumulated_content += content
+                        logger.debug(f"Token received: {content!r}")
 
-                    # Call the token callback if provided
-                    if on_token:
-                        await on_token(content)
+                        # Call the token callback if provided
+                        if on_token:
+                            await on_token(content)
                 
                 if chunk.choices[0].finish_reason:
                     logger.info(f"LLM Stream Finished. Reason: {chunk.choices[0].finish_reason}")
+                    logger.info(f"Total accumulated content length: {len(accumulated_content)}")
 
         if not accumulated_content:
-            logger.error("LLM returned empty response")
+            logger.error("LLM returned empty response. Accumulated content is empty.")
+            # dump messages to see what we sent
+            logger.error(f"Request messages were: {json.dumps(messages, default=str)}")
             raise LLMGenerationError("LLM returned empty response")
 
         logger.info(f"LLM Response Content (first 200 chars): {accumulated_content[:200]}")
