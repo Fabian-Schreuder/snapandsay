@@ -202,6 +202,7 @@ async def analyze_multimodal_streaming(
         client = _get_client()
 
         # Use streaming mode
+        logger.info(f"Sending messages to LLM: {messages}")
         stream = await client.chat.completions.create(
             model=settings.OPENAI_MODEL_NAME,
             messages=messages,
