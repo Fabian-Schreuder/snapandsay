@@ -1,26 +1,26 @@
-<testsuites id="" name="" tests="9" failures="0" skipped="0" errors="0" time="24.137396">
-<testsuite name="e5-admin.spec.ts" timestamp="2025-12-10T16:44:09.811Z" hostname="chromium" tests="3" failures="0" skipped="0" time="38.076" errors="0">
-<testcase name="Epic 5: Admin Oversight › TS-5.1: Admin Access &amp; Dashboard View" classname="e5-admin.spec.ts" time="11.541">
+<testsuites id="" name="" tests="9" failures="0" skipped="0" errors="0" time="21.816004">
+<testsuite name="e5-admin.spec.ts" timestamp="2025-12-10T17:01:00.366Z" hostname="chromium" tests="3" failures="0" skipped="0" time="32.271" errors="0">
+<testcase name="Epic 5: Admin Oversight › TS-5.1: Admin Access &amp; Dashboard View" classname="e5-admin.spec.ts" time="10.169">
 </testcase>
-<testcase name="Epic 5: Admin Oversight › TS-5.2: Filtering Logs" classname="e5-admin.spec.ts" time="13.443">
+<testcase name="Epic 5: Admin Oversight › TS-5.2: Filtering Logs" classname="e5-admin.spec.ts" time="11.351">
 </testcase>
-<testcase name="Epic 5: Admin Oversight › TS-5.3: Data Export" classname="e5-admin.spec.ts" time="13.092">
-</testcase>
-</testsuite>
-<testsuite name="e5-admin.spec.ts" timestamp="2025-12-10T16:44:09.811Z" hostname="firefox" tests="3" failures="0" skipped="0" time="37.635" errors="0">
-<testcase name="Epic 5: Admin Oversight › TS-5.1: Admin Access &amp; Dashboard View" classname="e5-admin.spec.ts" time="12.659">
-</testcase>
-<testcase name="Epic 5: Admin Oversight › TS-5.2: Filtering Logs" classname="e5-admin.spec.ts" time="12.171">
-</testcase>
-<testcase name="Epic 5: Admin Oversight › TS-5.3: Data Export" classname="e5-admin.spec.ts" time="12.805">
+<testcase name="Epic 5: Admin Oversight › TS-5.3: Data Export" classname="e5-admin.spec.ts" time="10.751">
 </testcase>
 </testsuite>
-<testsuite name="e5-admin.spec.ts" timestamp="2025-12-10T16:44:09.811Z" hostname="webkit" tests="3" failures="0" skipped="0" time="39.22" errors="0">
-<testcase name="Epic 5: Admin Oversight › TS-5.1: Admin Access &amp; Dashboard View" classname="e5-admin.spec.ts" time="11.861">
+<testsuite name="e5-admin.spec.ts" timestamp="2025-12-10T17:01:00.366Z" hostname="firefox" tests="3" failures="0" skipped="0" time="32.117" errors="0">
+<testcase name="Epic 5: Admin Oversight › TS-5.1: Admin Access &amp; Dashboard View" classname="e5-admin.spec.ts" time="10.011">
 </testcase>
-<testcase name="Epic 5: Admin Oversight › TS-5.2: Filtering Logs" classname="e5-admin.spec.ts" time="13.551">
+<testcase name="Epic 5: Admin Oversight › TS-5.2: Filtering Logs" classname="e5-admin.spec.ts" time="11.269">
 </testcase>
-<testcase name="Epic 5: Admin Oversight › TS-5.3: Data Export" classname="e5-admin.spec.ts" time="13.808">
+<testcase name="Epic 5: Admin Oversight › TS-5.3: Data Export" classname="e5-admin.spec.ts" time="10.837">
+</testcase>
+</testsuite>
+<testsuite name="e5-admin.spec.ts" timestamp="2025-12-10T17:01:00.366Z" hostname="webkit" tests="3" failures="0" skipped="0" time="33.175" errors="0">
+<testcase name="Epic 5: Admin Oversight › TS-5.1: Admin Access &amp; Dashboard View" classname="e5-admin.spec.ts" time="10.217">
+</testcase>
+<testcase name="Epic 5: Admin Oversight › TS-5.2: Filtering Logs" classname="e5-admin.spec.ts" time="11.213">
+</testcase>
+<testcase name="Epic 5: Admin Oversight › TS-5.3: Data Export" classname="e5-admin.spec.ts" time="11.745">
 </testcase>
 </testsuite>
 </testsuites>

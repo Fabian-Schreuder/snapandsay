@@ -127,8 +127,9 @@ test.describe('Epic 4: Dietary Log Management', () => {
                await route.fulfill({ status: 404 });
              }
         } else {
-            // Should not happen, but fallback just in case
-            await route.continue();
+            // Should not happen, but fallback just in case - fail fast instead of hanging
+            console.warn(`Unmocked method ${method} for logs endpoint`);
+            await route.fulfill({ status: 500, body: 'Unmocked method in test' });
         }
     });
 
