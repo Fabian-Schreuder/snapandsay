@@ -129,6 +129,21 @@ async def analyze_input_streaming(
         logger.info(f"Transcribing audio from {audio_url}")
         try:
             transcript = await voice_service.transcribe_audio(audio_url, token=user_token)
+            
+            # Persist transcript
+            if log_id:
+                try:
+                    async with async_session_maker() as session:
+                        result = await session.execute(
+                            select(DietaryLog).where(DietaryLog.id == log_id)
+                        )
+                        log_entry = result.scalar_one_or_none()
+                        if log_entry:
+                            log_entry.transcript = transcript
+                            await session.commit()
+                            logger.info(f"Persisted transcript for log {log_id}")
+                except Exception as db_err:
+                    logger.error(f"Failed to persist transcript: {db_err}")
         except Exception as e:
             logger.error(f"Failed to transcribe audio: {e}")
             yield SSEEvent(
@@ -371,7 +386,17 @@ async def finalize_log_streaming(
                     if items:
                         # Calculate totals from items
                         total_calories = sum(item.get("calories", 0) or 0 for item in items)
+                        total_protein = sum(item.get("protein", 0) or 0 for item in items)
+                        total_carbs = sum(item.get("carbs", 0) or 0 for item in items)
+                        total_fats = sum(item.get("fats", 0) or 0 for item in items)
+                        
                         log_entry.calories = total_calories if total_calories > 0 else None
+                        log_entry.protein = total_protein if total_protein > 0 else None
+                        log_entry.carbs = total_carbs if total_carbs > 0 else None
+                        log_entry.fats = total_fats if total_fats > 0 else None
+                        
+                        # Extract meal_type
+                        log_entry.meal_type = nutritional_data.get("meal_type")
                         
                         # Store synthesis comment as description if not already set
                         synthesis = nutritional_data.get("synthesis_comment", "")

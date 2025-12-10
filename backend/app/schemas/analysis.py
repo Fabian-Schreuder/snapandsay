@@ -18,12 +18,16 @@ class FoodItem(BaseModel):
     name: str = Field(..., description="Name of the food item")
     quantity: str = Field(..., description="Quantity or portion size")
     calories: Optional[int] = Field(None, description="Estimated calories")
+    protein: Optional[int] = Field(None, description="Estimated protein in grams")
+    carbs: Optional[int] = Field(None, description="Estimated carbohydrates in grams")
+    fats: Optional[int] = Field(None, description="Estimated fats in grams")
     confidence: float = Field(..., description="Confidence score between 0 and 1")
 
 
 class AnalysisResult(BaseModel):
     """Result of analyzing food image/audio input."""
     items: List[FoodItem] = Field(..., description="List of identified food items")
+    meal_type: Optional[str] = Field(None, description="Type of meal (e.g., Breakfast, Lunch, Dinner, Snack)")
     synthesis_comment: str = Field(..., description="Overall summary or analysis comment")
 
     @property
