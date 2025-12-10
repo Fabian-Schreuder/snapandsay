@@ -30,7 +30,7 @@ if "@" in safe_url:
 logger.info(f"Connecting to Database: {safe_url}")
 
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    async_db_connection_url,
     echo=settings.ECHO_SQL,
     poolclass=NullPool,
     connect_args={
