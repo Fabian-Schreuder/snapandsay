@@ -1,26 +1,26 @@
-<testsuites id="" name="" tests="9" failures="0" skipped="0" errors="0" time="27.612634000000003">
-<testsuite name="e4-logs.spec.ts" timestamp="2025-12-10T16:26:31.624Z" hostname="chromium" tests="3" failures="0" skipped="0" time="42.794" errors="0">
-<testcase name="Epic 4: Dietary Log Management › TS-4.1: View Daily Log List" classname="e4-logs.spec.ts" time="7.879">
+<testsuites id="" name="" tests="9" failures="0" skipped="0" errors="0" time="24.137396">
+<testsuite name="e5-admin.spec.ts" timestamp="2025-12-10T16:44:09.811Z" hostname="chromium" tests="3" failures="0" skipped="0" time="38.076" errors="0">
+<testcase name="Epic 5: Admin Oversight › TS-5.1: Admin Access &amp; Dashboard View" classname="e5-admin.spec.ts" time="11.541">
 </testcase>
-<testcase name="Epic 4: Dietary Log Management › TS-4.2: Delete Meal Log" classname="e4-logs.spec.ts" time="16.933">
+<testcase name="Epic 5: Admin Oversight › TS-5.2: Filtering Logs" classname="e5-admin.spec.ts" time="13.443">
 </testcase>
-<testcase name="Epic 4: Dietary Log Management › TS-4.3: Edit Meal Log" classname="e4-logs.spec.ts" time="17.982">
-</testcase>
-</testsuite>
-<testsuite name="e4-logs.spec.ts" timestamp="2025-12-10T16:26:31.624Z" hostname="firefox" tests="3" failures="0" skipped="0" time="40.941" errors="0">
-<testcase name="Epic 4: Dietary Log Management › TS-4.1: View Daily Log List" classname="e4-logs.spec.ts" time="9.222">
-</testcase>
-<testcase name="Epic 4: Dietary Log Management › TS-4.2: Delete Meal Log" classname="e4-logs.spec.ts" time="16.061">
-</testcase>
-<testcase name="Epic 4: Dietary Log Management › TS-4.3: Edit Meal Log" classname="e4-logs.spec.ts" time="15.658">
+<testcase name="Epic 5: Admin Oversight › TS-5.3: Data Export" classname="e5-admin.spec.ts" time="13.092">
 </testcase>
 </testsuite>
-<testsuite name="e4-logs.spec.ts" timestamp="2025-12-10T16:26:31.624Z" hostname="webkit" tests="3" failures="0" skipped="0" time="45.588" errors="0">
-<testcase name="Epic 4: Dietary Log Management › TS-4.1: View Daily Log List" classname="e4-logs.spec.ts" time="8.464">
+<testsuite name="e5-admin.spec.ts" timestamp="2025-12-10T16:44:09.811Z" hostname="firefox" tests="3" failures="0" skipped="0" time="37.635" errors="0">
+<testcase name="Epic 5: Admin Oversight › TS-5.1: Admin Access &amp; Dashboard View" classname="e5-admin.spec.ts" time="12.659">
 </testcase>
-<testcase name="Epic 4: Dietary Log Management › TS-4.2: Delete Meal Log" classname="e4-logs.spec.ts" time="18.536">
+<testcase name="Epic 5: Admin Oversight › TS-5.2: Filtering Logs" classname="e5-admin.spec.ts" time="12.171">
 </testcase>
-<testcase name="Epic 4: Dietary Log Management › TS-4.3: Edit Meal Log" classname="e4-logs.spec.ts" time="18.588">
+<testcase name="Epic 5: Admin Oversight › TS-5.3: Data Export" classname="e5-admin.spec.ts" time="12.805">
+</testcase>
+</testsuite>
+<testsuite name="e5-admin.spec.ts" timestamp="2025-12-10T16:44:09.811Z" hostname="webkit" tests="3" failures="0" skipped="0" time="39.22" errors="0">
+<testcase name="Epic 5: Admin Oversight › TS-5.1: Admin Access &amp; Dashboard View" classname="e5-admin.spec.ts" time="11.861">
+</testcase>
+<testcase name="Epic 5: Admin Oversight › TS-5.2: Filtering Logs" classname="e5-admin.spec.ts" time="13.551">
+</testcase>
+<testcase name="Epic 5: Admin Oversight › TS-5.3: Data Export" classname="e5-admin.spec.ts" time="13.808">
 </testcase>
 </testsuite>
 </testsuites>
