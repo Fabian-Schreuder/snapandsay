@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     TEST_DATABASE_URL: str | None = None
     EXPIRE_ON_COMMIT: bool = False
+    ECHO_SQL: bool = False
     
     # Auth
     SUPABASE_JWT_SECRET: str
