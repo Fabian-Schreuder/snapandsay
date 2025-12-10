@@ -44,4 +44,9 @@ venv/
 env/
 .env
 
+# Vercel
 .vercel
+
+# Gemini
+.gemini/
+gha-creds-*.json
