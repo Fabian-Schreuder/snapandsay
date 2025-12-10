@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from app.config import settings
 from app.schemas.analysis import AnalysisResult, FoodItem
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -211,7 +212,8 @@ async def analyze_multimodal_streaming(
         logger.info("Starting LLM stream iteration...")
         async for chunk in stream:
                 if chunk.choices:
-                    # logger.info(f"Chunk received: {chunk.choices[0]}")
+                    # Log the entire chunk for debugging
+                    logger.info(f"Chunk received: {chunk}")
                     delta = chunk.choices[0].delta
                     if delta.content:
                         content = delta.content

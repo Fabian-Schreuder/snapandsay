@@ -1,57 +1,63 @@
 import asyncio
 import os
-import logging
-from sqlalchemy import text, create_engine, inspect
-from app.config import settings
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import text
+from dotenv import load_dotenv
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+load_dotenv()
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    print("DATABASE_URL not found in environment")
+    exit(1)
+
+# Ensure async driver
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
+
+# Attempt to use port 54322 if localhost (common for local supabase)
+if "localhost:5432" in DATABASE_URL:
+    print("Detected localhost:5432, trying 54322 for Docker mapped port...")
+    # Try default supabase docker password if 'password' is used
+    if "postgres:password" in DATABASE_URL:
+         print("Overwriting with detected Docker credentials...")
+         # Docker inspect confirmed: POSTGRES_PASSWORD=postgres
+         # Database name is likely 'postgres'
+         DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:54322/postgres"
+    
+    # Also handle if it was already modified but still wrong
+    if "localhost:54322" in DATABASE_URL and "postgres:postgres" not in DATABASE_URL:
+         print("Forcing correct credentials for localhost:54322...")
+         DATABASE_URL = "postgresql+asyncpg://postgres:postgres@localhost:54322/postgres"
 
 async def fix_enum():
-    db_url = settings.DATABASE_URL
-    # Mask password for logging
-    masked_url = db_url.split("@")[-1] if "@" in db_url else "unknown"
-    logger.info(f"Connecting to database at ...@{masked_url}")
-
-    # Use sync engine for simple schema inspection/alteration script
-    # Asyncpg can be tricky with some DDL commands in transactions
-    # We will use the sync driver logic if possible, or just raw sql via invalidation
-    
-    # Actually, let's stick to the raw connection string we have but use a sync driver if needed
-    # But settings.DATABASE_URL is async (postgresql+asyncpg).
-    # Let's verify if we can use async engine for this.
-    
-    from sqlalchemy.ext.asyncio import create_async_engine
-    
-    engine = create_async_engine(db_url, echo=True)
-    
+    engine = create_async_engine(DATABASE_URL, echo=True)
     async with engine.begin() as conn:
-        logger.info("Checking current values for 'log_status_enum'...")
+        print("Checking log_status_enum values...")
+        # Check current values
+        result = await conn.execute(text("SELECT unnest(enum_range(NULL::log_status_enum))"))
+        values = [row[0] for row in result.fetchall()]
+        print(f"Current values: {values}")
         
-        # This query works on Postgres to get enum labels
-        result = await conn.execute(text("SELECT enumlabel FROM pg_enum JOIN pg_type ON pg_enum.enumtypid = pg_type.oid WHERE pg_type.typname = 'log_status_enum'"))
-        existing_labels = [row[0] for row in result.fetchall()]
-        
-        logger.info(f"Found labels: {existing_labels}")
-        
-        if "failed" not in existing_labels:
-            logger.info("Adding 'failed' to log_status_enum...")
-            # ALTER TYPE ... ADD VALUE cannot run inside a transaction block in some contexts, 
-            # but usually it's fine in autocommit mode. 
-            # SQLAlchemy async 'begin' starts a transaction. 
-            # Let's try to execute it.
-            try:
-                await conn.execute(text("ALTER TYPE log_status_enum ADD VALUE 'failed'"))
-                logger.info("Successfully added 'failed'.")
-            except Exception as e:
-                logger.error(f"Failed to add value: {e}")
-                # It might fail if it exists (race condition) or transaction issue
+        if 'failed' not in values:
+            print("Adding 'failed' to log_status_enum...")
+            # This cannot run inside a transaction block for some PG versions, but ALTER TYPE ADD VALUE usually handles it.
+            # However, SQLAlchemy's begin() starts a transaction. ALTER TYPE ... ADD VALUE cannot run inside a transaction block.
+            # We need to run it in isolation level AUTOCOMMIT.
+            pass
         else:
-            logger.info("'failed' already exists in log_status_enum.")
+            print("'failed' already exists in enum")
+            return
+
+    # Re-connect with isolation level autocommit for ALTER TYPE
+    engine_autocommit = create_async_engine(DATABASE_URL, isolation_level="AUTOCOMMIT", echo=True)
+    async with engine_autocommit.connect() as conn:
+        if 'failed' not in values:
+             await conn.execute(text("ALTER TYPE log_status_enum ADD VALUE 'failed'"))
+             print("Added 'failed' successfully.")
 
 if __name__ == "__main__":
     try:
         asyncio.run(fix_enum())
     except Exception as e:
-        logger.error(f"Script failed: {e}")
+        print(f"Error: {e}")
