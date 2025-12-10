@@ -18,8 +18,17 @@ else:
 
 # Disable connection pooling for serverless environments like Vercel
 # Disable statement cache for compatibility with transaction poolers (like Supavisor on port 6543)
+logger.info("Creating database engine...")
+# Log the DB URL (mask password)
+safe_url = settings.DATABASE_URL
+if "@" in safe_url:
+    part1, part2 = safe_url.split("@")
+    safe_url = f"{part1.split(':')[0]}:***@{part2}"
+logger.info(f"Connecting to Database: {safe_url}")
+
 engine = create_async_engine(
-    async_db_connection_url,
+    settings.DATABASE_URL,
+    echo=settings.ECHO_SQL,
     poolclass=NullPool,
     connect_args={
         "statement_cache_size": 0,

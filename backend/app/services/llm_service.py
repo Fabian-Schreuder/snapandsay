@@ -207,7 +207,8 @@ async def analyze_multimodal_streaming(
             stream=True,
             response_format={"type": "json_object"},
         )
-
+        
+        logger.info("Starting LLM stream iteration...")
         async for chunk in stream:
                 if chunk.choices:
                     # logger.info(f"Chunk received: {chunk.choices[0]}")
