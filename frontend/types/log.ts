@@ -7,6 +7,7 @@ export interface DietaryLog {
   user_id: string;
   status: string;
   image_path: string;
+  image_url?: string | null;
   transcript: string | null;
   description: string | null;
   calories: number | null;

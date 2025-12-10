@@ -13,6 +13,7 @@ class DietaryLogResponse(BaseModel):
     user_id: UUID
     status: str
     image_path: str
+    image_url: Optional[str] = None
     transcript: Optional[str] = None
     description: Optional[str] = None
     calories: Optional[int] = None

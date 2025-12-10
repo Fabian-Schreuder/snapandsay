@@ -45,7 +45,7 @@ function formatTime(isoString: string): string {
 export function FoodEntryCard({ log, onClick }: FoodEntryCardProps) {
   const router = useRouter();
   const displayText = log.description || log.transcript || 'Meal logged';
-  const imageUrl = getImageUrl(log.image_path);
+  const imageUrl = log.image_url || getImageUrl(log.image_path);
   const timeDisplay = formatTime(log.created_at);
 
   const handleClick = () => {

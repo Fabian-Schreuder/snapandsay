@@ -49,10 +49,24 @@ async def get_logs(
     # Fetch logs from service layer
     logs = await log_service.get_logs_for_date(db, current_user.id, target_date)
     
-    # Convert to response schema
-    log_responses = [
-        DietaryLogResponse.model_validate(log) for log in logs
-    ]
+    # Generate signed URLs
+    from app.core.supabase import get_supabase_client
+    supabase = get_supabase_client()
+    
+    log_responses = []
+    for log in logs:
+        response_model = DietaryLogResponse.model_validate(log)
+        try:
+            # Generate signed URL valid for 1 hour (3600 seconds)
+            signed_url = supabase.storage.from_("raw_uploads").create_signed_url(
+                log.image_path, 3600
+            )
+            response_model.image_url = signed_url["signedURL"]
+        except Exception as e:
+            # Fallback to path if signing fails
+            print(f"Failed to sign URL for {log.image_path}: {e}")
+            pass
+        log_responses.append(response_model)
     
     return DietaryLogListResponse(
         data=log_responses,
@@ -83,7 +97,20 @@ async def get_log(
     log = await log_service.get_log_by_id(db, current_user.id, log_id)
     if not log:
         raise HTTPException(status_code=404, detail="Log not found")
-    return DietaryLogResponse.model_validate(log)
+        
+    response_model = DietaryLogResponse.model_validate(log)
+    try:
+        from app.core.supabase import get_supabase_client
+        supabase = get_supabase_client()
+        signed_url = supabase.storage.from_("raw_uploads").create_signed_url(
+            log.image_path, 3600
+        )
+        response_model.image_url = signed_url["signedURL"]
+    except Exception as e:
+        print(f"Failed to sign URL for {log.image_path}: {e}")
+        pass
+        
+    return response_model
 
 
 @router.put("/{log_id}", response_model=DietaryLogResponse)
@@ -113,7 +140,19 @@ async def update_log(
     )
     if not updated:
         raise HTTPException(status_code=404, detail="Log not found")
-    return DietaryLogResponse.model_validate(updated)
+        
+    response_model = DietaryLogResponse.model_validate(updated)
+    try:
+        from app.core.supabase import get_supabase_client
+        supabase = get_supabase_client()
+        signed_url = supabase.storage.from_("raw_uploads").create_signed_url(
+            updated.image_path, 3600
+        )
+        response_model.image_url = signed_url["signedURL"]
+    except Exception as e:
+        pass
+        
+    return response_model
 
 
 @router.delete("/{log_id}", status_code=204)
