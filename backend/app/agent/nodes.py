@@ -190,6 +190,25 @@ async def analyze_input_streaming(
         }
     except Exception as e:
         logger.error(f"Analysis streaming failed: {e}")
+        
+        # Update log status to failed
+        if log_id:
+            try:
+                async with async_session_maker() as session:
+                    result = await session.execute(
+                        select(DietaryLog).where(DietaryLog.id == log_id)
+                    )
+                    log_entry = result.scalar_one_or_none()
+                    if log_entry:
+                        log_entry.status = "failed"
+                        # Append error to description for debugging
+                        current_desc = log_entry.description or ""
+                        log_entry.description = f"{current_desc}\n[Analysis Failed]: {str(e)}".strip()
+                        await session.commit()
+                        logger.info(f"Updated log {log_id} status to 'failed'")
+            except Exception as db_err:
+                logger.error(f"Failed to update log status to failed: {db_err}")
+
         yield SSEEvent(
             type=EVENT_ERROR,
             payload=AgentError(

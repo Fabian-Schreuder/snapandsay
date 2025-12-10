@@ -37,11 +37,11 @@ async def event_generator(request: StreamAnalysisRequest, token: str | None = No
     """
     initial_state: AgentState = {
         "messages": [],
-        "messages": [],
         "image_url": request.image_path,
         "audio_url": request.audio_path,
         "nutritional_data": None,
         "user_token": token,
+        "log_id": request.log_id,
     }
 
     last_heartbeat = asyncio.get_event_loop().time()
