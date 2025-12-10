@@ -210,12 +210,12 @@ async def analyze_multimodal_streaming(
 
         async for chunk in stream:
                 if chunk.choices:
-                    logger.debug(f"Chunk received: {chunk.choices[0]}")
+                    # logger.info(f"Chunk received: {chunk.choices[0]}")
                     delta = chunk.choices[0].delta
                     if delta.content:
                         content = delta.content
                         accumulated_content += content
-                        logger.debug(f"Token received: {content!r}")
+                        logger.info(f"Token received: {content!r}")
 
                         # Call the token callback if provided
                         if on_token:
