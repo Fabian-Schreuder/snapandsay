@@ -1,4 +1,7 @@
 from collections.abc import AsyncGenerator
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 from sqlalchemy import NullPool
