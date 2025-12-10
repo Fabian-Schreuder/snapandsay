@@ -20,6 +20,11 @@ export default function SnapPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Debug Logging
+  React.useEffect(() => {
+    console.log(`[SnapPage] Step: ${step}, IsUploading: ${isUploading}, Image: ${!!capturedImage}`);
+  }, [step, isUploading, capturedImage]);
+
   const { 
     status, 
     thoughts, 
@@ -53,6 +58,7 @@ export default function SnapPage() {
         setErrorMessage(agentError);
     }
   }, [agentError]);
+
 
   const handleCapture = (imageSrc: string) => {
     setCapturedImage(imageSrc);

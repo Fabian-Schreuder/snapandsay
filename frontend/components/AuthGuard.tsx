@@ -16,7 +16,7 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
 
       if (event === 'SIGNED_IN' && session) {
         if (pathname === '/login') {
-            router.replace('/app');
+            router.replace('/');
         }
       } else if (event === 'SIGNED_OUT' || (!session && event === 'INITIAL_SESSION')) {
         if (!isSigningIn.current) {

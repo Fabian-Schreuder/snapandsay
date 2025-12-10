@@ -9,7 +9,7 @@ interface CameraCaptureProps {
 }
 
 const videoConstraints = {
-  facingMode: "environment"
+  facingMode: { ideal: "environment" }
 };
 
 export default function CameraCapture({ onCapture }: CameraCaptureProps) {
@@ -41,6 +41,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
     }
 
     const imageSrc = webcamRef.current?.getScreenshot();
+    
     if (imageSrc) {
       // Wait for flash peak before transitioning
       captureTimeoutRef.current = setTimeout(() => {
