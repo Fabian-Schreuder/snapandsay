@@ -1,0 +1,26 @@
+<testsuites id="" name="" tests="9" failures="0" skipped="0" errors="0" time="27.612634000000003">
+<testsuite name="e4-logs.spec.ts" timestamp="2025-12-10T16:26:31.624Z" hostname="chromium" tests="3" failures="0" skipped="0" time="42.794" errors="0">
+<testcase name="Epic 4: Dietary Log Management › TS-4.1: View Daily Log List" classname="e4-logs.spec.ts" time="7.879">
+</testcase>
+<testcase name="Epic 4: Dietary Log Management › TS-4.2: Delete Meal Log" classname="e4-logs.spec.ts" time="16.933">
+</testcase>
+<testcase name="Epic 4: Dietary Log Management › TS-4.3: Edit Meal Log" classname="e4-logs.spec.ts" time="17.982">
+</testcase>
+</testsuite>
+<testsuite name="e4-logs.spec.ts" timestamp="2025-12-10T16:26:31.624Z" hostname="firefox" tests="3" failures="0" skipped="0" time="40.941" errors="0">
+<testcase name="Epic 4: Dietary Log Management › TS-4.1: View Daily Log List" classname="e4-logs.spec.ts" time="9.222">
+</testcase>
+<testcase name="Epic 4: Dietary Log Management › TS-4.2: Delete Meal Log" classname="e4-logs.spec.ts" time="16.061">
+</testcase>
+<testcase name="Epic 4: Dietary Log Management › TS-4.3: Edit Meal Log" classname="e4-logs.spec.ts" time="15.658">
+</testcase>
+</testsuite>
+<testsuite name="e4-logs.spec.ts" timestamp="2025-12-10T16:26:31.624Z" hostname="webkit" tests="3" failures="0" skipped="0" time="45.588" errors="0">
+<testcase name="Epic 4: Dietary Log Management › TS-4.1: View Daily Log List" classname="e4-logs.spec.ts" time="8.464">
+</testcase>
+<testcase name="Epic 4: Dietary Log Management › TS-4.2: Delete Meal Log" classname="e4-logs.spec.ts" time="18.536">
+</testcase>
+<testcase name="Epic 4: Dietary Log Management › TS-4.3: Edit Meal Log" classname="e4-logs.spec.ts" time="18.588">
+</testcase>
+</testsuite>
+</testsuites>
