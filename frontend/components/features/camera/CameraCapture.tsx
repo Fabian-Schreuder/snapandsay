@@ -18,20 +18,24 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
   const [errorType, setErrorType] = useState<'permission' | 'device' | 'unknown' | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isFlashing, setIsFlashing] = useState(false);
-  const [permissionStatus, setPermissionStatus] = useState<PermissionState | null>(null);
-
   // Refs for cleanup
   const flashTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const captureTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Proactively check permission status if available
+    let status: PermissionStatus | undefined;
+
     if (typeof navigator !== 'undefined' && navigator.permissions && navigator.permissions.query) {
       navigator.permissions.query({ name: 'camera' as PermissionName })
         .then((permissionStatus) => {
-          setPermissionStatus(permissionStatus.state);
+          status = permissionStatus;
+          // Initial check
+          if (permissionStatus.state === 'granted') {
+             setErrorType(null);
+          }
+          
           permissionStatus.onchange = () => {
-            setPermissionStatus(permissionStatus.state);
             // If permission is granted after being denied, we might want to auto-recover
             if (permissionStatus.state === 'granted') {
               setErrorType(null);
@@ -44,6 +48,10 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
     }
 
     return () => {
+      // Cleanup listener if needed, though browser handles this mostly
+      if (status) {
+          status.onchange = null;
+      }
       if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
       if (captureTimeoutRef.current) clearTimeout(captureTimeoutRef.current);
     };

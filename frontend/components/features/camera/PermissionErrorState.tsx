@@ -61,7 +61,7 @@ export default function PermissionErrorState({
           <ul className="text-zinc-400 text-sm space-y-2 list-disc pl-4">
             <li>Check your browser address bar for a blocked {mediaType} icon.</li>
             <li>Tap usage settings and select <strong>Allow</strong>/<strong>Ask</strong>.</li>
-            <li>Tap "Try Again" below to reload.</li>
+            <li>Tap &quot;Try Again&quot; below to reload.</li>
           </ul>
         </div>
       )}
