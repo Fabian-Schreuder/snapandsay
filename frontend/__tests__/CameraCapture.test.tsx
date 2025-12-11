@@ -92,7 +92,8 @@ describe('CameraCapture', () => {
         fireEvent.click(screen.getByText('Trigger Permission Error'))
 
         await waitFor(() => {
-            expect(screen.getByText(/Camera permission denied/i)).toBeInTheDocument()
+            expect(screen.getByText(/Camera Access Blocked/i)).toBeInTheDocument()
+            expect(screen.getByText(/permission was denied/i)).toBeInTheDocument()
         })
     })
 
@@ -120,5 +121,27 @@ describe('CameraCapture', () => {
          });
          
          expect(reloadMock).not.toHaveBeenCalled();
+    })
+
+    it('reloads the page on retry when permission was denied', async () => {
+         const reloadMock = jest.fn();
+         Object.defineProperty(window, 'location', {
+            value: { reload: reloadMock },
+            writable: true
+         });
+
+         render(<CameraCapture onCapture={jest.fn()} />)
+         
+         // Trigger permission error
+         fireEvent.click(screen.getByText('Trigger Permission Error'))
+         
+         await waitFor(() => {
+             expect(screen.getByText(/Camera Access Blocked/i)).toBeInTheDocument()
+         })
+
+         // Click retry
+         fireEvent.click(screen.getByText(/Reload & Try Again/i));
+         
+         expect(reloadMock).toHaveBeenCalled();
     })
 })

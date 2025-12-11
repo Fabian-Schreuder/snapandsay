@@ -17,6 +17,7 @@ describe('VoiceCaptureButton', () => {
     mockUseAudio.mockReturnValue({
       startRecording: mockStartRecording,
       stopRecording: mockStopRecording,
+      cancelRecording: jest.fn(),
       isRecording: false,
       audioBlob: null,
       error: null,
@@ -73,28 +74,58 @@ describe('VoiceCaptureButton', () => {
     expect(mockOnRecordingComplete).toHaveBeenCalledWith(mockBlob);
   });
 
-  it('shows permission denied error', () => {
+  it('shows permission denied dialog when permission is denied', () => {
     mockUseAudio.mockReturnValue({
       startRecording: mockStartRecording,
       stopRecording: mockStopRecording,
+      cancelRecording: jest.fn(),
       isRecording: false,
       isPermissionDenied: true,
+      audioBlob: null,
+      error: null
     });
 
     render(<VoiceCaptureButton onRecordingComplete={mockOnRecordingComplete} />);
-    expect(screen.getByText(/Please enable microphone access in your browser settings to record/i)).toBeInTheDocument();
+    expect(screen.getByText(/Microphone Access Blocked/i)).toBeInTheDocument();
+    expect(screen.getByText(/We need microphone access/i)).toBeInTheDocument();
   });
   
   it('applies pulsing animation when recording', () => {
        mockUseAudio.mockReturnValue({
       startRecording: mockStartRecording,
       stopRecording: mockStopRecording,
+      cancelRecording: jest.fn(),
       isRecording: true,
-      audioBlob: null
+      audioBlob: null,
+      error: null,
+      isPermissionDenied: false
     });
     
     render(<VoiceCaptureButton onRecordingComplete={mockOnRecordingComplete} />);
-    const button = screen.getByRole('button');
+    const button = screen.getByRole('button', { name: /hold to record/i });
     expect(button.className).toContain('animate-pulse');
   });
+
+  it('reloads the page on retry when permission was denied', () => {
+    const reloadMock = jest.fn();
+    Object.defineProperty(window, 'location', {
+       value: { reload: reloadMock },
+       writable: true
+    });
+
+    mockUseAudio.mockReturnValue({
+      startRecording: mockStartRecording,
+      stopRecording: mockStopRecording,
+      cancelRecording: jest.fn(),
+      isRecording: false,
+      isPermissionDenied: true,
+      audioBlob: null,
+      error: null
+    });
+
+    render(<VoiceCaptureButton onRecordingComplete={mockOnRecordingComplete} />);
+    
+    fireEvent.click(screen.getByText(/Reload & Try Again/i));
+    expect(reloadMock).toHaveBeenCalled();
+ });
 });

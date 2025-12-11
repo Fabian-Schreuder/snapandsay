@@ -3,6 +3,7 @@ import React, { useRef, useCallback, useState, useEffect } from 'react'
 import Webcam from 'react-webcam'
 import { Camera } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import PermissionErrorState from './PermissionErrorState'
 
 interface CameraCaptureProps {
   onCapture: (imageSrc: string) => void;
@@ -14,15 +15,34 @@ const videoConstraints = {
 
 export default function CameraCapture({ onCapture }: CameraCaptureProps) {
   const webcamRef = useRef<Webcam>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [permissionDenied, setPermissionDenied] = useState(false);
+  const [errorType, setErrorType] = useState<'permission' | 'device' | 'unknown' | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isFlashing, setIsFlashing] = useState(false);
-  
+  const [permissionStatus, setPermissionStatus] = useState<PermissionState | null>(null);
+
   // Refs for cleanup
   const flashTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const captureTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // Proactively check permission status if available
+    if (typeof navigator !== 'undefined' && navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: 'camera' as PermissionName })
+        .then((permissionStatus) => {
+          setPermissionStatus(permissionStatus.state);
+          permissionStatus.onchange = () => {
+            setPermissionStatus(permissionStatus.state);
+            // If permission is granted after being denied, we might want to auto-recover
+            if (permissionStatus.state === 'granted') {
+              setErrorType(null);
+            }
+          };
+        })
+        .catch(() => {
+          // Firefox doesn't fully support 'camera' in permissions API yet, just ignore
+        });
+    }
+
     return () => {
       if (flashTimeoutRef.current) clearTimeout(flashTimeoutRef.current);
       if (captureTimeoutRef.current) clearTimeout(captureTimeoutRef.current);
@@ -52,27 +72,47 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
 
   const handleUserMediaError = useCallback((error: string | DOMException) => {
     console.error("Camera Error:", error);
-    setPermissionDenied(true);
     
     // Distinguish between permission and constraint errors
-    if (typeof error === 'object' && 'name' in error && error.name === 'OverconstrainedError') {
-         setError("Camera resolution not supported. Please try a different device.");
-    } else if (typeof error === 'object' && 'name' in error && error.name === 'NotAllowedError') {
-         setError("Camera permission denied. Please allow access in settings.");
+    if (typeof error === 'object' && 'name' in error) {
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+         setErrorType('permission');
+         setErrorMessage(null); // Use default message in UI
+      } else if (error.name === 'OverconstrainedError') {
+         setErrorType('device');
+         setErrorMessage("Camera resolution not supported. Please try a different device.");
+      } else if (error.name === 'NotFoundError') {
+        setErrorType('device');
+        setErrorMessage("No camera found on this device.");
+      } else if (error.name === 'NotReadableError') {
+        setErrorType('device');
+        setErrorMessage("Camera is currently in use by another application.");
+      } else {
+         setErrorType('unknown');
+         setErrorMessage("We encountered an error accessing your camera.");
+      }
     } else {
-         setError("We need camera access to see your meal.");
+         setErrorType('unknown');
+         setErrorMessage("We need camera access to see your meal.");
     }
   }, []);
 
   const handleUserMedia = useCallback(() => {
-    setError(null);
-    setPermissionDenied(false);
+    setErrorType(null);
+    setErrorMessage(null);
   }, []);
 
   const handleRetry = useCallback(() => {
-    setError(null);
-    setPermissionDenied(false);
-  }, []);
+    if (errorType === 'permission') {
+       // Hard reload is often required to re-trigger permission prompt after a denial
+       // or at least force the browser to re-evaluate the permission state
+       window.location.reload();
+    } else {
+       // Soft retry for other errors
+       setErrorType(null);
+       setErrorMessage(null);
+    }
+  }, [errorType]);
 
   // Relaxed constraints: Use ideal instead of strict min to prevent OverconstrainedError on low-end devices
   // while still preferring high resolution.
@@ -82,28 +122,20 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
     height: { ideal: 1080 }
   };
 
-  if (error || permissionDenied) {
+  if (errorType) {
     return (
-      <div className="h-full w-full bg-zinc-900 flex flex-col items-center justify-center p-8 text-center space-y-6">
-        <div className="h-20 w-20 rounded-full bg-red-100 flex items-center justify-center mb-4">
-           <Camera className="h-10 w-10 text-red-600" />
-        </div>
-        <h3 className="text-xl font-semibold text-white">Camera Access Needed</h3>
-        <p className="text-zinc-300 text-lg max-w-xs">{error || "We need permission to use your camera so you can snap your meal."}</p>
-        <button 
-          onClick={handleRetry}
-          className="px-8 py-4 bg-primary text-primary-foreground rounded-full font-bold text-lg hover:opacity-90 transition-opacity"
-        >
-          Try Again
-        </button>
-      </div>
+      <PermissionErrorState 
+        errorType={errorType}
+        errorMessage={errorMessage || undefined}
+        onRetry={handleRetry}
+      />
     )
   }
 
   return (
     <div className="relative h-full w-full bg-black flex flex-col items-center justify-center overflow-hidden">
       <Webcam
-        key={permissionDenied ? 'error' : 'active'}
+        key={errorType ? 'error' : 'active'}
         audio={false}
         ref={webcamRef}
         screenshotFormat="image/jpeg"
