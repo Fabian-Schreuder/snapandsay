@@ -40,6 +40,7 @@ const mockLog: DietaryLog = {
   created_at: '2024-01-15T12:30:00Z',
   user_id: 'user-123',
   status: 'completed',
+  title: 'Test Meal Title',
 };
 
 describe('EditLogSheet', () => {

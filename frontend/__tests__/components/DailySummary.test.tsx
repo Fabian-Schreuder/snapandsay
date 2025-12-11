@@ -17,6 +17,7 @@ const mockLogs: DietaryLog[] = [
     created_at: '2023-12-08T12:00:00Z',
     user_id: 'user-1',
     status: 'completed',
+    title: 'Meal 1 Title',
   },
   {
     id: '2',
@@ -31,6 +32,7 @@ const mockLogs: DietaryLog[] = [
     created_at: '2023-12-08T18:00:00Z',
     user_id: 'user-1',
     status: 'completed',
+    title: 'Meal 2 Title',
   },
 ];
 
