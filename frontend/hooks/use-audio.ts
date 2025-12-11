@@ -3,6 +3,7 @@ import { useState, useRef, useCallback, useEffect } from "react";
 export interface UseAudioReturn {
   startRecording: () => Promise<void>;
   stopRecording: () => void;
+  cancelRecording: () => void;
   isRecording: boolean;
   audioBlob: Blob | null;
   error: Error | null;
@@ -84,9 +85,22 @@ export const useAudio = (): UseAudioReturn => {
     }
   }, []);
 
+  const cancelRecording = useCallback(() => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      // Prevent onstop from firing and saving the blob
+      mediaRecorderRef.current.onstop = null;
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      setAudioBlob(null);
+      chunksRef.current = [];
+      cleanup();
+    }
+  }, [cleanup]);
+
   return {
     startRecording,
     stopRecording,
+    cancelRecording,
     isRecording,
     audioBlob,
     error,

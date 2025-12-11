@@ -17,6 +17,7 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
   const {
     startRecording,
     stopRecording,
+    cancelRecording,
     isRecording,
     audioBlob,
     error,
@@ -69,7 +70,7 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
         // If the user release the button while `startRecording` (getUserMedia) was pending,
         // we must stop immediately after it starts.
         if (!isPressed.current) {
-            stopRecording();
+            cancelRecording();
             setA11yStatus("Recording cancelled.");
         }
     } catch {
