@@ -8,10 +8,10 @@ def get_supabase_client() -> Client:
     Get or create a Supabase client.
     Cached to reuse the connection.
     """
-    if not settings.SUPABASE_URL or not settings.SUPABASE_JWT_SECRET:
-        raise ValueError("SUPABASE_URL and SUPABASE_JWT_SECRET must be set")
+    if not settings.SUPABASE_URL or not settings.SUPABASE_SERVICE_ROLE_KEY:
+        raise ValueError("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set")
         
     return create_client(
         settings.SUPABASE_URL,
-        settings.SUPABASE_JWT_SECRET
+        settings.SUPABASE_SERVICE_ROLE_KEY
     )
