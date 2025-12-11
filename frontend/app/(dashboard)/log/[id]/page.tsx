@@ -108,7 +108,11 @@ export default function LogDetailPage() {
         {/* Meal Info */}
         <div className="mt-6 space-y-4">
           <div>
-            <h2 className="text-2xl font-semibold leading-snug">{displayText}</h2>
+            <h2 className="text-2xl font-semibold leading-snug">{log.title || displayText}</h2>
+             {/* Show Description if we have a specific title to disambiguate */}
+            {log.title && (log.description || log.transcript) && (
+              <p className="mt-2 text-base text-muted-foreground">{log.description || log.transcript}</p>
+            )}
             <p className="mt-1 text-lg text-muted-foreground">
               {formatDateTime(log.created_at)}
             </p>

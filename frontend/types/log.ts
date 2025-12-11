@@ -9,6 +9,7 @@ export interface DietaryLog {
   image_path: string;
   image_url?: string | null;
   transcript: string | null;
+  title: string | null;
   description: string | null;
   calories: number | null;
   protein: number | null;
@@ -19,6 +20,7 @@ export interface DietaryLog {
 }
 
 export interface LogUpdateRequest {
+  title?: string | null;
   description?: string | null;
   calories?: number | null;
   protein?: number | null;

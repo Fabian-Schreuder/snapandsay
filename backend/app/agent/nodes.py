@@ -408,8 +408,13 @@ async def finalize_log_streaming(
                         
                         # Store synthesis comment as description if not already set
                         synthesis = nutritional_data.get("synthesis_comment", "")
-                        if synthesis and not log_entry.description:
+                        if synthesis:
                             log_entry.description = synthesis
+                            
+                        # Store title
+                        title = nutritional_data.get("title")
+                        if title:
+                            log_entry.title = title
                     
                     await session.commit()
                     logger.info(f"Finalized log {log_id} with status='logged', needs_review={needs_review}")

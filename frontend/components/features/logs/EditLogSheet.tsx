@@ -29,6 +29,7 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
   const updateLog = useUpdateLog();
   
   // Form state
+  const [title, setTitle] = useState(log.title || '');
   const [description, setDescription] = useState(log.description || '');
   const [calories, setCalories] = useState(log.calories?.toString() || '');
   const [protein, setProtein] = useState(log.protein?.toString() || '');
@@ -38,6 +39,7 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
   // Reset form when log changes or sheet opens
   useEffect(() => {
     if (open) {
+      setTitle(log.title || '');
       setDescription(log.description || '');
       setCalories(log.calories?.toString() || '');
       setProtein(log.protein?.toString() || '');
@@ -48,6 +50,7 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
 
   // Check if form has changes
   const isDirty =
+    title !== (log.title || '') ||
     description !== (log.description || '') ||
     calories !== (log.calories?.toString() || '') ||
     protein !== (log.protein?.toString() || '') ||
@@ -61,6 +64,7 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
   const fatsNum = fats ? Number(fats) : null;
 
   const isValid =
+    (title?.length || 0) <= 100 &&
     description.length <= 500 &&
     (caloriesNum === null || (!isNaN(caloriesNum) && caloriesNum >= 0 && caloriesNum <= 5000)) &&
     (proteinNum === null || (!isNaN(proteinNum) && proteinNum >= 0 && proteinNum <= 500)) &&
@@ -69,6 +73,11 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
 
   const handleSave = () => {
     const data: LogUpdateRequest = {};
+
+    // Check title
+    if (title !== (log.title || '')) {
+      data.title = title || null;
+    }
     
     // Check description
     if (description !== (log.description || '')) {
@@ -134,6 +143,21 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
+          {/* Title */}
+          <div className="space-y-2">
+            <Label htmlFor="title" className="text-base">
+              Title
+            </Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              maxLength={100}
+              className="h-14 w-full rounded-lg border bg-background px-4 text-lg focus:outline-none focus:ring-2 focus:ring-ring"
+              placeholder="e.g. Roasted Cashews"
+            />
+          </div>
+
           {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description" className="text-base">

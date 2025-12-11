@@ -42,6 +42,7 @@ def _build_messages(
         f"You are a dietary expert. The current time is {current_time}. "
         "Analyze the provided input (image and/or audio transcript) to identify food items, "
         "estimate quantities, calories, and provide a confidence score. "
+        "Generate a short, descriptive title for the meal (e.g. 'Roasted Cashews', 'Chicken Salad'). "
         "Infer the meal type (Breakfast, Lunch, Dinner, Snack) based on time and content. "
         "If the image is unclear, does not contain food, or you cannot analyze it for any reason, "
         "do NOT refuse. Instead, return a valid JSON object with an empty 'items' list "
