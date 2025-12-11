@@ -26,6 +26,7 @@ class FoodItem(BaseModel):
 
 class AnalysisResult(BaseModel):
     """Result of analyzing food image/audio input."""
+    title: str = Field(..., description="Short, descriptive title of the meal (e.g. 'Roasted Cashews')")
     items: List[FoodItem] = Field(..., description="List of identified food items")
     meal_type: Optional[str] = Field(None, description="Type of meal (e.g., Breakfast, Lunch, Dinner, Snack)")
     synthesis_comment: str = Field(..., description="Overall summary or analysis comment")

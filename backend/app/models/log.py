@@ -21,6 +21,7 @@ class DietaryLog(Base):
 
     # Analysis
     transcript = Column(String, nullable=True)
+    title = Column(String, nullable=True)
     description = Column(String, nullable=True)
 
     # Nutrition

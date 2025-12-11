@@ -14,6 +14,7 @@ class DietaryLogResponse(BaseModel):
     status: str
     image_path: str
     image_url: Optional[str] = None
+    title: Optional[str] = None
     transcript: Optional[str] = None
     description: Optional[str] = None
     calories: Optional[int] = None
@@ -27,6 +28,7 @@ class DietaryLogResponse(BaseModel):
 
 class DietaryLogUpdateRequest(BaseModel):
     """Request schema for updating a dietary log entry."""
+    title: Optional[str] = Field(None, max_length=100)
     description: Optional[str] = Field(None, max_length=500)
     calories: Optional[int] = Field(None, ge=0, le=5000)
     protein: Optional[int] = Field(None, ge=0, le=500)
