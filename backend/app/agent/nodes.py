@@ -62,7 +62,11 @@ async def analyze_input(state: AgentState) -> dict:
             transcript = await voice_service.transcribe_audio(audio_url, token=user_token)
         except Exception as e:
             logger.error(f"Failed to transcribe audio: {e}")
-            raise e
+            if image_url:
+                logger.warning("Audio transcription failed, but image provided. Proceeding with image only.")
+                transcript = None
+            else:
+                raise e
             
     if not image_url and not transcript:
         logger.warning("No input provided for analysis")
@@ -146,14 +150,18 @@ async def analyze_input_streaming(
                     logger.error(f"Failed to persist transcript: {db_err}")
         except Exception as e:
             logger.error(f"Failed to transcribe audio: {e}")
-            yield SSEEvent(
-                type=EVENT_ERROR,
-                payload=AgentError(
-                    code="TRANSCRIPTION_ERROR",
-                    message="I'm having trouble understanding the audio.",
-                ),
-            )
-            return
+            if image_url:
+                logger.warning("Audio transcription failed, but image provided. Proceeding with image only.")
+                transcript = None
+            else:
+                yield SSEEvent(
+                    type=EVENT_ERROR,
+                    payload=AgentError(
+                        code="TRANSCRIPTION_ERROR",
+                        message="I'm having trouble understanding the audio.",
+                    ),
+                )
+                return
 
     if not image_url and not transcript:
         logger.warning("No input provided for analysis")
