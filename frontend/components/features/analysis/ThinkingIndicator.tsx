@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { BrainCircuit, CheckCircle2, AlertCircle } from "lucide-react";
 
 interface ThinkingIndicatorProps {
   thoughts: string[];
@@ -40,8 +41,9 @@ export function ThinkingIndicator({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center p-6 rounded-2xl",
-        "bg-zinc-50 border border-zinc-200",
+        "flex flex-col items-center justify-center p-8 rounded-2xl",
+        "bg-white/95 backdrop-blur-sm shadow-xl border border-zinc-100/20",
+        "max-w-sm w-full mx-auto",
         className
       )}
       role="status"
@@ -56,11 +58,11 @@ export function ThinkingIndicator({
     >
       {/* Listening Pulse Animation */}
       {isProcessing && (
-        <div className="relative mb-6" aria-hidden="true">
+        <div className="relative mb-8" aria-hidden="true">
           {/* Outer pulse ring */}
           <div
             className={cn(
-              "absolute inset-0 rounded-full bg-emerald-400/30",
+              "absolute inset-0 rounded-full bg-indigo-500/20",
               "animate-[pulse_2s_ease-in-out_infinite]"
             )}
             style={{ transform: "scale(1.5)" }}
@@ -68,64 +70,55 @@ export function ThinkingIndicator({
           {/* Middle pulse ring */}
           <div
             className={cn(
-              "absolute inset-0 rounded-full bg-emerald-400/40",
+              "absolute inset-0 rounded-full bg-indigo-500/30",
               "animate-[pulse_2s_ease-in-out_infinite_0.5s]"
             )}
             style={{ transform: "scale(1.25)" }}
           />
-          {/* Core circle with food icon */}
+          {/* Core circle with icon */}
           <div
             className={cn(
-              "relative w-16 h-16 rounded-full",
-              "bg-gradient-to-br from-emerald-400 to-emerald-600",
+              "relative w-20 h-20 rounded-full",
+              "bg-gradient-to-tr from-indigo-600 to-indigo-500",
               "flex items-center justify-center",
+              "shadow-lg shadow-indigo-500/30",
               "animate-[bounce_3s_ease-in-out_infinite]"
             )}
           >
-            <span className="text-2xl">🍽️</span>
+            <BrainCircuit className="w-10 h-10 text-white" />
           </div>
         </div>
       )}
 
       {/* Completion Checkmark with Bloom Effect */}
       {isComplete && (
-        <div className="relative mb-6" aria-hidden="true">
+        <div className="relative mb-8" aria-hidden="true">
           <div
             className={cn(
-              "w-16 h-16 rounded-full",
-              "bg-gradient-to-br from-emerald-400 to-emerald-600",
+              "w-20 h-20 rounded-full",
+              "bg-gradient-to-tr from-emerald-500 to-emerald-400",
               "flex items-center justify-center",
+              "shadow-lg shadow-emerald-500/30",
               "animate-[bloom_0.5s_ease-out]"
             )}
           >
-            <svg
-              className="w-8 h-8 text-white animate-[checkmark_0.3s_ease-out_0.2s_both]"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={3}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+            <CheckCircle2 className="w-10 h-10 text-white animate-[checkmark_0.3s_ease-out_0.2s_both]" />
           </div>
         </div>
       )}
 
       {/* Error Icon */}
       {isError && (
-        <div className="relative mb-6" aria-hidden="true">
+        <div className="relative mb-8" aria-hidden="true">
           <div
             className={cn(
-              "w-16 h-16 rounded-full",
-              "bg-gradient-to-br from-red-400 to-red-600",
-              "flex items-center justify-center"
+              "w-20 h-20 rounded-full",
+              "bg-gradient-to-tr from-red-500 to-red-400",
+              "flex items-center justify-center",
+              "shadow-lg shadow-red-500/30"
             )}
           >
-            <span className="text-2xl">😔</span>
+            <AlertCircle className="w-10 h-10 text-white" />
           </div>
         </div>
       )}
@@ -135,19 +128,19 @@ export function ThinkingIndicator({
         ref={containerRef}
         className={cn(
           "w-full max-h-32 overflow-y-auto",
-          "flex flex-col gap-2"
+          "flex flex-col gap-3 items-center"
         )}
       >
         {thoughts.map((thought, index) => (
           <p
             key={index}
             className={cn(
-              "text-center text-xl font-medium",
-              "text-slate-900",
-              "animate-[fadeIn_0.2s_ease-in-out]"
+              "text-center text-lg font-medium leading-relaxed",
+              "text-zinc-700",
+              "animate-[fadeIn_0.5s_ease-out]"
             )}
             style={{
-              animationDelay: `${index * 50}ms`,
+              animationDelay: `${index * 100}ms`,
               animationFillMode: "both",
             }}
           >
@@ -157,9 +150,15 @@ export function ThinkingIndicator({
 
         {/* Connecting state message */}
         {status === "connecting" && thoughts.length === 0 && (
-          <p className="text-center text-xl font-medium text-slate-600">
-            Connecting...
+          <p className="text-center text-lg font-medium text-zinc-500 animate-pulse">
+            Connecting to secure agent...
           </p>
+        )}
+        
+        {isError && (
+             <p className="text-center text-lg font-medium text-red-600">
+                Something went wrong. Please try again.
+             </p>
         )}
       </div>
 

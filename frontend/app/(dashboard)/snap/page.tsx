@@ -12,6 +12,17 @@ import { analysisApi } from '@/lib/api'
 import { supabase } from '@/lib/supabase'
 import { useAgent } from '@/hooks/use-agent'
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Loader2 } from "lucide-react";
+
 export default function SnapPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -28,7 +39,6 @@ export default function SnapPage() {
   const { 
     status, 
     thoughts, 
-
     error: agentError,
     clarification,
     startStreaming, 
@@ -145,30 +155,36 @@ export default function SnapPage() {
 
   return (
     <div className="h-[100dvh] w-full bg-black flex flex-col relative">
-      {/* Error Overlay */}
-      {errorMessage && (
-        <div className="absolute top-8 left-4 right-4 z-50 bg-red-500/90 text-white p-4 rounded-xl text-center shadow-lg backdrop-blur animate-in slide-in-from-top">
-          <p className="font-medium">{errorMessage}</p>
-          <button 
-            onClick={() => {
-              setErrorMessage(null);
-              reset();
-              setStep('capture');
-            }}
-            className="mt-2 text-sm bg-white/20 px-4 py-1 rounded-full hover:bg-white/30"
-          >
-            Retry
-          </button>
-        </div>
-      )}
+      {/* Error Dialog */}
+      <AlertDialog open={!!errorMessage}>
+        <AlertDialogContent className="max-w-[80vw] rounded-2xl bg-zinc-900 border-zinc-800 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-400">Something went wrong</AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400 text-lg">
+              {errorMessage}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction 
+              onClick={() => {
+                setErrorMessage(null);
+                reset();
+                setStep('capture');
+              }}
+              className="bg-white text-black hover:bg-zinc-200 w-full h-14 text-lg font-medium rounded-xl"
+            >
+              Try Again
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-      {/* Loading/Thinking State */}
       {/* Uploading State */}
       {isUploading && (
-        <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center space-y-4 animate-in fade-in duration-300">
-          <div className="relative w-20 h-20">
-            <div className="absolute inset-0 border-t-4 border-primary rounded-full animate-spin"></div>
-            <div className="absolute inset-2 border-b-4 border-white/50 rounded-full animate-spin direction-reverse"></div>
+        <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center space-y-6 animate-in fade-in duration-300">
+          <div className="relative">
+             <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-xl animate-pulse" />
+             <Loader2 className="w-16 h-16 text-indigo-500 animate-spin relative z-10" />
           </div>
           <p className="text-white text-xl font-medium animate-pulse">Uploading...</p>
         </div>

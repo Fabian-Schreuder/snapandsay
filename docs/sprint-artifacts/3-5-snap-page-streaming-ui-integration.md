@@ -86,6 +86,22 @@ So that I understand what the AI is doing and can answer questions when needed.
     - [x] Display error using existing error overlay pattern
     - [x] Add retry button that calls `reset()` and returns to `'capture'` step
 
+### 3. Component Updates (Refactor)
+- **ThinkingIndicator**:
+    - [ ] `ThinkingIndicator.tsx`: Replace emojis with `lucide-react` icons (e.g., `Loader2`, `CheckCircle`, `AlertCircle`).
+    - [ ] `ThinkingIndicator.tsx`: Ensure container follows "Card" styling (rounded-xl, shadow-sm, bg-zinc-50).
+- **ClarificationPrompt**:
+    - [ ] `ClarificationPrompt.tsx`: Replace raw `<button>` with Shadcn `<Button variant="senior">`.
+    - [ ] `ClarificationPrompt.tsx`: Replace raw `<input>` with Shadcn `<Input className="h-14 text-lg">`.
+    - [ ] `ClarificationPrompt.tsx`: Use `lucide-react` icons for visual cues.
+- **Shared UI**:
+    - [ ] `components/ui/button.tsx`: Add `senior` size variant (`h-14 px-8 text-lg`) to Shadcn Button.
+    - [ ] `app/(dashboard)/snap/page.tsx`: Replace custom error banners with Shadcn `Toast` or `Alert`.
+- [ ] Use Shadcn `<Button>` with `size="senior"` (h-14/60px) for all touch targets.
+- [ ] Use `lucide-react` for all icons (no emojis).
+- [ ] Ensure all text is `text-lg` (18px) or larger.
+- [ ] Maintain "High Contrast" theme (`text-slate-900` on `bg-zinc-50`).
+
 - [x] **Task 7: Update API Response Handling**
     - [x] Ensure `analysisApi.upload()` returns `log_id` in response
     - [x] Store `log_id` in state for streaming initiation
