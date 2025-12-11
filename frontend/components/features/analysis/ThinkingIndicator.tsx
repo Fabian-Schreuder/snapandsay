@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { BrainCircuit, CheckCircle2, AlertCircle } from "lucide-react";
 
@@ -11,22 +11,23 @@ interface ThinkingIndicatorProps {
 }
 
 /**
- * ThinkingIndicator displays the agent's thinking process with a "listening pulse"
- * animation (per UX spec - NOT a spinner). Thoughts fade in with smooth transitions.
- *
- * Senior-friendly: 20px minimum text, high contrast, 6s minimum visibility.
+ * ThinkingIndicator displays the agent's thinking process.
+ * Refactored for "Subtle Warmth":
+ * - No jumping text (Fixed height container).
+ * - No scrollbars (Only generic or latest thought shown).
+ * - Subtle "Breathing" animation instead of aggressive bounce.
  */
 export function ThinkingIndicator({
   thoughts,
   status,
   className,
 }: ThinkingIndicatorProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [displayThought, setDisplayThought] = useState("");
 
-  // Auto-scroll to latest thought
+  // Update display thought smoothly
   useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    if (thoughts.length > 0) {
+      setDisplayThought(thoughts[thoughts.length - 1]);
     }
   }, [thoughts]);
 
@@ -41,133 +42,109 @@ export function ThinkingIndicator({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center p-8 rounded-2xl",
+        "flex flex-col items-center justify-center p-6 rounded-2xl",
         "bg-white/95 backdrop-blur-sm shadow-xl border border-zinc-100/20",
-        "max-w-sm w-full mx-auto",
+        "w-full max-w-sm mx-auto transition-all duration-300",
         className
       )}
       role="status"
       aria-live="polite"
-      aria-label={
-        isProcessing
-          ? "AI is analyzing your meal"
-          : isComplete
-            ? "Analysis complete"
-            : "An error occurred"
-      }
     >
-      {/* Listening Pulse Animation */}
+      {/* Listening/Thinking Animation */}
       {isProcessing && (
-        <div className="relative mb-8" aria-hidden="true">
-          {/* Outer pulse ring */}
+        <div className="relative mb-6" aria-hidden="true">
+          {/* Outer gentle ripple */}
           <div
             className={cn(
-              "absolute inset-0 rounded-full bg-indigo-500/20",
-              "animate-[pulse_2s_ease-in-out_infinite]"
+              "absolute inset-0 rounded-full bg-indigo-500/10",
+              "animate-[pulse_3s_ease-in-out_infinite]"
             )}
             style={{ transform: "scale(1.5)" }}
           />
-          {/* Middle pulse ring */}
+          {/* Inner gentle ripple */}
           <div
             className={cn(
-              "absolute inset-0 rounded-full bg-indigo-500/30",
-              "animate-[pulse_2s_ease-in-out_infinite_0.5s]"
+              "absolute inset-0 rounded-full bg-indigo-500/20",
+              "animate-[pulse_3s_ease-in-out_infinite_1s]"
             )}
             style={{ transform: "scale(1.25)" }}
           />
-          {/* Core circle with icon */}
+          {/* Core circle - No bounce, just subtle breathe */}
           <div
             className={cn(
-              "relative w-20 h-20 rounded-full",
+              "relative w-16 h-16 rounded-full",
               "bg-gradient-to-tr from-indigo-600 to-indigo-500",
               "flex items-center justify-center",
-              "shadow-lg shadow-indigo-500/30",
-              "animate-[bounce_3s_ease-in-out_infinite]"
+              "shadow-lg shadow-indigo-500/20",
+              "transition-transform duration-700 ease-in-out"
             )}
           >
-            <BrainCircuit className="w-10 h-10 text-white" />
+            <BrainCircuit className="w-8 h-8 text-white animate-[pulse_3s_ease-in-out_infinite]" />
           </div>
         </div>
       )}
 
-      {/* Completion Checkmark with Bloom Effect */}
+      {/* Completion State */}
       {isComplete && (
-        <div className="relative mb-8" aria-hidden="true">
+        <div className="relative mb-6" aria-hidden="true">
           <div
             className={cn(
-              "w-20 h-20 rounded-full",
+              "w-16 h-16 rounded-full",
               "bg-gradient-to-tr from-emerald-500 to-emerald-400",
               "flex items-center justify-center",
               "shadow-lg shadow-emerald-500/30",
-              "animate-[bloom_0.5s_ease-out]"
+              "animate-in zoom-in duration-300"
             )}
           >
-            <CheckCircle2 className="w-10 h-10 text-white animate-[checkmark_0.3s_ease-out_0.2s_both]" />
+            <CheckCircle2 className="w-8 h-8 text-white" />
           </div>
         </div>
       )}
 
-      {/* Error Icon */}
+      {/* Error State */}
       {isError && (
-        <div className="relative mb-8" aria-hidden="true">
+        <div className="relative mb-6" aria-hidden="true">
           <div
             className={cn(
-              "w-20 h-20 rounded-full",
+              "w-16 h-16 rounded-full",
               "bg-gradient-to-tr from-red-500 to-red-400",
               "flex items-center justify-center",
               "shadow-lg shadow-red-500/30"
             )}
           >
-            <AlertCircle className="w-10 h-10 text-white" />
+            <AlertCircle className="w-8 h-8 text-white" />
           </div>
         </div>
       )}
 
-      {/* Thoughts Display */}
-      <div
-        ref={containerRef}
-        className={cn(
-          "w-full max-h-32 overflow-y-auto",
-          "flex flex-col gap-3 items-center"
-        )}
-      >
-        {thoughts.map((thought, index) => (
+      {/* Text Container - Rigid Height to prevent layout shift */}
+      <div className="h-16 w-full flex items-center justify-center">
+        {isProcessing && (
           <p
-            key={index}
+            key={displayThought} // Key change triggers animation
             className={cn(
-              "text-center text-lg font-medium leading-relaxed",
-              "text-zinc-700",
-              "animate-[fadeIn_0.5s_ease-out]"
+              "text-center text-lg font-medium leading-tight",
+              "text-indigo-900", // High contrast/Warmth
+              "animate-in fade-in slide-in-from-bottom-1 duration-300"
             )}
-            style={{
-              animationDelay: `${index * 100}ms`,
-              animationFillMode: "both",
-            }}
           >
-            {thought}
+            {/* Show 'Connecting...' if no thoughts yet, else show latest thought */}
+            {thoughts.length === 0 ? "Connecting..." : displayThought}
           </p>
-        ))}
+        )}
 
-        {/* Connecting state message */}
-        {status === "connecting" && thoughts.length === 0 && (
-          <p className="text-center text-lg font-medium text-zinc-500 animate-pulse">
-            Connecting to secure agent...
-          </p>
+        {isComplete && (
+           <p className="text-center text-lg font-medium text-emerald-800 animate-in fade-in">
+              Analysis complete
+           </p>
         )}
         
         {isError && (
-             <p className="text-center text-lg font-medium text-red-600">
-                Something went wrong. Please try again.
-             </p>
+           <p className="text-center text-lg font-medium text-red-700 animate-in fade-in">
+              Something went wrong
+           </p>
         )}
       </div>
-
-      {/* Screen reader announcement for completion */}
-      {isComplete && (
-        <span className="sr-only">
-          Analysis complete. Your meal has been logged.
-        </span>
-      )}
     </div>
   );
 }
