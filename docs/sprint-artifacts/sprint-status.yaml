@@ -48,6 +48,7 @@ development_status:
   3-3-streaming-response-implementation-sse: done
   3-4-clarification-logic-probabilistic-silence: done
   3-5-snap-page-streaming-ui-integration: done
+  3-6-refine-probability-logic: backlog
   epic-3-retrospective: done
 
   epic-4: done
