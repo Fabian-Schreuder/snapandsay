@@ -43,6 +43,9 @@ def _build_messages(
         "Analyze the provided input (image and/or audio transcript) to identify food items, "
         "estimate quantities, calories, and provide a confidence score. "
         "Infer the meal type (Breakfast, Lunch, Dinner, Snack) based on time and content. "
+        "If the image is unclear, does not contain food, or you cannot analyze it for any reason, "
+        "do NOT refuse. Instead, return a valid JSON object with an empty 'items' list "
+        "and a 'synthesis_comment' explaining the issue. "
         "Provide the output in JSON format complying with this schema: "
         f"{json.dumps(AnalysisResult.model_json_schema(), ensure_ascii=False)}"
     )
@@ -154,6 +157,8 @@ async def analyze_multimodal(
             messages=messages,
             response_format=AnalysisResult,
         )
+        if completion.choices[0].message.refusal:
+            raise LLMGenerationError(f"LLM Refusal: {completion.choices[0].message.refusal}")
         return completion.choices[0].message.parsed
     except Exception as e:
         logger.error(f"LLM generation failed: {e}")
@@ -197,6 +202,7 @@ async def analyze_multimodal_streaming(
 
     messages = _build_messages(final_image_url, transcript, context)
     accumulated_content = ""
+    accumulated_refusal = ""
 
     try:
         client = _get_client()
@@ -224,10 +230,17 @@ async def analyze_multimodal_streaming(
                         # Call the token callback if provided
                         if on_token:
                             await on_token(content)
+                    elif delta.refusal:
+                        accumulated_refusal += delta.refusal
+                        logger.warning(f"Refusal token received: {delta.refusal}")
                 
                 if chunk.choices[0].finish_reason:
                     logger.info(f"LLM Stream Finished. Reason: {chunk.choices[0].finish_reason}")
                     logger.info(f"Total accumulated content length: {len(accumulated_content)}")
+
+        if accumulated_refusal:
+            logger.error(f"LLM returned refusal: {accumulated_refusal}")
+            raise LLMGenerationError(f"LLM Refused to process input: {accumulated_refusal}")
 
         if not accumulated_content:
             logger.error("LLM returned empty response. Accumulated content is empty.")
