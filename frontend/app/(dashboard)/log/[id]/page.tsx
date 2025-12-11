@@ -73,7 +73,7 @@ export default function LogDetailPage() {
   }
 
   const displayText = log.description || log.transcript || 'Meal logged';
-  const imageUrl = getImageUrl(log.image_path);
+  const imageUrl = log.image_url || getImageUrl(log.image_path);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
