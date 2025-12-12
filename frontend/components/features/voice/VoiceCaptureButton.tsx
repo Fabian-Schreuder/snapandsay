@@ -123,12 +123,12 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
       </div>
       
       <AlertDialog open={showPermissionDialog} onOpenChange={setShowPermissionDialog}>
-        <AlertDialogContent className="p-0 border-none bg-transparent max-w-[90vw] w-full aspect-square sm:aspect-auto sm:max-w-md overflow-hidden rounded-2xl">
+        <AlertDialogContent className="p-0 border-none bg-zinc-900 max-w-none w-screen h-screen rounded-none flex items-center justify-center">
              <PermissionErrorState 
                 mediaType="microphone"
                 errorType="permission"
                 onRetry={handleRetry}
-                className="bg-zinc-900 border border-zinc-800"
+                className="bg-zinc-900 border-none"
              />
         </AlertDialogContent>
       </AlertDialog>
