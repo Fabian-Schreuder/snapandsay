@@ -30,15 +30,15 @@ export default function PermissionErrorState({
 
   return (
     <div className={cn("h-full w-full bg-zinc-900 flex flex-col items-center justify-center p-8 text-center space-y-6 animate-in fade-in duration-300", className)}>
-      <div className="h-24 w-24 rounded-full bg-red-500/10 flex items-center justify-center mb-2 ring-1 ring-red-500/20">
+      <div className="h-16 w-16 shrink-0 rounded-full bg-red-500/10 flex items-center justify-center mb-4 ring-1 ring-red-500/20">
          {isPermissionError ? (
              isCamera ? (
-                 <Camera className="h-12 w-12 text-red-500" />
+                 <Camera className="h-8 w-8 text-red-500" />
              ) : (
-                 <Mic className="h-12 w-12 text-red-500" />
+                 <Mic className="h-8 w-8 text-red-500" />
              )
          ) : (
-             <AlertCircle className="h-12 w-12 text-red-500" />
+             <AlertCircle className="h-8 w-8 text-red-500" />
          )}
       </div>
 
