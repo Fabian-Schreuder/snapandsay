@@ -29,8 +29,8 @@ export default function PermissionErrorState({
   const isCamera = mediaType === 'camera';
 
   return (
-    <div className={cn("h-full w-full bg-zinc-900 flex flex-col items-center justify-center p-8 text-center space-y-6 animate-in fade-in duration-300", className)}>
-      <div className="h-16 w-16 shrink-0 rounded-full bg-red-500/10 flex items-center justify-center mb-4 ring-1 ring-red-500/20">
+    <div className={cn("h-full w-full bg-zinc-900 flex flex-col items-center justify-center p-6 text-center space-y-5 animate-in fade-in duration-300", className)}>
+      <div className="h-16 w-16 shrink-0 rounded-full bg-red-500/10 flex items-center justify-center mb-2 ring-1 ring-red-500/20">
          {isPermissionError ? (
              isCamera ? (
                  <Camera className="h-8 w-8 text-red-500" />
@@ -43,14 +43,14 @@ export default function PermissionErrorState({
       </div>
 
       <div className="space-y-2 max-w-sm">
-        <h3 className="text-2xl font-bold text-white">
+        <h3 className="text-xl font-bold text-white">
           {isPermissionError 
             ? `${isCamera ? 'Camera' : 'Microphone'} Access Blocked` 
             : `${isCamera ? 'Camera' : 'Microphone'} Error`}
         </h3>
-        <p className="text-zinc-400 text-lg leading-relaxed">
+        <p className="text-zinc-400 text-base leading-relaxed">
           {isPermissionError 
-            ? `We need ${isCamera ? 'camera' : 'microphone'} access to ${isCamera ? 'snap your meal' : 'record your note'}. It looks like permission was denied.` 
+            ? `We need ${isCamera ? 'camera' : 'microphone'} access to ${isCamera ? 'snap your meal' : 'record your note'}.` 
             : errorMessage || `Something went wrong with your ${mediaType}.`}
         </p>
       </div>
