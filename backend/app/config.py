@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[str] = ["http://localhost:3000", "https://snapandsay.vercel.app"]
 
     model_config = SettingsConfigDict(
-        env_file=".env", env_file_encoding="utf-8", extra="ignore"
+        env_file=(".env", ".env.local"), env_file_encoding="utf-8", extra="ignore"
     )
 
 
