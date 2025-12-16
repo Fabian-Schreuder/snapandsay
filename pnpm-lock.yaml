@@ -10,7 +10,7 @@ importers:
     dependencies:
       vercel:
         specifier: ^49.1.2
-        version: 49.1.2(typescript@5.9.3)
+        version: 49.1.2(typescript@4.9.5)
     devDependencies:
       '@faker-js/faker':
         specifier: ^10.1.0
@@ -23,7 +23,7 @@ importers:
         version: 4.12.0
       '@seontechnologies/playwright-utils':
         specifier: ^3.10.0
-        version: 3.10.0(@playwright/test@1.57.0)(ajv@8.17.1)(js-yaml@4.1.1)(typescript@5.9.3)(zod@3.25.76)
+        version: 3.10.0(@playwright/test@1.57.0)(ajv@8.17.1)(js-yaml@4.1.1)(typescript@4.9.5)(zod@3.25.76)
       concurrently:
         specifier: ^9.2.1
         version: 9.2.1
@@ -7384,13 +7384,13 @@ snapshots:
 
   '@rushstack/eslint-patch@1.15.0': {}
 
-  '@seontechnologies/playwright-utils@3.10.0(@playwright/test@1.57.0)(ajv@8.17.1)(js-yaml@4.1.1)(typescript@5.9.3)(zod@3.25.76)':
+  '@seontechnologies/playwright-utils@3.10.0(@playwright/test@1.57.0)(ajv@8.17.1)(js-yaml@4.1.1)(typescript@4.9.5)(zod@3.25.76)':
     dependencies:
       '@playwright/test': 1.57.0
       adm-zip: 0.5.16
       deepmerge: 4.3.1
       exceljs: 4.4.0
-      madge: 7.0.0(typescript@5.9.3)
+      madge: 7.0.0(typescript@4.9.5)
       papaparse: 5.5.3
       picomatch: 4.0.3
       proper-lockfile: 4.1.2
@@ -7795,9 +7795,9 @@ snapshots:
   '@unrs/resolver-binding-win32-x64-msvc@1.11.1':
     optional: true
 
-  '@vercel/backends@0.0.16(typescript@5.9.3)':
+  '@vercel/backends@0.0.16(typescript@4.9.5)':
     dependencies:
-      '@vercel/cervel': 0.0.6(typescript@5.9.3)
+      '@vercel/cervel': 0.0.6(typescript@4.9.5)
       '@vercel/introspection': 0.0.7
       '@vercel/nft': 1.1.1
       '@vercel/static-config': 3.1.2
@@ -7819,13 +7819,13 @@ snapshots:
 
   '@vercel/build-utils@13.2.3': {}
 
-  '@vercel/cervel@0.0.6(typescript@5.9.3)':
+  '@vercel/cervel@0.0.6(typescript@4.9.5)':
     dependencies:
       execa: 3.2.0
       rolldown: 1.0.0-beta.35
       srvx: 0.8.9
       tsx: 4.19.2
-      typescript: 5.9.3
+      typescript: 4.9.5
 
   '@vercel/detect-agent@1.0.0': {}
 
@@ -7842,9 +7842,9 @@ snapshots:
 
   '@vercel/error-utils@2.0.3': {}
 
-  '@vercel/express@0.1.18(typescript@5.9.3)':
+  '@vercel/express@0.1.18(typescript@4.9.5)':
     dependencies:
-      '@vercel/cervel': 0.0.6(typescript@5.9.3)
+      '@vercel/cervel': 0.0.6(typescript@4.9.5)
       '@vercel/nft': 1.1.1
       '@vercel/node': 5.5.15
       '@vercel/static-config': 3.1.2
@@ -10685,7 +10685,7 @@ snapshots:
 
   lz-string@1.5.0: {}
 
-  madge@7.0.0(typescript@5.9.3):
+  madge@7.0.0(typescript@4.9.5):
     dependencies:
       chalk: 4.1.2
       commander: 7.2.0
@@ -10701,7 +10701,7 @@ snapshots:
       ts-graphviz: 1.8.2
       walkdir: 0.4.1
     optionalDependencies:
-      typescript: 5.9.3
+      typescript: 4.9.5
     transitivePeerDependencies:
       - supports-color
 
@@ -12231,14 +12231,14 @@ snapshots:
       '@types/istanbul-lib-coverage': 2.0.6
       convert-source-map: 2.0.0
 
-  vercel@49.1.2(typescript@5.9.3):
+  vercel@49.1.2(typescript@4.9.5):
     dependencies:
-      '@vercel/backends': 0.0.16(typescript@5.9.3)
+      '@vercel/backends': 0.0.16(typescript@4.9.5)
       '@vercel/blob': 1.0.2
       '@vercel/build-utils': 13.2.3
       '@vercel/detect-agent': 1.0.0
       '@vercel/elysia': 0.1.13
-      '@vercel/express': 0.1.18(typescript@5.9.3)
+      '@vercel/express': 0.1.18(typescript@4.9.5)
       '@vercel/fastify': 0.1.16
       '@vercel/fun': 1.2.0
       '@vercel/go': 3.2.4
