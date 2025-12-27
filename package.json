@@ -12,7 +12,6 @@
 		"dotenv": "^17.2.3"
 	},
 	"dependencies": {
-		"next": "^15.5.9",
 		"vercel": "^49.1.2"
 	},
 	"packageManager": "pnpm@10.25.0"
