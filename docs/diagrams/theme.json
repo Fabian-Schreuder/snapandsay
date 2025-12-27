@@ -1,0 +1,14 @@
+{
+  "name": "Professional",
+  "colors": {
+    "component": "#e3f2fd",
+    "database": "#e8f5e9",
+    "service": "#fff3e0",
+    "external": "#f3e5f5",
+    "border": "#1976d2",
+    "borderDatabase": "#388e3c",
+    "borderService": "#f57c00",
+    "borderExternal": "#7b1fa2",
+    "text": "#1e1e1e"
+  }
+}
