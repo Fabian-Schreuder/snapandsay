@@ -88,6 +88,8 @@ async def run_streaming_agent(
     # Determine routing based on confidence
     overall_confidence = state.get("overall_confidence", 0.0)
     clarification_count = state.get("clarification_count", 0)
+    
+    needs_clarification = False
 
     # Route conditionally: skip clarification if high confidence or max attempts
     if overall_confidence < CONFIDENCE_THRESHOLD and clarification_count < 2:
@@ -97,13 +99,16 @@ async def run_streaming_agent(
                 yield item
             else:
                 state.update(item)
+                if item.get("needs_clarification"):
+                    needs_clarification = True
 
-    # Always run finalize
-    async for item in finalize_log_streaming(state):
-        if isinstance(item, SSEEvent):
-            yield item
-        else:
-            state.update(item)
+    # Run finalize only if no clarification needed
+    if not needs_clarification:
+        async for item in finalize_log_streaming(state):
+            if isinstance(item, SSEEvent):
+                yield item
+            else:
+                state.update(item)
 
     # Final state is available in state dict
     yield state
