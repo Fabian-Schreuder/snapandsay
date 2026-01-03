@@ -12,7 +12,8 @@ interface ImagePreviewProps {
 export default function ImagePreview({ imageSrc, onRetake, onConfirm }: ImagePreviewProps) {
   return (
     <div className="relative h-full w-full bg-black flex flex-col items-center justify-center">
-      {/* Image Preview */}
+      {/* Image Preview - using <img> because imageSrc is a base64 data URL from camera capture */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img 
         src={imageSrc} 
         alt="Captured preview" 

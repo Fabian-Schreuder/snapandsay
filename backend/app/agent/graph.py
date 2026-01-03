@@ -1,21 +1,23 @@
-from typing import AsyncGenerator
-from langgraph.graph import StateGraph, START, END
-from app.agent.state import AgentState
-from app.agent.nodes import (
-    analyze_input,
-    generate_clarification,
-    finalize_log,
-    analyze_input_streaming,
-    generate_clarification_streaming,
-    finalize_log_streaming,
-)
-from app.agent.routing import route_by_confidence
+from collections.abc import AsyncGenerator
+
+from langgraph.graph import END, START, StateGraph
+
 from app.agent.constants import (
     ANALYZE_INPUT,
-    GENERATE_CLARIFICATION,
-    FINALIZE_LOG,
     CONFIDENCE_THRESHOLD,
+    FINALIZE_LOG,
+    GENERATE_CLARIFICATION,
 )
+from app.agent.nodes import (
+    analyze_input,
+    analyze_input_streaming,
+    finalize_log,
+    finalize_log_streaming,
+    generate_clarification,
+    generate_clarification_streaming,
+)
+from app.agent.routing import route_by_confidence
+from app.agent.state import AgentState
 from app.schemas.sse import SSEEvent
 
 

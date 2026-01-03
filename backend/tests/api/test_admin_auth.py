@@ -1,9 +1,12 @@
-import pytest
-from app.api.deps import get_current_admin
-from app.core.security import UserContext
-from app.config import settings
-from fastapi import HTTPException
 from uuid import uuid4
+
+import pytest
+from fastapi import HTTPException
+
+from app.api.deps import get_current_admin
+from app.config import settings
+from app.core.security import UserContext
+
 
 @pytest.fixture
 def mock_admin_settings():

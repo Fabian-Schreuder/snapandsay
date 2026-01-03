@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_pagination import add_pagination
@@ -5,10 +7,9 @@ from fastapi_pagination import add_pagination
 from app.api.v1.api import api_router
 from app.config import settings
 
-from contextlib import asynccontextmanager
-
 from .database import create_db_and_tables
 from .utils import simple_generate_unique_route_id
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):

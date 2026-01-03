@@ -1,6 +1,5 @@
 """Streaming service for SSE event formatting."""
-import json
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from app.schemas.sse import SSEEvent
 

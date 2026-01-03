@@ -1,10 +1,13 @@
-import pytest
-import jwt
 from uuid import uuid4
+
+import jwt
+import pytest
 from fastapi import HTTPException
-from app.core.security import verify_token, UserContext
+
 from app.api.deps import get_current_user
 from app.config import settings
+from app.core.security import UserContext, verify_token
+
 
 # Override API key for testing
 # Override API key for testing using a fixture to avoid side effects

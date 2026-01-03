@@ -1,27 +1,25 @@
 """Service layer for dietary log operations."""
-from datetime import datetime, time, timezone, date
-from typing import List, Optional
+from datetime import UTC, date, datetime, time
 from uuid import UUID
 
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 from app.models.log import DietaryLog
 
-
-from sqlalchemy.orm import joinedload
 
 async def get_all_logs(
     db: AsyncSession,
     page: int = 1,
     limit: int = 50,
-    user_id: Optional[UUID] = None,
-    start_date: Optional[date] = None,
-    end_date: Optional[date] = None,
-    min_calories: Optional[int] = None,
-    max_calories: Optional[int] = None,
+    user_id: UUID | None = None,
+    start_date: date | None = None,
+    end_date: date | None = None,
+    min_calories: int | None = None,
+    max_calories: int | None = None,
     with_user: bool = False
-) -> List[DietaryLog]:
+) -> list[DietaryLog]:
     """
     Retrieve all logs with filtering and pagination for admin.
     """
@@ -34,11 +32,11 @@ async def get_all_logs(
         query = query.where(DietaryLog.user_id == user_id)
         
     if start_date:
-        start_dt = datetime.combine(start_date, time.min, tzinfo=timezone.utc)
+        start_dt = datetime.combine(start_date, time.min, tzinfo=UTC)
         query = query.where(DietaryLog.created_at >= start_dt)
         
     if end_date:
-        end_dt = datetime.combine(end_date, time.max, tzinfo=timezone.utc)
+        end_dt = datetime.combine(end_date, time.max, tzinfo=UTC)
         query = query.where(DietaryLog.created_at <= end_dt)
 
     if min_calories is not None:
@@ -56,12 +54,12 @@ async def get_all_logs(
 
 async def count_all_logs(
     db: AsyncSession,
-    user_id: Optional[UUID] = None,
+    user_id: UUID | None = None,
     dataset = None, # unused but kept for signature compatibility if needed? No, just addargs
-    start_date: Optional[date] = None,
-    end_date: Optional[date] = None,
-    min_calories: Optional[int] = None,
-    max_calories: Optional[int] = None
+    start_date: date | None = None,
+    end_date: date | None = None,
+    min_calories: int | None = None,
+    max_calories: int | None = None
 ) -> int:
     """
     Count total logs matching filters.
@@ -72,11 +70,11 @@ async def count_all_logs(
         query = query.where(DietaryLog.user_id == user_id)
         
     if start_date:
-        start_dt = datetime.combine(start_date, time.min, tzinfo=timezone.utc)
+        start_dt = datetime.combine(start_date, time.min, tzinfo=UTC)
         query = query.where(DietaryLog.created_at >= start_dt)
         
     if end_date:
-        end_dt = datetime.combine(end_date, time.max, tzinfo=timezone.utc)
+        end_dt = datetime.combine(end_date, time.max, tzinfo=UTC)
         query = query.where(DietaryLog.created_at <= end_dt)
         
     if min_calories is not None:
@@ -92,7 +90,7 @@ async def count_all_logs(
 
 async def get_logs_for_date(
     db: AsyncSession, user_id: UUID, target_date: date
-) -> List[DietaryLog]:
+) -> list[DietaryLog]:
     """
     Retrieve dietary logs for a specific date.
     
@@ -106,8 +104,8 @@ async def get_logs_for_date(
         filtered to status='logged', ordered by created_at DESC
     """
     # Calculate UTC day boundaries
-    start = datetime.combine(target_date, time.min, tzinfo=timezone.utc)
-    end = datetime.combine(target_date, time.max, tzinfo=timezone.utc)
+    start = datetime.combine(target_date, time.min, tzinfo=UTC)
+    end = datetime.combine(target_date, time.max, tzinfo=UTC)
     
     result = await db.execute(
         select(DietaryLog)
@@ -125,7 +123,7 @@ async def get_logs_for_date(
 
 async def get_log_by_id(
     db: AsyncSession, user_id: UUID, log_id: UUID
-) -> Optional[DietaryLog]:
+) -> DietaryLog | None:
     """
     Retrieve a single dietary log by ID.
     
@@ -148,7 +146,7 @@ async def get_log_by_id(
 
 async def update_log(
     db: AsyncSession, user_id: UUID, log_id: UUID, update_data: dict
-) -> Optional[DietaryLog]:
+) -> DietaryLog | None:
     """
     Update a dietary log entry.
     

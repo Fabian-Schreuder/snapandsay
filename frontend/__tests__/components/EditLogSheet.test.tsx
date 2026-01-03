@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { EditLogSheet } from '@/components/features/logs/EditLogSheet';
 import { useUpdateLog } from '@/hooks/use-logs';
 import type { DietaryLog } from '@/types/log';

@@ -1,6 +1,7 @@
-import pytest
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
-from datetime import datetime, timezone, timedelta
+
+import pytest
 from sqlalchemy import text
 
 from app.api.deps import get_current_user
@@ -37,14 +38,14 @@ async def test_get_logs_filters_by_date_correctly(test_client, db_session):
     await db_session.execute(text("SET session_replication_role = replica"))
     
     # Create logs for today
-    today = datetime.now(timezone.utc).date()
+    today = datetime.now(UTC).date()
     log1 = DietaryLog(
         user_id=user_id,
         image_path=f"{user_id}/image1.jpg",
         status="logged",
         calories=300,
         description="Breakfast",
-        created_at=datetime.combine(today, datetime.min.time().replace(hour=8), tzinfo=timezone.utc),
+        created_at=datetime.combine(today, datetime.min.time().replace(hour=8), tzinfo=UTC),
     )
     log2 = DietaryLog(
         user_id=user_id,
@@ -52,7 +53,7 @@ async def test_get_logs_filters_by_date_correctly(test_client, db_session):
         status="logged",
         calories=500,
         description="Lunch",
-        created_at=datetime.combine(today, datetime.min.time().replace(hour=12), tzinfo=timezone.utc),
+        created_at=datetime.combine(today, datetime.min.time().replace(hour=12), tzinfo=UTC),
     )
     # Create log for yesterday (should not be returned for today)
     yesterday = today - timedelta(days=1)
@@ -62,7 +63,7 @@ async def test_get_logs_filters_by_date_correctly(test_client, db_session):
         status="logged",
         calories=400,
         description="Yesterday dinner",
-        created_at=datetime.combine(yesterday, datetime.min.time().replace(hour=19), tzinfo=timezone.utc),
+        created_at=datetime.combine(yesterday, datetime.min.time().replace(hour=19), tzinfo=UTC),
     )
     
     db_session.add_all([log1, log2, log3])
@@ -100,7 +101,7 @@ async def test_get_logs_only_returns_logged_status(test_client, db_session):
     
     await db_session.execute(text("SET session_replication_role = replica"))
     
-    today = datetime.now(timezone.utc)
+    today = datetime.now(UTC)
     
     # Create logs with different statuses
     log_processing = DietaryLog(
@@ -149,14 +150,14 @@ async def test_get_logs_handles_timezone_correctly(test_client, db_session):
     await db_session.execute(text("SET session_replication_role = replica"))
     
     # Create a log at 23:59 UTC on a specific date
-    test_date = datetime(2024, 1, 15, tzinfo=timezone.utc).date()
+    datetime(2024, 1, 15, tzinfo=UTC).date()
     late_log = DietaryLog(
         user_id=user_id,
         image_path=f"{user_id}/late.jpg",
         status="logged",
         calories=100,
         description="Late night snack",
-        created_at=datetime(2024, 1, 15, 23, 59, 0, tzinfo=timezone.utc),
+        created_at=datetime(2024, 1, 15, 23, 59, 0, tzinfo=UTC),
     )
     # Create a log at 00:01 UTC on the next day
     early_next_day = DietaryLog(
@@ -165,7 +166,7 @@ async def test_get_logs_handles_timezone_correctly(test_client, db_session):
         status="logged",
         calories=200,
         description="Early breakfast",
-        created_at=datetime(2024, 1, 16, 0, 1, 0, tzinfo=timezone.utc),
+        created_at=datetime(2024, 1, 16, 0, 1, 0, tzinfo=UTC),
     )
     
     db_session.add_all([late_log, early_next_day])
@@ -207,7 +208,7 @@ async def test_get_log_by_id_success(test_client, db_session):
         carbs=40,
         fats=20,
         description="Grilled chicken salad",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     db_session.add(log)
     await db_session.commit()
@@ -258,7 +259,7 @@ async def test_get_log_by_id_wrong_user(test_client, db_session):
         image_path=f"{owner_id}/meal.jpg",
         status="logged",
         calories=300,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     db_session.add(log)
     await db_session.commit()
@@ -295,7 +296,7 @@ async def test_update_log_success(test_client, db_session):
         carbs=30,
         fats=10,
         description="Original description",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     db_session.add(log)
     await db_session.commit()
@@ -337,7 +338,7 @@ async def test_update_log_partial_update(test_client, db_session):
         calories=300,
         protein=15,
         description="Keep this description",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     db_session.add(log)
     await db_session.commit()
@@ -389,7 +390,7 @@ async def test_update_log_wrong_user(test_client, db_session):
         image_path=f"{owner_id}/meal.jpg",
         status="logged",
         calories=300,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     db_session.add(log)
     await db_session.commit()
@@ -426,7 +427,7 @@ async def test_update_log_validation_error(test_client, db_session):
         image_path=f"{user_id}/meal.jpg",
         status="logged",
         calories=300,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     db_session.add(log)
     await db_session.commit()
@@ -459,7 +460,7 @@ async def test_delete_log_success(test_client, db_session):
         image_path=f"{user_id}/meal.jpg",
         status="logged",
         calories=300,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     db_session.add(log)
     await db_session.commit()
@@ -511,7 +512,7 @@ async def test_delete_log_wrong_user(test_client, db_session):
         image_path=f"{owner_id}/meal.jpg",
         status="logged",
         calories=300,
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
     )
     db_session.add(log)
     await db_session.commit()

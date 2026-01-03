@@ -1,10 +1,13 @@
 
-import pytest
+from datetime import UTC, datetime
 from uuid import uuid4
-from datetime import datetime, timezone
+
+import pytest
 from sqlalchemy import text
-from app.services import log_service
+
 from app.models.log import DietaryLog
+from app.services import log_service
+
 
 @pytest.mark.asyncio
 async def test_get_all_logs_calorie_filtering(db_session):
@@ -33,7 +36,7 @@ async def test_get_all_logs_calorie_filtering(db_session):
         status="logged",
         calories=100,
         image_path="low.jpg",
-        created_at=datetime.now(timezone.utc)
+        created_at=datetime.now(UTC)
     )
     log_med = DietaryLog(
         id=uuid4(),
@@ -41,7 +44,7 @@ async def test_get_all_logs_calorie_filtering(db_session):
         status="logged",
         calories=500,
         image_path="med.jpg",
-        created_at=datetime.now(timezone.utc)
+        created_at=datetime.now(UTC)
     )
     log_high = DietaryLog(
         id=uuid4(),
@@ -49,7 +52,7 @@ async def test_get_all_logs_calorie_filtering(db_session):
         status="logged",
         calories=1000,
         image_path="high.jpg",
-        created_at=datetime.now(timezone.utc)
+        created_at=datetime.now(UTC)
     )
     
     db_session.add(log_low)
@@ -60,7 +63,7 @@ async def test_get_all_logs_calorie_filtering(db_session):
     # Test Min Calories (>= 500) -> should get med and high (2)
     logs_min = await log_service.get_all_logs(db_session, user_id=user_id, min_calories=500)
     assert len(logs_min) == 2
-    ids = [l.id for l in logs_min]
+    ids = [log.id for log in logs_min]
     assert log_med.id in ids
     assert log_high.id in ids
     assert log_low.id not in ids
@@ -68,7 +71,7 @@ async def test_get_all_logs_calorie_filtering(db_session):
     # Test Max Calories (<= 500) -> should get low and med (2)
     logs_max = await log_service.get_all_logs(db_session, user_id=user_id, max_calories=500)
     assert len(logs_max) == 2
-    ids = [l.id for l in logs_max]
+    ids = [log.id for log in logs_max]
     assert log_low.id in ids
     assert log_med.id in ids
     assert log_high.id not in ids

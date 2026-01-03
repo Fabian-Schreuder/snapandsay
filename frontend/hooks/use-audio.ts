@@ -68,10 +68,14 @@ export const useAudio = (): UseAudioReturn => {
 
       mediaRecorder.start();
       setIsRecording(true);
-    } catch (err: any) {
-      console.error("Error starting recording:", err);
-      setError(err);
-      if (err.name === "NotAllowedError" || err.name === "PermissionDeniedError") {
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      console.error("Error starting recording:", error);
+      setError(error);
+      if (
+        error instanceof DOMException &&
+        (error.name === "NotAllowedError" || error.name === "PermissionDeniedError")
+      ) {
         setIsPermissionDenied(true);
       }
       cleanup();

@@ -1,27 +1,14 @@
 import importlib
-import pytest
-from app.api.deps import get_current_admin
-from app.core.security import UserContext
-from uuid import uuid4
-from datetime import datetime, timedelta, timezone
-from app.models.log import DietaryLog
-from sqlalchemy import text
-from app.main import app
-
-def test_admin_module_exists():
-    try:
-        importlib.import_module("app.api.v1.endpoints.admin")
-    except ImportError:
-        pytest.fail("app.api.v1.endpoints.admin module not found")
-
-import importlib
-import pytest
+from datetime import date, datetime
 from unittest.mock import AsyncMock, patch
+from uuid import uuid4
+
+import pytest
+
 from app.api.deps import get_current_admin
 from app.core.security import UserContext
-from uuid import uuid4
-from datetime import datetime, date
 from app.main import app
+
 
 def test_admin_module_exists():
     try:

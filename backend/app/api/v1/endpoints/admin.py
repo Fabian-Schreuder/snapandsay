@@ -1,13 +1,14 @@
-from typing import Optional
 from datetime import date, datetime
 from uuid import UUID
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.api.deps import get_current_admin, get_db
 from app.core.security import UserContext
 from app.schemas.log import DietaryLogListResponse, LogListMeta
-from app.services import log_service, export_service
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.services import export_service, log_service
 
 router = APIRouter()
 
@@ -15,13 +16,13 @@ router = APIRouter()
 async def get_admin_logs(
     current_user: UserContext = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db),
-    user_id: Optional[UUID] = Query(None, description="Filter by User ID"),
-    start_date: Optional[date] = Query(None, description="Filter by start date"),
-    end_date: Optional[date] = Query(None, description="Filter by end date"),
+    user_id: UUID | None = Query(None, description="Filter by User ID"),
+    start_date: date | None = Query(None, description="Filter by start date"),
+    end_date: date | None = Query(None, description="Filter by end date"),
     page: int = Query(1, ge=1, description="Page number"),
     limit: int = Query(50, ge=1, le=100, description="Items per page"),
-    min_calories: Optional[int] = Query(None, description="Minimum calories"),
-    max_calories: Optional[int] = Query(None, description="Maximum calories")
+    min_calories: int | None = Query(None, description="Minimum calories"),
+    max_calories: int | None = Query(None, description="Maximum calories")
 ):
     """
     Get all logs with filtering for admin dashboard.
@@ -59,11 +60,11 @@ async def get_admin_logs(
 @router.get("/export")
 async def get_export_logs(
     format: str = Query("csv", description="Export format: csv or json"),
-    user_id: Optional[UUID] = Query(None, description="Filter by User ID"),
-    start_date: Optional[date] = Query(None, description="Filter by start date"),
-    end_date: Optional[date] = Query(None, description="Filter by end date"),
-    min_calories: Optional[int] = Query(None, description="Minimum calories"),
-    max_calories: Optional[int] = Query(None, description="Maximum calories"),
+    user_id: UUID | None = Query(None, description="Filter by User ID"),
+    start_date: date | None = Query(None, description="Filter by start date"),
+    end_date: date | None = Query(None, description="Filter by end date"),
+    min_calories: int | None = Query(None, description="Minimum calories"),
+    max_calories: int | None = Query(None, description="Maximum calories"),
     current_user: UserContext = Depends(get_current_admin),
     db: AsyncSession = Depends(get_db)
 ):

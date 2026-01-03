@@ -1,10 +1,12 @@
-import pytest
+from datetime import UTC, date, datetime, timedelta
 from uuid import uuid4
-from datetime import datetime, date, timedelta, timezone
-from app.services import log_service
-from app.models.log import DietaryLog
 
+import pytest
 from sqlalchemy import text
+
+from app.models.log import DietaryLog
+from app.services import log_service
+
 
 @pytest.mark.asyncio
 async def test_get_all_logs_implementation(db_session):
@@ -49,7 +51,7 @@ async def test_get_all_logs_implementation(db_session):
         id=uuid4(),
         user_id=user1_id,
         status="logged",
-        created_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
         image_path="img1.jpg",
         description="User 1 Log"
     )
@@ -57,7 +59,7 @@ async def test_get_all_logs_implementation(db_session):
         id=uuid4(),
         user_id=user2_id,
         status="logged",
-        created_at=datetime.now(timezone.utc) - timedelta(days=1),
+        created_at=datetime.now(UTC) - timedelta(days=1),
         image_path="img2.jpg",
         description="User 2 Log"
     )
@@ -84,7 +86,7 @@ async def test_get_all_logs_implementation(db_session):
     # 5. Test Filter by Date Range
     # Filter for today (log1)
     today = date.today()
-    logs_today = await log_service.get_all_logs(
+    await log_service.get_all_logs(
         db_session, 
         start_date=today, 
         end_date=today,

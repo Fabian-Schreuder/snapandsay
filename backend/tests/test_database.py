@@ -7,6 +7,7 @@ Tests the Supabase schema setup including:
 - RLS policies for SELECT and UPDATE
 """
 import uuid
+
 import pytest
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession

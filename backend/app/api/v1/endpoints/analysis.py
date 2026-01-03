@@ -1,9 +1,11 @@
 from datetime import datetime
 from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from app.api.deps import get_current_user, UserContext
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.deps import UserContext, get_current_user
 from app.database import get_async_session
 from app.models.log import DietaryLog
 from app.schemas.analysis import (
@@ -34,7 +36,7 @@ async def upload_analysis_data(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="Invalid timestamp format. Expected ISO 8601.",
-        )
+        ) from None
 
     # Create DB Entry
     new_log = DietaryLog(

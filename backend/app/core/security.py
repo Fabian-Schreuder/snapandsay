@@ -1,7 +1,10 @@
-import jwt
 from uuid import UUID
+
+import jwt
 from pydantic import BaseModel
+
 from app.config import settings
+
 
 class UserContext(BaseModel):
     id: UUID
@@ -64,5 +67,8 @@ def verify_token(token: str) -> UserContext:
             app_metadata=payload.get("app_metadata")
         )
     except jwt.PyJWTError as e:
-        print(f"DEBUG: JWT Validation Failed. Error: {e}, Token Header: {jwt.get_unverified_header(token)}")
-        raise ValueError(f"Invalid token: {e}")
+        print(
+            f"DEBUG: JWT Validation Failed. Error: {e}, "
+            f"Token Header: {jwt.get_unverified_header(token)}"
+        )
+        raise ValueError(f"Invalid token: {e}") from e

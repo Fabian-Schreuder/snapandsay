@@ -1,8 +1,8 @@
 import asyncio
 import logging
-import os
-from app.services.llm_service import analyze_multimodal_streaming
+
 from app.config import settings
+from app.services.llm_service import analyze_multimodal_streaming
 
 # Configure logging to show our debug messages
 logging.basicConfig(level=logging.DEBUG)

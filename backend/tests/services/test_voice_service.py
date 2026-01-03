@@ -1,8 +1,9 @@
 """Tests for VoiceService."""
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+
 from app.services.voice_service import transcribe_audio
-from app.config import settings
 
 
 @pytest.mark.asyncio

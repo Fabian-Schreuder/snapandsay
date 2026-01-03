@@ -1,7 +1,9 @@
 """Voice transcription service using OpenAI Whisper."""
 import asyncio
 from functools import lru_cache
+
 from openai import AsyncOpenAI
+
 from app.config import settings
 
 
@@ -27,6 +29,7 @@ async def transcribe_audio(file_path: str, token: str | None = None) -> str:
     """
     import os
     from io import BytesIO
+
     import httpx
 
     audio_file = None

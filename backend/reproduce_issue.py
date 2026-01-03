@@ -1,15 +1,15 @@
 
 import asyncio
-import os
-import sys
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy import text
-from app.config import settings
-from app.services.llm_service import _get_client
+
 from openai import AsyncOpenAI
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import create_async_engine
+
+from app.config import settings
+
 
 async def check_db():
-    print(f"--- Database Check ---")
+    print("--- Database Check ---")
     db_url = settings.DATABASE_URL
     print(f"Loaded DATABASE_URL: {db_url.split('@')[-1] if '@' in db_url else 'INVALID'}")
     
@@ -38,7 +38,7 @@ async def check_db():
         print(f"Database connection failed: {e}")
 
 async def check_llm():
-    print(f"\n--- LLM Check ---")
+    print("\n--- LLM Check ---")
     api_key = settings.OPENAI_API_KEY
     if not api_key:
         print("FAILURE: OPENAI_API_KEY is not set.")

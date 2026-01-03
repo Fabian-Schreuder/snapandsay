@@ -1,11 +1,11 @@
 """Confidence-based routing logic for the agent graph."""
-from app.agent.state import AgentState
 from app.agent.constants import (
+    CONFIDENCE_THRESHOLD,
     FINALIZE_LOG,
     GENERATE_CLARIFICATION,
-    CONFIDENCE_THRESHOLD,
     MAX_CLARIFICATIONS,
 )
+from app.agent.state import AgentState
 
 
 def route_by_confidence(state: AgentState) -> str:

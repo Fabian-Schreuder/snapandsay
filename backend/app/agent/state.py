@@ -1,5 +1,6 @@
-from typing import TypedDict, Annotated, Optional, List, Dict, Any
+from typing import Annotated, Any, TypedDict
 from uuid import UUID
+
 from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
 
@@ -23,13 +24,13 @@ class AgentState(TypedDict):
         needs_clarification: Whether the agent needs to ask a follow-up question
         needs_review: Whether the log should be flagged for human review
     """
-    messages: Annotated[List[BaseMessage], add_messages]
-    image_url: Optional[str]
-    audio_url: Optional[str]
-    nutritional_data: Optional[Dict[str, Any]]
-    log_id: Optional[UUID]
+    messages: Annotated[list[BaseMessage], add_messages]
+    image_url: str | None
+    audio_url: str | None
+    nutritional_data: dict[str, Any] | None
+    log_id: UUID | None
     overall_confidence: float
     clarification_count: int
     needs_clarification: bool
     needs_review: bool
-    user_token: Optional[str]
+    user_token: str | None

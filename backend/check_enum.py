@@ -1,4 +1,5 @@
 import asyncio
+
 import asyncpg
 
 DB_DSN = "postgresql://postgres:postgres@localhost:54322/postgres"

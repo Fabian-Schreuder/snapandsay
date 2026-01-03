@@ -1,8 +1,11 @@
 from functools import lru_cache
-from supabase import create_client, Client
+
+from supabase import Client, create_client
+
 from app.config import settings
 
-@lru_cache()
+
+@lru_cache
 def get_supabase_client() -> Client:
     """
     Get or create a Supabase client.

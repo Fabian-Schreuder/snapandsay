@@ -1,9 +1,9 @@
 """LLM analysis service using OpenAI GPT-4o."""
 import json
 import logging
+from collections.abc import Awaitable, Callable
 from datetime import datetime
 from functools import lru_cache
-from typing import AsyncGenerator, Callable, Awaitable, List
 
 from openai import AsyncOpenAI
 from pydantic import BaseModel
@@ -24,7 +24,7 @@ class LLMGenerationError(Exception):
 class ClarificationQuestion(BaseModel):
     """Schema for generated clarification question."""
     question: str
-    options: List[str]
+    options: list[str]
 
 
 @lru_cache(maxsize=1)
@@ -84,6 +84,7 @@ async def _get_image_content(image_path: str, token: str | None = None) -> str:
     Handles private Supabase Storage paths by downloading with user token.
     """
     import base64
+
     import httpx
     
     # Return as-is if it's already a public URL or data URI
@@ -163,7 +164,7 @@ async def analyze_multimodal(
         return completion.choices[0].message.parsed
     except Exception as e:
         logger.error(f"LLM generation failed: {e}")
-        raise LLMGenerationError(f"Failed to analyze input: {str(e)}")
+        raise LLMGenerationError(f"Failed to analyze input: {str(e)}") from e
 
 
 async def analyze_multimodal_streaming(
@@ -256,18 +257,21 @@ async def analyze_multimodal_streaming(
             parsed_data = json.loads(accumulated_content)
             return AnalysisResult.model_validate(parsed_data)
         except (json.JSONDecodeError, Exception) as parse_error:
-            logger.error(f"Failed to parse streaming response: {parse_error}. Content: {accumulated_content}")
+            logger.error(
+                f"Failed to parse streaming response: {parse_error}. "
+                f"Content: {accumulated_content}"
+            )
             raise LLMGenerationError(
                 f"Failed to parse LLM response: {str(parse_error)}"
-            )
+            ) from parse_error
 
     except Exception as e:
         logger.error(f"LLM streaming generation failed: {e}")
-        raise LLMGenerationError(f"Failed to analyze input: {str(e)}")
+        raise LLMGenerationError(f"Failed to analyze input: {str(e)}") from e
 
 
 async def generate_clarification_question(
-    low_confidence_items: List[FoodItem],
+    low_confidence_items: list[FoodItem],
 ) -> ClarificationQuestion:
     """
     Generate a clarification question for low-confidence food items.

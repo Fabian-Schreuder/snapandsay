@@ -1,5 +1,5 @@
-from collections.abc import AsyncGenerator
 import logging
+from collections.abc import AsyncGenerator
 
 logger = logging.getLogger(__name__)
 

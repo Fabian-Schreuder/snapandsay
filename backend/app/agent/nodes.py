@@ -1,32 +1,35 @@
-from typing import AsyncGenerator
-from datetime import datetime, timezone
-from uuid import UUID
+import logging
+from collections.abc import AsyncGenerator
+from datetime import UTC, datetime
 
-from app.agent.state import AgentState
-from app.services import voice_service, llm_service
+from sqlalchemy import select
+
 from app.agent.constants import (
+    CONFIDENCE_THRESHOLD,
+    EVENT_CLARIFICATION,
+    EVENT_ERROR,
+    EVENT_RESPONSE,
+    EVENT_THOUGHT,
+    MSG_ANALYZING_COMPLETE,
+    MSG_ANALYZING_START,
+    MSG_CLARIFYING,
+    MSG_FINALIZING,
     STEP_ANALYZING,
     STEP_CLARIFYING,
     STEP_FINALIZING,
-    MSG_ANALYZING_START,
-    MSG_ANALYZING_TOKENS,
-    MSG_ANALYZING_COMPLETE,
-    MSG_CLARIFYING,
-    MSG_FINALIZING,
-    EVENT_THOUGHT,
-    EVENT_RESPONSE,
-    EVENT_ERROR,
-    EVENT_CLARIFICATION,
-    CONFIDENCE_THRESHOLD,
 )
-from app.schemas.sse import SSEEvent, AgentThought, AgentResponse, AgentError, AgentClarification
-from app.schemas.analysis import FoodItem
-
+from app.agent.state import AgentState
 from app.database import async_session_maker
 from app.models.log import DietaryLog
-from sqlalchemy import select
-
-import logging
+from app.schemas.analysis import FoodItem
+from app.schemas.sse import (
+    AgentClarification,
+    AgentError,
+    AgentResponse,
+    AgentThought,
+    SSEEvent,
+)
+from app.services import llm_service, voice_service
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +41,7 @@ async def analyze_input(state: AgentState) -> dict:
     """
     image_url = state.get("image_url")
     audio_url = state.get("audio_url")
+    log_id = state.get("log_id")
     user_token = state.get("user_token")
     transcript = None
     context = None
@@ -125,7 +129,7 @@ async def analyze_input_streaming(
         payload=AgentThought(
             step=STEP_ANALYZING,
             message=MSG_ANALYZING_START,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
         ),
     )
 
@@ -183,8 +187,8 @@ async def analyze_input_streaming(
         nonlocal token_count
         token_count += 1
         # Emit a thought event every 20 tokens to show liveness without flooding
-        # yield removed to strictly TypeCheck: on_token must be Awaitable[None] (coroutine), not AsyncGenerator.
-        # Use a Queue or other mechanism if streaming feedback is strictly required while blocked.
+        # yield removed to strictly TypeCheck: on_token must be Awaitable[None] (coroutine),
+        # not AsyncGenerator. Use a Queue or other mechanism if streaming feedback required.
         if token_count % 20 == 0:
             logger.debug(f"Streaming token count: {token_count}")
 
@@ -203,7 +207,7 @@ async def analyze_input_streaming(
             payload=AgentThought(
                 step=STEP_ANALYZING,
                 message=MSG_ANALYZING_COMPLETE,
-                timestamp=datetime.now(timezone.utc),
+                timestamp=datetime.now(UTC),
             ),
         )
 
@@ -256,7 +260,7 @@ async def generate_clarification(state: AgentState) -> dict:
     ]
     
     if low_confidence_items:
-        question = await llm_service.generate_clarification_question(low_confidence_items)
+        await llm_service.generate_clarification_question(low_confidence_items)
         return {
             "needs_clarification": True,
             "clarification_count": clarification_count + 1,
@@ -274,7 +278,7 @@ async def generate_clarification_streaming(
         payload=AgentThought(
             step=STEP_CLARIFYING,
             message=MSG_CLARIFYING,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
         ),
     )
     
@@ -361,7 +365,7 @@ async def finalize_log_streaming(
         payload=AgentThought(
             step=STEP_FINALIZING,
             message=MSG_FINALIZING,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
         ),
     )
     

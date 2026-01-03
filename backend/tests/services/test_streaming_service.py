@@ -1,9 +1,10 @@
 """Tests for the streaming service."""
-import pytest
 from datetime import datetime
 
+import pytest
+
+from app.schemas.sse import AgentError, AgentResponse, AgentThought, SSEEvent
 from app.services.streaming_service import format_sse, format_sse_comment
-from app.schemas.sse import SSEEvent, AgentThought, AgentResponse, AgentError
 
 
 @pytest.mark.asyncio

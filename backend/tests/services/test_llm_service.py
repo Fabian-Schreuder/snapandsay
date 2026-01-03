@@ -1,8 +1,10 @@
 """Tests for LLMService."""
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
-from app.services.llm_service import analyze_multimodal, LLMGenerationError
+
 from app.schemas.analysis import AnalysisResult, FoodItem
+from app.services.llm_service import LLMGenerationError, analyze_multimodal
 
 
 @pytest.mark.asyncio

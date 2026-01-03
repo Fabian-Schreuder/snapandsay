@@ -1,14 +1,14 @@
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import patch, AsyncMock
-from app.agent.graph import get_agent_graph, run_streaming_agent
+from langgraph.graph.state import CompiledStateGraph
+
 from app.agent.constants import (
     ANALYZE_INPUT,
-    GENERATE_CLARIFICATION,
     FINALIZE_LOG,
-    CONFIDENCE_THRESHOLD,
+    GENERATE_CLARIFICATION,
 )
-from app.schemas.sse import SSEEvent
-from langgraph.graph.state import CompiledStateGraph
+from app.agent.graph import get_agent_graph, run_streaming_agent
 
 
 @pytest.mark.asyncio
@@ -135,7 +135,7 @@ async def test_run_streaming_agent_low_confidence_runs_clarification():
             yield {}
         mock_finalize.return_value = mock_finalize_gen(initial_state)
 
-        async for item in run_streaming_agent(initial_state):
+        async for _item in run_streaming_agent(initial_state):
             pass
 
     # Clarification SHOULD have run for low confidence
@@ -180,7 +180,7 @@ async def test_run_streaming_agent_max_attempts_skips_clarification():
             yield {}
         mock_finalize.return_value = mock_finalize_gen(initial_state)
 
-        async for item in run_streaming_agent(initial_state):
+        async for _item in run_streaming_agent(initial_state):
             pass
 
     # Clarification should NOT run when max attempts reached

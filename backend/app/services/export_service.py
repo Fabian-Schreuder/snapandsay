@@ -1,11 +1,13 @@
 
 import csv
-import json
 import io
-from typing import List, Generator, Any
+import json
+from collections.abc import Generator
+
 from app.models.log import DietaryLog
 
-def export_logs_as_csv(logs: List[DietaryLog]) -> Generator[str, None, None]:
+
+def export_logs_as_csv(logs: list[DietaryLog]) -> Generator[str, None, None]:
     """
     Export logs to CSV format.
     Returns a generator of CSV strings.
@@ -47,7 +49,7 @@ def export_logs_as_csv(logs: List[DietaryLog]) -> Generator[str, None, None]:
         output.seek(0)
         output.truncate(0)
 
-def export_logs_as_json(logs: List[DietaryLog]) -> Generator[str, None, None]:
+def export_logs_as_json(logs: list[DietaryLog]) -> Generator[str, None, None]:
     """
     Export logs to JSON format.
     Returns a generator of JSON strings (streaming array).

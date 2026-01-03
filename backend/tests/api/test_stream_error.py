@@ -1,12 +1,13 @@
-import pytest
-from unittest.mock import patch, AsyncMock
+from unittest.mock import AsyncMock, patch
 from uuid import uuid4
-from datetime import datetime
-from app.api import deps
-from app.main import app
-from app.core.security import UserContext
-from app.models.log import DietaryLog
+
+import pytest
 from sqlalchemy import select, text
+
+from app.api import deps
+from app.core.security import UserContext
+from app.main import app
+from app.models.log import DietaryLog
 
 
 @pytest.fixture
@@ -29,7 +30,6 @@ def override_auth():
     if deps.oauth2_scheme in app.dependency_overrides:
         del app.dependency_overrides[deps.oauth2_scheme]
 
-from datetime import datetime, timezone
 
 # ... imports ...
 

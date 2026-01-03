@@ -1,6 +1,6 @@
 """SSE event schemas for agent streaming responses."""
-from datetime import datetime, timezone
-from typing import Literal, Any, List
+from datetime import UTC, datetime
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -12,7 +12,7 @@ class AgentThought(BaseModel):
     step: str = Field(..., description="Current processing step identifier")
     message: str = Field(..., description="Human-readable thought message")
     timestamp: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc), description="When this thought was generated"
+        default_factory=lambda: datetime.now(UTC), description="When this thought was generated"
     )
 
 
@@ -37,7 +37,7 @@ class AgentClarification(BaseModel):
     """Schema for agent clarification question events."""
 
     question: str = Field(..., description="Clarification question text")
-    options: List[str] = Field(
+    options: list[str] = Field(
         default_factory=list,
         description="Suggested answer options for quick selection",
     )

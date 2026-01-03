@@ -1,11 +1,12 @@
 """Tests for the SSE streaming endpoint."""
-import pytest
-from unittest.mock import AsyncMock, patch
-from httpx import AsyncClient
+from unittest.mock import patch
 from uuid import uuid4
 
-from app.schemas.sse import SSEEvent, AgentThought, AgentError
-from app.agent.constants import EVENT_THOUGHT, EVENT_ERROR
+import pytest
+from httpx import AsyncClient
+
+from app.agent.constants import EVENT_ERROR, EVENT_THOUGHT
+from app.schemas.sse import AgentError, AgentThought, SSEEvent
 
 
 @pytest.mark.asyncio

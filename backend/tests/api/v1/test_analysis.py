@@ -1,7 +1,9 @@
-import pytest
 from uuid import uuid4
-from app.api.deps import get_current_user
+
+import pytest
 from sqlalchemy import text
+
+from app.api.deps import get_current_user
 from app.core.security import UserContext
 from app.main import app
 
@@ -45,6 +47,7 @@ async def test_upload_analysis_success(test_client, db_session):
     # But db_session fixture rolls back AFTER test.
     # We can query using db_session.
     from sqlalchemy import select
+
     from app.models.log import DietaryLog
     
     result = await db_session.execute(select(DietaryLog).where(DietaryLog.id == data["log_id"]))

@@ -1,12 +1,11 @@
 """API endpoints for dietary log operations."""
-from datetime import datetime, timezone, date
-from typing import Optional
+from datetime import UTC, datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.deps import get_current_user, UserContext
+from app.api.deps import UserContext, get_current_user
 from app.database import get_async_session
 from app.schemas.log import (
     DietaryLogListResponse,
@@ -21,7 +20,7 @@ router = APIRouter()
 
 @router.get("", response_model=DietaryLogListResponse)
 async def get_logs(
-    date: Optional[str] = None,
+    date: str | None = None,
     current_user: UserContext = Depends(get_current_user),
     db: AsyncSession = Depends(get_async_session),
 ) -> DietaryLogListResponse:
@@ -42,9 +41,9 @@ async def get_logs(
             target_date = datetime.fromisoformat(date).date()
         except ValueError:
             # Fall back to today if invalid format
-            target_date = datetime.now(timezone.utc).date()
+            target_date = datetime.now(UTC).date()
     else:
-        target_date = datetime.now(timezone.utc).date()
+        target_date = datetime.now(UTC).date()
     
     # Fetch logs from service layer
     logs = await log_service.get_logs_for_date(db, current_user.id, target_date)
@@ -149,7 +148,7 @@ async def update_log(
             updated.image_path, 3600
         )
         response_model.image_url = signed_url["signedURL"]
-    except Exception as e:
+    except Exception:
         pass
         
     return response_model

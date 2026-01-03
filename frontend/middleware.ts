@@ -28,7 +28,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
           response = NextResponse.next({
@@ -42,9 +42,8 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Validate session (required for middleware to refresh tokens)
+  await supabase.auth.getUser();
 
   // Protect routes starting with /admin
   // Note: Disabled to allow client-side handling via AdminGuard and E2E testing.

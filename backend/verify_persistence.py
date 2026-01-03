@@ -1,7 +1,6 @@
 import asyncio
-import uuid
 import os
-from datetime import datetime
+import uuid
 
 # Mock envs for Settings
 os.environ["SUPABASE_JWT_SECRET"] = "super-secret-jwt-token-for-testing-purposes-only"
@@ -12,7 +11,7 @@ from app.agent.nodes import finalize_log_streaming
 from app.database import async_session_maker
 from app.models.log import DietaryLog
 from app.models.user import User
-from app.schemas.analysis import AnalysisResult, FoodItem
+
 
 async def verify_persistence():
     # 1. Create a dummy user and log
@@ -66,7 +65,7 @@ async def verify_persistence():
 
     # 3. Run finalize_log_streaming
     print("Running finalize_log_streaming...")
-    async for event in finalize_log_streaming(state):
+    async for _event in finalize_log_streaming(state):
         pass # just consume the generator
 
     # 4. Verify DB

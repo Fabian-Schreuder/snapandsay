@@ -1,14 +1,16 @@
+import secrets
 from typing import Annotated
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from app.core.security import verify_token, UserContext
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.config import settings
+from app.core.security import UserContext, verify_token
 from app.database import get_async_session as get_db
 from app.models.user import User
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
-import secrets
 
 # Supabase Auth uses Bearer token, usually passed in Authorization header.
 # We set auto_error=False to handle 401 manually or allow optional auth.
@@ -49,12 +51,12 @@ async def get_current_user(
                 await db.rollback()
                 
         return user_ctx
-    except ValueError as e:
+    except ValueError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from None
 
 async def get_current_admin(user: Annotated[UserContext, Depends(get_current_user)]) -> UserContext:
     # Check if user has admin role in app_metadata

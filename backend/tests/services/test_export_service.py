@@ -1,11 +1,14 @@
 
-import pytest
 import json
-from datetime import datetime, timezone
-from uuid import uuid4
+from datetime import UTC, datetime
 from unittest.mock import MagicMock
+from uuid import uuid4
+
+import pytest
+
 from app.models.log import DietaryLog
 from app.services import export_service
+
 
 @pytest.mark.asyncio
 async def test_export_logs_as_csv():
@@ -14,7 +17,7 @@ async def test_export_logs_as_csv():
     log = DietaryLog(
         id=uuid4(),
         user_id=user_id,
-        created_at=datetime(2023, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+        created_at=datetime(2023, 1, 1, 12, 0, 0, tzinfo=UTC),
         calories=500,
         transcript="A tasty burger",
         description="Burger with cheese",
@@ -46,7 +49,7 @@ async def test_export_logs_as_json():
     log = DietaryLog(
         id=uuid4(),
         user_id=user_id,
-        created_at=datetime(2023, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
+        created_at=datetime(2023, 1, 1, 12, 0, 0, tzinfo=UTC),
         calories=500,
         transcript="A tasty burger",
         description="Burger with cheese",

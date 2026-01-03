@@ -1,16 +1,18 @@
 import asyncio
-from sqlalchemy.ext.asyncio import create_async_engine
-from sqlalchemy import text
-from app.config import settings
-import sys
 import os
+import sys
+
+from sqlalchemy import text
+from sqlalchemy.ext.asyncio import create_async_engine
+
+from app.config import settings
 
 # Add backend to path
 sys.path.append(os.getcwd())
 
 async def main():
     url = settings.TEST_DATABASE_URL
-    print(f"Connecting to Test DB")
+    print("Connecting to Test DB")
     engine = create_async_engine(url)
     try:
         async with engine.begin() as conn:

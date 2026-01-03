@@ -1,17 +1,20 @@
-import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
+
+import pytest
+
 from app.agent.nodes import (
-    analyze_input, 
-    generate_clarification, 
-    generate_clarification_streaming,
+    analyze_input,
     finalize_log,
     finalize_log_streaming,
+    generate_clarification,
+    generate_clarification_streaming,
 )
 from app.agent.state import AgentState
 from app.schemas.analysis import AnalysisResult, FoodItem
 from app.schemas.sse import SSEEvent
 from app.services.llm_service import ClarificationQuestion
+
 
 @pytest.mark.asyncio
 async def test_analyze_input_with_image_and_transcript():
@@ -21,7 +24,6 @@ async def test_analyze_input_with_image_and_transcript():
         "audio_url": None,
         "nutritional_data": None
     }
-    transcript = "Banana"
     analysis_result = AnalysisResult(items=[FoodItem(name="Banana", quantity="1", confidence=0.9)], synthesis_comment="OK")
     
     with patch("app.agent.nodes.llm_service.analyze_multimodal", new_callable=AsyncMock) as mock_analyze:

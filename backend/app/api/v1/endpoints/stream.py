@@ -1,18 +1,17 @@
 """SSE streaming endpoint for agent analysis."""
 import asyncio
 import logging
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 
-from app.api import deps
-
-from app.schemas.stream import StreamAnalysisRequest
-from app.schemas.sse import SSEEvent, AgentResponse, AgentError
+from app.agent.constants import EVENT_ERROR, EVENT_RESPONSE
 from app.agent.graph import run_streaming_agent
 from app.agent.state import AgentState
-from app.agent.constants import EVENT_RESPONSE, EVENT_ERROR
+from app.api import deps
+from app.schemas.sse import AgentError, AgentResponse, SSEEvent
+from app.schemas.stream import StreamAnalysisRequest
 from app.services.streaming_service import format_sse, format_sse_comment
 
 logger = logging.getLogger(__name__)
@@ -25,7 +24,9 @@ PROCESSING_TIMEOUT = 60
 HEARTBEAT_INTERVAL = 15
 
 
-async def event_generator(request: StreamAnalysisRequest, token: str | None = None) -> AsyncGenerator[str, None]:
+async def event_generator(
+    request: StreamAnalysisRequest, token: str | None = None
+) -> AsyncGenerator[str, None]:
     """
     Generate SSE events from the agent processing.
 
@@ -90,7 +91,7 @@ async def event_generator(request: StreamAnalysisRequest, token: str | None = No
             )
             yield await format_sse(error_event)
 
-    except asyncio.TimeoutError:
+    except TimeoutError:
         logger.error(f"Agent processing timed out after {PROCESSING_TIMEOUT}s")
         error_event = SSEEvent(
             type=EVENT_ERROR,

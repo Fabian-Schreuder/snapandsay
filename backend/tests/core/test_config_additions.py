@@ -1,5 +1,5 @@
-import pytest
 from app.config import settings
+
 
 def test_openai_settings_exist():
     """Test that OpenAI and Whisper settings are added to config."""

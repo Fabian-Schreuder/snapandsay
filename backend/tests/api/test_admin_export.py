@@ -1,13 +1,13 @@
 
+from unittest.mock import patch
+from uuid import uuid4
+
 import pytest
-from unittest.mock import MagicMock, patch, AsyncMock
-from uuid import uuid4, UUID
-from datetime import date
-from io import BytesIO
 
 from app.api.deps import get_current_admin
 from app.core.security import UserContext
 from app.main import app
+
 
 @pytest.fixture
 def override_admin_auth():

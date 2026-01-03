@@ -49,7 +49,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.ruff]
-line-length = 88
+line-length = 110
 target-version = "py312"
 
 [tool.ruff.lint]
@@ -66,14 +66,27 @@ ignore = [
     "S101",   # Use of assert (expected in pytest)
     "S603",   # subprocess without shell=True (acceptable in controlled scripts)
     "S607",   # Starting process with partial path (acceptable with system commands)
+    "B008",   # Do not perform function call in argument defaults (common FastAPI pattern)
 ]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = [
     "S101",   # Allow asserts in tests
     "S105",   # Allow hardcoded passwords in test fixtures
+    "S110",   # Allow try-except-pass (common in test cleanup)
+    "E501",   # Allow longer lines in tests (test data can be verbose)
+    "E402",   # Allow imports not at top (test setup patterns)
+    "E741",   # Allow ambiguous variable names (l, O, I)
 ]
+"*.py" = []  # Base ignores applied to all
+"*_test.py" = ["S110", "E501", "E402", "E741"]
+"fix_*.py" = ["E501"]  # Allow long lines in one-off fix scripts
+"reproduce_*.py" = ["E501", "F401"]  # Allow long lines and unused imports in repro scripts
+"verify_*.py" = ["E501", "E402", "S105"]  # Allow patterns in verification scripts
+"apply_*.py" = ["E501"]  # Allow long lines in migration scripts
 "watcher.py" = [
     "S603",   # Allow subprocess calls in dev watcher
     "S607",   # Allow partial paths in dev watcher
 ]
+"app/database.py" = ["E402"]  # Dotenv must load before other imports
+"app/api/v1/endpoints/logs.py" = ["S110"]  # Allow try-except-pass for cleanup

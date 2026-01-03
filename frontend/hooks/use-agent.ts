@@ -139,6 +139,7 @@ export const useAgent = (): UseAgentReturn => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status]);
 
   const cleanup = useCallback(() => {
@@ -203,6 +204,7 @@ export const useAgent = (): UseAgentReturn => {
         );
       }
     }, 20000); // 15s heartbeat + 5s buffer
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, cleanup]);
 
   const skipClarification = useCallback(() => {
@@ -345,6 +347,7 @@ export const useAgent = (): UseAgentReturn => {
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [cleanup, resetHeartbeatTimer, triggerCompletionFeedback, skipClarification]
   );
 
