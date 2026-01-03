@@ -8,4 +8,3 @@ api_router.include_router(analysis.router, prefix="/analysis", tags=["analysis"]
 api_router.include_router(stream.router, prefix="/analysis", tags=["streaming"])
 api_router.include_router(logs.router, prefix="/logs", tags=["logs"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
-

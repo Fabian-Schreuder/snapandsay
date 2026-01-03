@@ -1,4 +1,5 @@
 """Tests for LLMService."""
+
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -14,7 +15,7 @@ async def test_analyze_multimodal_success():
         items=[
             FoodItem(name="Apple", quantity="1", calories=95, confidence=0.99),
         ],
-        synthesis_comment="Healthy snack."
+        synthesis_comment="Healthy snack.",
     )
 
     mock_response = MagicMock()

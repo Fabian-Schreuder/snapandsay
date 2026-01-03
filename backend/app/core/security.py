@@ -17,6 +17,7 @@ class UserContext(BaseModel):
 # Cache for PyJWKClient to avoid fetching keys on every request
 _jwks_client = None
 
+
 def get_jwks_client():
     global _jwks_client
     if _jwks_client is None:
@@ -26,6 +27,7 @@ def get_jwks_client():
         # PyJWKClient handles caching of keys internally
         _jwks_client = jwt.PyJWKClient(jwks_url)
     return _jwks_client
+
 
 def verify_token(token: str) -> UserContext:
     try:
@@ -40,7 +42,7 @@ def verify_token(token: str) -> UserContext:
                 settings.SUPABASE_JWT_SECRET,
                 algorithms=["HS256"],
                 audience=settings.SUPABASE_AUTH_AUDIENCE,
-                options={"verify_aud": True}
+                options={"verify_aud": True},
             )
         elif alg in ["RS256", "ES256"]:
             # Asymmetric key validation via JWKS
@@ -50,25 +52,24 @@ def verify_token(token: str) -> UserContext:
                 signing_key.key,
                 algorithms=[alg],
                 audience=settings.SUPABASE_AUTH_AUDIENCE,
-                options={"verify_aud": True}
+                options={"verify_aud": True},
             )
         else:
-             raise ValueError(f"Unsupported algorithm: {alg}")
-        
+            raise ValueError(f"Unsupported algorithm: {alg}")
+
         user_id = payload.get("sub")
         if not user_id:
-             raise ValueError("Token is missing 'sub' claim")
+            raise ValueError("Token is missing 'sub' claim")
 
         return UserContext(
             id=UUID(user_id),
             aud=payload.get("aud", ""),
             role=payload.get("role", ""),
             email=payload.get("email"),
-            app_metadata=payload.get("app_metadata")
+            app_metadata=payload.get("app_metadata"),
         )
     except jwt.PyJWTError as e:
         print(
-            f"DEBUG: JWT Validation Failed. Error: {e}, "
-            f"Token Header: {jwt.get_unverified_header(token)}"
+            f"DEBUG: JWT Validation Failed. Error: {e}, " f"Token Header: {jwt.get_unverified_header(token)}"
         )
         raise ValueError(f"Invalid token: {e}") from e

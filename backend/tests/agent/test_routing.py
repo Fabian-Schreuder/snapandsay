@@ -1,4 +1,5 @@
 """Tests for confidence-based routing logic."""
+
 from app.agent.constants import FINALIZE_LOG, GENERATE_CLARIFICATION
 from app.agent.routing import route_by_confidence
 

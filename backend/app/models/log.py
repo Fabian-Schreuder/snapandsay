@@ -19,11 +19,12 @@ from .user import User  # noqa: F401
 
 class DietaryLog(Base):
     """Dietary log entry for tracking user meals."""
+
     __tablename__ = "dietary_logs"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True)
-    
+
     user = relationship("User", backref="logs")
 
     # Media

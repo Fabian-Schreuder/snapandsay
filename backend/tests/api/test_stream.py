@@ -1,4 +1,5 @@
 """Tests for the SSE streaming endpoint."""
+
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -44,6 +45,7 @@ async def test_stream_endpoint_event_format(test_client: AsyncClient):
     }
 
     with patch("app.api.v1.endpoints.stream.run_streaming_agent") as mock_agent:
+
         async def mock_generator(*args):
             yield SSEEvent(
                 type=EVENT_THOUGHT,
@@ -56,7 +58,7 @@ async def test_stream_endpoint_event_format(test_client: AsyncClient):
         response = await test_client.post("/api/v1/analysis/stream", json=request_data)
 
         content = response.text
-        
+
         # Should contain "data: " prefix
         assert "data: " in content
         # Should contain event type
@@ -72,6 +74,7 @@ async def test_stream_endpoint_emits_error_event(test_client: AsyncClient):
     }
 
     with patch("app.api.v1.endpoints.stream.run_streaming_agent") as mock_agent:
+
         async def mock_generator(*args):
             yield SSEEvent(
                 type=EVENT_ERROR,
@@ -96,6 +99,7 @@ async def test_stream_endpoint_emits_response_on_success(test_client: AsyncClien
     }
 
     with patch("app.api.v1.endpoints.stream.run_streaming_agent") as mock_agent:
+
         async def mock_generator(*args):
             yield {"nutritional_data": {"items": [{"name": "apple"}], "synthesis_comment": "Found an apple"}}
 

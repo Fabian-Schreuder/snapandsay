@@ -1,11 +1,10 @@
-
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     # Project
     PROJECT_NAME: str = "SnapAndSay"
-    
+
     # OpenAPI docs
     OPENAPI_URL: str = "/openapi.json"
     API_V1_STR: str = "/api/v1"
@@ -15,16 +14,13 @@ class Settings(BaseSettings):
     TEST_DATABASE_URL: str | None = None
     EXPIRE_ON_COMMIT: bool = False
     ECHO_SQL: bool = False
-    
+
     # Auth
     SUPABASE_JWT_SECRET: str
     SUPABASE_SERVICE_ROLE_KEY: str | None = None
     SUPABASE_URL: str | None = None
     SUPABASE_AUTH_AUDIENCE: str = "authenticated"
-    ADMIN_EMAILS: str = "" # Comma separated emails
-
-
-
+    ADMIN_EMAILS: str = ""  # Comma separated emails
 
     # OpenAI
     OPENAI_API_KEY: str | None = None

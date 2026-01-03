@@ -1,4 +1,5 @@
 """SSE streaming endpoint for agent analysis."""
+
 import asyncio
 import logging
 from collections.abc import AsyncGenerator
@@ -118,7 +119,7 @@ async def event_generator(
 async def stream_analysis(
     request: StreamAnalysisRequest,
     current_user: deps.UserContext = Depends(deps.get_current_user),
-    token: str = Depends(deps.oauth2_scheme)
+    token: str = Depends(deps.oauth2_scheme),
 ) -> StreamingResponse:
     """
     Stream agent analysis results via Server-Sent Events.

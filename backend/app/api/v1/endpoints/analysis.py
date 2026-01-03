@@ -29,9 +29,7 @@ async def upload_analysis_data(
 
     # Parse timestamp safely
     try:
-        parsed_timestamp = datetime.fromisoformat(
-            request.client_timestamp.replace("Z", "+00:00")
-        )
+        parsed_timestamp = datetime.fromisoformat(request.client_timestamp.replace("Z", "+00:00"))
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

@@ -26,6 +26,7 @@ class FoodItem(BaseModel):
 
 class AnalysisResult(BaseModel):
     """Result of analyzing food image/audio input."""
+
     title: str = Field(..., description="Short, descriptive title of the meal (e.g. 'Roasted Cashews')")
     items: list[FoodItem] = Field(..., description="List of identified food items")
     meal_type: str | None = Field(None, description="Type of meal (e.g., Breakfast, Lunch, Dinner, Snack)")
@@ -43,6 +44,4 @@ class ClarifyRequest(BaseModel):
     """Request body for clarification response endpoint."""
 
     response: str = Field(..., description="User's clarification response text")
-    is_voice: bool = Field(
-        default=False, description="Whether response came from voice input"
-    )
+    is_voice: bool = Field(default=False, description="Whether response came from voice input")

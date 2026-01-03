@@ -27,9 +27,7 @@ async def engine():
 @pytest_asyncio.fixture(scope="function")
 async def db_session(engine):
     """Create a fresh database session for each test."""
-    async_session_maker = async_sessionmaker(
-        engine, class_=AsyncSession, expire_on_commit=False
-    )
+    async_session_maker = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with async_session_maker() as session:
         yield session
@@ -51,7 +49,5 @@ async def test_client(db_session):
     # Set up test database override
     app.dependency_overrides[get_async_session] = override_get_async_session
 
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://localhost:8000"
-    ) as client:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://localhost:8000") as client:
         yield client

@@ -12,6 +12,7 @@ from app.services import export_service, log_service
 
 router = APIRouter()
 
+
 @router.get("/logs", response_model=DietaryLogListResponse)
 async def get_admin_logs(
     current_user: UserContext = Depends(get_current_admin),
@@ -22,7 +23,7 @@ async def get_admin_logs(
     page: int = Query(1, ge=1, description="Page number"),
     limit: int = Query(50, ge=1, le=100, description="Items per page"),
     min_calories: int | None = Query(None, description="Minimum calories"),
-    max_calories: int | None = Query(None, description="Maximum calories")
+    max_calories: int | None = Query(None, description="Maximum calories"),
 ):
     """
     Get all logs with filtering for admin dashboard.
@@ -35,27 +36,22 @@ async def get_admin_logs(
         min_calories=min_calories,
         max_calories=max_calories,
         page=page,
-        limit=limit
+        limit=limit,
     )
-    
+
     total = await log_service.count_all_logs(
         db=db,
         user_id=user_id,
         start_date=start_date,
         end_date=end_date,
         min_calories=min_calories,
-        max_calories=max_calories
+        max_calories=max_calories,
     )
 
     return DietaryLogListResponse(
-        data=logs,
-        meta=LogListMeta(
-            total=total,
-            page=page,
-            limit=limit,
-            pages=(total + limit - 1) // limit
-        )
+        data=logs, meta=LogListMeta(total=total, page=page, limit=limit, pages=(total + limit - 1) // limit)
     )
+
 
 @router.get("/export")
 async def get_export_logs(
@@ -66,20 +62,19 @@ async def get_export_logs(
     min_calories: int | None = Query(None, description="Minimum calories"),
     max_calories: int | None = Query(None, description="Maximum calories"),
     current_user: UserContext = Depends(get_current_admin),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Export dietary logs in CSV or JSON format.
     """
     if format not in ["csv", "json"]:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid format. Supported formats: csv, json"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid format. Supported formats: csv, json"
         )
 
     # Fetch logs with filters (using high limit for export)
     limit = 10000
-    
+
     logs = await log_service.get_all_logs(
         db=db,
         user_id=user_id,
@@ -89,11 +84,11 @@ async def get_export_logs(
         max_calories=max_calories,
         page=1,
         limit=limit,
-        with_user=True
+        with_user=True,
     )
-    
+
     filename_ts = datetime.now().strftime("%Y%m%d_%H%M")
-    
+
     if format == "csv":
         generator = export_service.export_logs_as_csv(logs)
         content_type = "text/csv; charset=utf-8"
@@ -102,9 +97,9 @@ async def get_export_logs(
         generator = export_service.export_logs_as_json(logs)
         content_type = "application/json"
         filename = f"snapandsay_export_{filename_ts}.json"
-        
+
     return StreamingResponse(
         generator,
         media_type=content_type,
-        headers={"Content-Disposition": f"attachment; filename={filename}"}
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
     )

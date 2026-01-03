@@ -15,5 +15,6 @@ async def add_failed_to_enum():
         except Exception as e:
             print(f"Error adding enum value: {e}")
 
+
 if __name__ == "__main__":
     asyncio.run(add_failed_to_enum())

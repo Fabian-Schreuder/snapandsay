@@ -6,6 +6,7 @@ Tests the Supabase schema setup including:
 - Trigger functionality for auto-creation
 - RLS policies for SELECT and UPDATE
 """
+
 import uuid
 
 import pytest
@@ -19,9 +20,7 @@ class TestDatabaseSchema:
     @pytest.mark.asyncio
     async def test_vector_extension_exists(self, db_session: AsyncSession) -> None:
         """Test that vector extension is installed."""
-        result = await db_session.execute(
-            text("SELECT * FROM pg_extension WHERE extname = 'vector'")
-        )
+        result = await db_session.execute(text("SELECT * FROM pg_extension WHERE extname = 'vector'"))
         extension = result.first()
         assert extension is not None, "vector extension should be installed"
 
@@ -44,17 +43,17 @@ class TestDatabaseSchema:
             """)
         )
         columns = {row.column_name: row for row in result.fetchall()}
-        
+
         # Verify id column
         assert "id" in columns
         assert columns["id"].data_type == "uuid"
         assert columns["id"].is_nullable == "NO"
-        
+
         # Verify anonymous_id column
         assert "anonymous_id" in columns
         assert columns["anonymous_id"].data_type == "text"
         assert columns["anonymous_id"].is_nullable == "NO"
-        
+
         # Verify created_at column
         assert "created_at" in columns
         assert columns["created_at"].data_type == "timestamp with time zone"
@@ -84,7 +83,7 @@ class TestUserCreationTrigger:
         """Test that trigger creates public.users record with metadata anonymous_id."""
         test_id = str(uuid.uuid4())
         test_anon_id = f"test_anon_{uuid.uuid4().hex[:8]}"
-        
+
         try:
             # Insert into auth.users with metadata
             await db_session.execute(
@@ -107,36 +106,32 @@ class TestUserCreationTrigger:
                 {
                     "user_id": test_id,
                     "email": f"test_{uuid.uuid4().hex[:8]}@example.com",
-                    "metadata": f'{{"anonymous_id": "{test_anon_id}"}}'
-                }
+                    "metadata": f'{{"anonymous_id": "{test_anon_id}"}}',
+                },
             )
             await db_session.commit()
-            
+
             # Verify public.users record was created
             result = await db_session.execute(
-                text("SELECT * FROM public.users WHERE id = :user_id"),
-                {"user_id": test_id}
+                text("SELECT * FROM public.users WHERE id = :user_id"), {"user_id": test_id}
             )
             user = result.first()
-            
+
             assert user is not None, "Trigger should create public.users record"
             assert user.anonymous_id == test_anon_id, "Should use metadata anonymous_id"
             assert user.created_at is not None, "Should have created_at timestamp"
-            
+
         finally:
             # Cleanup
-            await db_session.rollback() # Ensure rollback before delete if needed
-            await db_session.execute(
-                text("DELETE FROM auth.users WHERE id = :user_id"),
-                {"user_id": test_id}
-            )
+            await db_session.rollback()  # Ensure rollback before delete if needed
+            await db_session.execute(text("DELETE FROM auth.users WHERE id = :user_id"), {"user_id": test_id})
             await db_session.commit()
 
     @pytest.mark.asyncio
     async def test_trigger_generates_fallback_id(self, db_session: AsyncSession) -> None:
         """Test that trigger generates fallback anonymous_id when metadata missing."""
         test_id = str(uuid.uuid4())
-        
+
         try:
             # Insert into auth.users WITHOUT metadata
             await db_session.execute(
@@ -156,30 +151,23 @@ class TestUserCreationTrigger:
                         '{}'::jsonb
                     )
                 """),
-                {
-                    "user_id": test_id,
-                    "email": f"test_{uuid.uuid4().hex[:8]}@example.com"
-                }
+                {"user_id": test_id, "email": f"test_{uuid.uuid4().hex[:8]}@example.com"},
             )
             await db_session.commit()
-            
+
             # Verify fallback ID was generated
             result = await db_session.execute(
-                text("SELECT * FROM public.users WHERE id = :user_id"),
-                {"user_id": test_id}
+                text("SELECT * FROM public.users WHERE id = :user_id"), {"user_id": test_id}
             )
             user = result.first()
-            
+
             assert user is not None, "Trigger should create public.users record"
             assert user.anonymous_id.startswith("anon_"), "Should generate fallback ID"
             assert len(user.anonymous_id) == 16, "Fallback ID should be 'anon_' + 11 chars"
-            
+
         finally:
             # Cleanup
-            await db_session.execute(
-                text("DELETE FROM auth.users WHERE id = :user_id"),
-                {"user_id": test_id}
-            )
+            await db_session.execute(text("DELETE FROM auth.users WHERE id = :user_id"), {"user_id": test_id})
             await db_session.commit()
 
 
@@ -272,7 +260,7 @@ class TestRLSBehavior:
                 INSERT INTO auth.users (id, aud, role, email, encrypted_password, email_confirmed_at)
                 VALUES (:user_id, 'authenticated', 'authenticated', :email, 'password', now())
             """),
-            {"user_id": test_id, "email": f"test_rls_{uuid.uuid4().hex[:8]}@example.com"}
+            {"user_id": test_id, "email": f"test_rls_{uuid.uuid4().hex[:8]}@example.com"},
         )
         await db_session.commit()
 
@@ -281,7 +269,7 @@ class TestRLSBehavior:
             await db_session.execute(text("SET LOCAL ROLE authenticated"))
             await db_session.execute(
                 text("SELECT set_config('request.jwt.claims', :claims, true)"),
-                {"claims": f'{{"sub": "{test_id}", "role": "authenticated"}}'}
+                {"claims": f'{{"sub": "{test_id}", "role": "authenticated"}}'},
             )
 
             # 3. Try to SELECT from public.users
@@ -296,10 +284,7 @@ class TestRLSBehavior:
         finally:
             # Cleanup (must reset role to delete)
             await db_session.execute(text("RESET ROLE"))
-            await db_session.execute(
-                text("DELETE FROM auth.users WHERE id = :user_id"),
-                {"user_id": test_id}
-            )
+            await db_session.execute(text("DELETE FROM auth.users WHERE id = :user_id"), {"user_id": test_id})
             await db_session.commit()
 
     @pytest.mark.asyncio
@@ -312,7 +297,7 @@ class TestRLSBehavior:
                 INSERT INTO auth.users (id, aud, role, email, encrypted_password, email_confirmed_at)
                 VALUES (:user_id, 'authenticated', 'authenticated', :email, 'password', now())
             """),
-            {"user_id": test_id, "email": f"test_rls_upd_{uuid.uuid4().hex[:8]}@example.com"}
+            {"user_id": test_id, "email": f"test_rls_upd_{uuid.uuid4().hex[:8]}@example.com"},
         )
         await db_session.commit()
 
@@ -321,13 +306,13 @@ class TestRLSBehavior:
             await db_session.execute(text("SET LOCAL ROLE authenticated"))
             await db_session.execute(
                 text("SELECT set_config('request.jwt.claims', :claims, true)"),
-                {"claims": f'{{"sub": "{test_id}", "role": "authenticated"}}'}
+                {"claims": f'{{"sub": "{test_id}", "role": "authenticated"}}'},
             )
 
             # 3. Try to UPDATE own record
             result = await db_session.execute(
                 text("UPDATE public.users SET created_at = now() WHERE id = :user_id RETURNING id"),
-                {"user_id": test_id}
+                {"user_id": test_id},
             )
             updated = result.fetchone()
             assert updated is not None, "Should be able to update own record"
@@ -336,14 +321,11 @@ class TestRLSBehavior:
             other_id = str(uuid.uuid4())
             result = await db_session.execute(
                 text("UPDATE public.users SET created_at = now() WHERE id = :other_id"),
-                {"other_id": other_id}
+                {"other_id": other_id},
             )
             assert result.rowcount == 0, "Should not be able to update others' data"
 
         finally:
             await db_session.execute(text("RESET ROLE"))
-            await db_session.execute(
-                text("DELETE FROM auth.users WHERE id = :user_id"),
-                {"user_id": test_id}
-            )
+            await db_session.execute(text("DELETE FROM auth.users WHERE id = :user_id"), {"user_id": test_id})
             await db_session.commit()

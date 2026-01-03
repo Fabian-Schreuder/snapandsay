@@ -44,9 +44,7 @@ def mock_app(mocker):
 
 
 def test_generate_openapi_schema(mocker, mock_app):
-    mock_remove_operation_id_tag = mocker.patch(
-        "commands.generate_openapi_schema.remove_operation_id_tag"
-    )
+    mock_remove_operation_id_tag = mocker.patch("commands.generate_openapi_schema.remove_operation_id_tag")
     mock_remove_operation_id_tag.return_value = {"mocked_schema": True}
 
     output_file = "openapi_test.json"

@@ -18,6 +18,7 @@ async def lifespan(app: FastAPI):
     yield
     # Shutdown
 
+
 app = FastAPI(
     title=settings.PROJECT_NAME,
     generate_unique_id_function=simple_generate_unique_route_id,

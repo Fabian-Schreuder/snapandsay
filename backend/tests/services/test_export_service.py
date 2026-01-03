@@ -1,4 +1,3 @@
-
 import json
 from datetime import UTC, datetime
 from unittest.mock import MagicMock
@@ -22,7 +21,7 @@ async def test_export_logs_as_csv():
         transcript="A tasty burger",
         description="Burger with cheese",
         image_path="path/to/image.jpg",
-        status="logged"
+        status="logged",
     )
     # Mock user relationship
     user_mock = MagicMock()
@@ -39,8 +38,9 @@ async def test_export_logs_as_csv():
     assert str(log.id) in content
     assert "test@example.com" in content
     assert "A tasty burger" in content
-    assert "Burger with cheese" in content # Food Items
+    assert "Burger with cheese" in content  # Food Items
     assert "2023-01-01T12:00:00+00:00" in content
+
 
 @pytest.mark.asyncio
 async def test_export_logs_as_json():
@@ -54,7 +54,7 @@ async def test_export_logs_as_json():
         transcript="A tasty burger",
         description="Burger with cheese",
         image_path="path/to/image.jpg",
-        status="logged"
+        status="logged",
     )
     # Mock user relationship
     user_mock = MagicMock()
@@ -66,7 +66,7 @@ async def test_export_logs_as_json():
     # Act
     json_gen = export_service.export_logs_as_json([log])
     content = "".join([str(chunk) for chunk in json_gen])
-    
+
     # Assert
     data = json.loads(content)
     assert isinstance(data, list)

@@ -1,4 +1,3 @@
-
 import csv
 import io
 import json
@@ -13,15 +12,15 @@ def export_logs_as_csv(logs: list[DietaryLog]) -> Generator[str, None, None]:
     Returns a generator of CSV strings.
     """
     header = ["Log ID", "Anonymous ID", "Meal Type", "Food Items", "Calories", "Created At", "Transcription"]
-    
+
     output = io.StringIO()
-    # csv module doesn't strictly support async/generators well with writer, 
+    # csv module doesn't strictly support async/generators well with writer,
     # but we can write one row at a time.
     writer = csv.writer(output)
-    
+
     # Write Header with BOM for Excel compatibility
     writer.writerow(header)
-    yield '\ufeff' + output.getvalue()
+    yield "\ufeff" + output.getvalue()
     output.seek(0)
     output.truncate(0)
 
@@ -30,10 +29,10 @@ def export_logs_as_csv(logs: list[DietaryLog]) -> Generator[str, None, None]:
         user_anon_id = "Unknown"
         if hasattr(log, "user") and log.user and hasattr(log.user, "anonymous_id"):
             user_anon_id = log.user.anonymous_id
-        
+
         # Determine Meal Type
         meal_type = log.meal_type or "Unknown"
-        
+
         row = [
             str(log.id),
             user_anon_id,
@@ -41,13 +40,14 @@ def export_logs_as_csv(logs: list[DietaryLog]) -> Generator[str, None, None]:
             log.description or "",
             log.calories or 0,
             log.created_at.isoformat() if log.created_at else "",
-            log.transcript or ""
+            log.transcript or "",
         ]
-        
+
         writer.writerow(row)
         yield output.getvalue()
         output.seek(0)
         output.truncate(0)
+
 
 def export_logs_as_json(logs: list[DietaryLog]) -> Generator[str, None, None]:
     """
@@ -60,7 +60,7 @@ def export_logs_as_json(logs: list[DietaryLog]) -> Generator[str, None, None]:
         if not first:
             yield ","
         first = False
-        
+
         user_anon_id = "Unknown"
         if hasattr(log, "user") and log.user and hasattr(log.user, "anonymous_id"):
             user_anon_id = log.user.anonymous_id
@@ -77,7 +77,7 @@ def export_logs_as_json(logs: list[DietaryLog]) -> Generator[str, None, None]:
             "carbs": log.carbs,
             "fats": log.fats,
             "image_path": log.image_path,
-            "status": log.status
+            "status": log.status,
         }
         yield json.dumps(data)
     yield "]"

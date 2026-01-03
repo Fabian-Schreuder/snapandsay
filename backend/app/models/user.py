@@ -6,6 +6,7 @@ from . import Base
 
 class User(Base):
     """User model mapping to public.users table."""
+
     __tablename__ = "users"
 
     id = Column(UUID(as_uuid=True), primary_key=True)

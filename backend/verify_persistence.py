@@ -4,7 +4,9 @@ import uuid
 
 # Mock envs for Settings
 os.environ["SUPABASE_JWT_SECRET"] = "super-secret-jwt-token-for-testing-purposes-only"
-os.environ["DATABASE_URL"] = "postgresql+asyncpg://postgres:postgres@localhost:54322/postgres" # fallback if .env missing
+os.environ["DATABASE_URL"] = (
+    "postgresql+asyncpg://postgres:postgres@localhost:54322/postgres"  # fallback if .env missing
+)
 os.environ["SUPABASE_URL"] = "http://localhost:54321"
 
 from app.agent.nodes import finalize_log_streaming
@@ -17,8 +19,9 @@ async def verify_persistence():
     # 1. Create a dummy user and log
     log_id = uuid.uuid4()
     print(f"Creating test log {log_id}...")
-    
+
     from sqlalchemy import select
+
     async with async_session_maker() as session:
         # Fetch existing user to avoid FK issues with auth.users
         result = await session.execute(select(User).limit(1))
@@ -29,14 +32,10 @@ async def verify_persistence():
 
         user_id = user.id
         print(f"Using existing user {user_id}")
-        
+
         # Create initial log
         log = DietaryLog(
-            id=log_id,
-            user_id=user_id,
-            image_path="test.jpg",
-            status="processing",
-            description="Initial"
+            id=log_id, user_id=user_id, image_path="test.jpg", status="processing", description="Initial"
         )
         session.add(log)
         await session.commit()
@@ -55,28 +54,27 @@ async def verify_persistence():
                     "protein": 30,
                     "carbs": 40,
                     "fats": 20,
-                    "confidence": 0.9
+                    "confidence": 0.9,
                 }
             ],
             "meal_type": "Lunch",
-            "synthesis_comment": "A delicious test burger."
-        }
+            "synthesis_comment": "A delicious test burger.",
+        },
     }
 
     # 3. Run finalize_log_streaming
     print("Running finalize_log_streaming...")
     async for _event in finalize_log_streaming(state):
-        pass # just consume the generator
+        pass  # just consume the generator
 
     # 4. Verify DB
     print("Verifying database...")
     from sqlalchemy import select
+
     async with async_session_maker() as session:
-        result = await session.execute(
-            select(DietaryLog).where(DietaryLog.id == log_id)
-        )
+        result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
         updated_log = result.scalar_one()
-        
+
         print(f"Log Status: {updated_log.status}")
         print(f"Calories: {updated_log.calories} (Expected: 500)")
         print(f"Protein: {updated_log.protein} (Expected: 30)")
@@ -86,10 +84,10 @@ async def verify_persistence():
         print(f"Transcript: {updated_log.transcript} (Expected: None, we didn't test transcript here)")
 
         if (
-            updated_log.protein == 30 and
-            updated_log.carbs == 40 and
-            updated_log.fats == 20 and
-            updated_log.meal_type == "Lunch"
+            updated_log.protein == 30
+            and updated_log.carbs == 40
+            and updated_log.fats == 20
+            and updated_log.meal_type == "Lunch"
         ):
             print("\nSUCCESS: All fields persisted correctly!")
         else:
@@ -100,6 +98,7 @@ async def verify_persistence():
         await session.delete(updated_log)
         # await session.delete(await session.get(User, user_id)) # Don't delete existing user
         await session.commit()
+
 
 if __name__ == "__main__":
     asyncio.run(verify_persistence())

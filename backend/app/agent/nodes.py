@@ -45,14 +45,12 @@ async def analyze_input(state: AgentState) -> dict:
     user_token = state.get("user_token")
     transcript = None
     context = None
-    
+
     # Fetch context from DB if this is a re-run
     if log_id:
         try:
             async with async_session_maker() as session:
-                result = await session.execute(
-                    select(DietaryLog).where(DietaryLog.id == log_id)
-                )
+                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
                 if log_entry and log_entry.description:
                     context = log_entry.description
@@ -71,18 +69,15 @@ async def analyze_input(state: AgentState) -> dict:
                 transcript = None
             else:
                 raise e
-            
+
     if not image_url and not transcript:
         logger.warning("No input provided for analysis")
         return {}
-        
+
     logger.info("Analyzing multimodal input")
     try:
         result = await llm_service.analyze_multimodal(
-            image_url=image_url, 
-            transcript=transcript,
-            context=context,
-            user_token=user_token
+            image_url=image_url, transcript=transcript, context=context, user_token=user_token
         )
         return {
             "nutritional_data": result.model_dump(),
@@ -108,14 +103,12 @@ async def analyze_input_streaming(
     user_token = state.get("user_token")
     transcript = None
     context = None
-    
+
     # Fetch context from DB if this is a re-run
     if log_id:
         try:
             async with async_session_maker() as session:
-                result = await session.execute(
-                    select(DietaryLog).where(DietaryLog.id == log_id)
-                )
+                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
                 if log_entry and log_entry.description:
                     context = log_entry.description
@@ -137,14 +130,12 @@ async def analyze_input_streaming(
         logger.info(f"Transcribing audio from {audio_url}")
         try:
             transcript = await voice_service.transcribe_audio(audio_url, token=user_token)
-            
+
             # Persist transcript
             if log_id:
                 try:
                     async with async_session_maker() as session:
-                        result = await session.execute(
-                            select(DietaryLog).where(DietaryLog.id == log_id)
-                        )
+                        result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                         log_entry = result.scalar_one_or_none()
                         if log_entry:
                             log_entry.transcript = transcript
@@ -182,7 +173,7 @@ async def analyze_input_streaming(
 
     # Token callback to emit thought events during LLM generation
     token_count = 0
-    
+
     async def on_token(token: str):
         nonlocal token_count
         token_count += 1
@@ -194,13 +185,13 @@ async def analyze_input_streaming(
 
     try:
         result = await llm_service.analyze_multimodal_streaming(
-            image_url=image_url, 
+            image_url=image_url,
             transcript=transcript,
             context=context,
             on_token=on_token,
-            user_token=user_token
+            user_token=user_token,
         )
-        
+
         # Emit complete thought
         yield SSEEvent(
             type=EVENT_THOUGHT,
@@ -217,14 +208,12 @@ async def analyze_input_streaming(
         }
     except Exception as e:
         logger.error(f"Analysis streaming failed: {e}")
-        
+
         # Update log status to failed
         if log_id:
             try:
                 async with async_session_maker() as session:
-                    result = await session.execute(
-                        select(DietaryLog).where(DietaryLog.id == log_id)
-                    )
+                    result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                     log_entry = result.scalar_one_or_none()
                     if log_entry:
                         log_entry.status = "failed"
@@ -252,20 +241,19 @@ async def generate_clarification(state: AgentState) -> dict:
     nutritional_data = state.get("nutritional_data", {})
     items = nutritional_data.get("items", [])
     clarification_count = state.get("clarification_count", 0)
-    
+
     # Find low-confidence items
     low_confidence_items = [
-        FoodItem(**item) for item in items 
-        if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD
+        FoodItem(**item) for item in items if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD
     ]
-    
+
     if low_confidence_items:
         await llm_service.generate_clarification_question(low_confidence_items)
         return {
             "needs_clarification": True,
             "clarification_count": clarification_count + 1,
         }
-    
+
     return {"needs_clarification": False}
 
 
@@ -281,41 +269,35 @@ async def generate_clarification_streaming(
             timestamp=datetime.now(UTC),
         ),
     )
-    
+
     nutritional_data = state.get("nutritional_data", {})
     items = nutritional_data.get("items", [])
     clarification_count = state.get("clarification_count", 0)
     log_id = state.get("log_id")
-    
+
     # Find low-confidence items
     low_confidence_items = [
-        FoodItem(**item) for item in items 
-        if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD
+        FoodItem(**item) for item in items if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD
     ]
-    
+
     if low_confidence_items and log_id:
         try:
             question = await llm_service.generate_clarification_question(low_confidence_items)
-            
+
             # Update log status to clarification in database
             async with async_session_maker() as session:
-                result = await session.execute(
-                    select(DietaryLog).where(DietaryLog.id == log_id)
-                )
+                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
                 if log_entry:
                     log_entry.status = "clarification"
                     await session.commit()
                     logger.info(f"Updated log {log_id} status to 'clarification'")
-            
+
             # Build context with low-confidence items for the clarification payload
             context = {
-                "items": [
-                    {"name": item.name, "confidence": item.confidence}
-                    for item in low_confidence_items
-                ]
+                "items": [{"name": item.name, "confidence": item.confidence} for item in low_confidence_items]
             }
-            
+
             # Emit clarification event
             yield SSEEvent(
                 type=EVENT_CLARIFICATION,
@@ -326,7 +308,7 @@ async def generate_clarification_streaming(
                     log_id=log_id,
                 ),
             )
-            
+
             yield {
                 "needs_clarification": True,
                 "clarification_count": clarification_count + 1,
@@ -346,11 +328,11 @@ async def finalize_log(state: AgentState) -> dict:
     needs_review = state.get("needs_review", False)
     clarification_count = state.get("clarification_count", 0)
     overall_confidence = state.get("overall_confidence", 0.0)
-    
+
     # Mark for review if confidence is still low after max attempts
     if overall_confidence < CONFIDENCE_THRESHOLD and clarification_count >= 2:
         needs_review = True
-    
+
     return {
         "needs_review": needs_review,
     }
@@ -368,31 +350,29 @@ async def finalize_log_streaming(
             timestamp=datetime.now(UTC),
         ),
     )
-    
+
     log_id = state.get("log_id")
     nutritional_data = state.get("nutritional_data", {})
     needs_review = state.get("needs_review", False)
     clarification_count = state.get("clarification_count", 0)
     overall_confidence = state.get("overall_confidence", 0.0)
-    
+
     # Mark for review if confidence is still low after max attempts
     if overall_confidence < CONFIDENCE_THRESHOLD and clarification_count >= 2:
         needs_review = True
-    
+
     # Persist to database
     if log_id:
         try:
             async with async_session_maker() as session:
-                result = await session.execute(
-                    select(DietaryLog).where(DietaryLog.id == log_id)
-                )
+                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
-                
+
                 if log_entry:
                     # Update status
                     log_entry.status = "logged"
                     log_entry.needs_review = needs_review
-                    
+
                     # Persist nutritional data
                     items = nutritional_data.get("items", [])
                     if items:
@@ -401,30 +381,30 @@ async def finalize_log_streaming(
                         total_protein = sum(item.get("protein", 0) or 0 for item in items)
                         total_carbs = sum(item.get("carbs", 0) or 0 for item in items)
                         total_fats = sum(item.get("fats", 0) or 0 for item in items)
-                        
+
                         log_entry.calories = total_calories if total_calories > 0 else None
                         log_entry.protein = total_protein if total_protein > 0 else None
                         log_entry.carbs = total_carbs if total_carbs > 0 else None
                         log_entry.fats = total_fats if total_fats > 0 else None
-                        
+
                         # Extract meal_type
                         log_entry.meal_type = nutritional_data.get("meal_type")
-                        
+
                         # Store synthesis comment as description if not already set
                         synthesis = nutritional_data.get("synthesis_comment", "")
                         if synthesis:
                             log_entry.description = synthesis
-                            
+
                         # Store title
                         title = nutritional_data.get("title")
                         if title:
                             log_entry.title = title
-                    
+
                     await session.commit()
                     logger.info(f"Finalized log {log_id} with status='logged', needs_review={needs_review}")
         except Exception as e:
             logger.error(f"Failed to persist finalized log: {e}")
-    
+
     # Emit final response event
     if log_id:
         yield SSEEvent(
@@ -435,9 +415,7 @@ async def finalize_log_streaming(
                 status="logged" if not needs_review else "needs_review",
             ),
         )
-    
+
     yield {
         "needs_review": needs_review,
     }
-
-

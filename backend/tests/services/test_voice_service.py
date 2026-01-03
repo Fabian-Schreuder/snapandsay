@@ -1,4 +1,5 @@
 """Tests for VoiceService."""
+
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -15,10 +16,11 @@ async def test_transcribe_audio_success():
     mock_client.audio.transcriptions.create = AsyncMock()
     mock_client.audio.transcriptions.create.return_value.text = mock_transcript
 
-    with patch("os.path.exists", return_value=True), \
-         patch("app.services.voice_service._get_client", return_value=mock_client), \
-         patch("asyncio.get_running_loop") as mock_loop:
-
+    with (
+        patch("os.path.exists", return_value=True),
+        patch("app.services.voice_service._get_client", return_value=mock_client),
+        patch("asyncio.get_running_loop") as mock_loop,
+    ):
         # Mock the executor to run synchronously
         mock_loop.return_value.run_in_executor = AsyncMock(return_value=b"fake audio data")
 
@@ -42,10 +44,11 @@ async def test_transcribe_audio_api_error():
     mock_client = MagicMock()
     mock_client.audio.transcriptions.create = AsyncMock(side_effect=Exception("API Error"))
 
-    with patch("os.path.exists", return_value=True), \
-         patch("app.services.voice_service._get_client", return_value=mock_client), \
-         patch("asyncio.get_running_loop") as mock_loop:
-
+    with (
+        patch("os.path.exists", return_value=True),
+        patch("app.services.voice_service._get_client", return_value=mock_client),
+        patch("asyncio.get_running_loop") as mock_loop,
+    ):
         mock_loop.return_value.run_in_executor = AsyncMock(return_value=b"fake audio data")
 
         with pytest.raises(Exception, match="API Error"):

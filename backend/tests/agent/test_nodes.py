@@ -22,26 +22,31 @@ async def test_analyze_input_with_image_and_transcript():
         "messages": [],
         "image_url": "http://example.com/image.jpg",
         "audio_url": None,
-        "nutritional_data": None
+        "nutritional_data": None,
     }
-    analysis_result = AnalysisResult(items=[FoodItem(name="Banana", quantity="1", confidence=0.9)], synthesis_comment="OK")
-    
+    analysis_result = AnalysisResult(
+        items=[FoodItem(name="Banana", quantity="1", confidence=0.9)], synthesis_comment="OK"
+    )
+
     with patch("app.agent.nodes.llm_service.analyze_multimodal", new_callable=AsyncMock) as mock_analyze:
         mock_analyze.return_value = analysis_result
-        
+
         # Test case where transcript is passed directly if we modify the signature or state handling,
         # but here we might need to mock voice service if audio_url was present.
         # Wait, the node says "Call voice_service.transcribe if audio exists".
         # Let's simple test LLM call first.
-        
+
         result = await analyze_input(state)
-        
+
         # In current implementation plan, nodes.py calls llm_service.analyze_multimodal
         # But nodes.py logic: Check state["messages"] or state["image_url"].
         # If audio_url, transcribe.
-        
-        mock_analyze.assert_called_once_with(image_url="http://example.com/image.jpg", transcript=None, context=None)
+
+        mock_analyze.assert_called_once_with(
+            image_url="http://example.com/image.jpg", transcript=None, context=None
+        )
         assert result["nutritional_data"] == analysis_result.model_dump()
+
 
 @pytest.mark.asyncio
 async def test_analyze_input_with_audio():
@@ -49,20 +54,23 @@ async def test_analyze_input_with_audio():
         "messages": [],
         "image_url": None,
         "audio_url": "audio.mp3",
-        "nutritional_data": None
+        "nutritional_data": None,
     }
-    
+
     transcript = "I ate a burger"
-    analysis_result = AnalysisResult(items=[FoodItem(name="Burger", quantity="1", confidence=0.9)], synthesis_comment="OK")
-    
-    with patch("app.agent.nodes.voice_service.transcribe_audio", new_callable=AsyncMock) as mock_transcribe, \
-         patch("app.agent.nodes.llm_service.analyze_multimodal", new_callable=AsyncMock) as mock_analyze:
-        
+    analysis_result = AnalysisResult(
+        items=[FoodItem(name="Burger", quantity="1", confidence=0.9)], synthesis_comment="OK"
+    )
+
+    with (
+        patch("app.agent.nodes.voice_service.transcribe_audio", new_callable=AsyncMock) as mock_transcribe,
+        patch("app.agent.nodes.llm_service.analyze_multimodal", new_callable=AsyncMock) as mock_analyze,
+    ):
         mock_transcribe.return_value = transcript
         mock_analyze.return_value = analysis_result
-        
+
         result = await analyze_input(state)
-        
+
         mock_transcribe.assert_called_once_with("audio.mp3")
         mock_analyze.assert_called_once_with(image_url=None, transcript=transcript, context=None)
         assert result["nutritional_data"] == analysis_result.model_dump()
@@ -70,47 +78,43 @@ async def test_analyze_input_with_audio():
 
 class TestGenerateClarification:
     """Tests for generate_clarification node."""
-    
+
     @pytest.mark.asyncio
     async def test_generates_question_for_low_confidence_items(self):
         """Should generate clarification when items have low confidence."""
         state = {
             "nutritional_data": {
-                "items": [
-                    {"name": "Salad", "quantity": "1 bowl", "confidence": 0.6, "calories": 150}
-                ]
+                "items": [{"name": "Salad", "quantity": "1 bowl", "confidence": 0.6, "calories": 150}]
             },
             "clarification_count": 0,
         }
-        
+
         mock_question = ClarificationQuestion(
-            question="What kind of dressing?",
-            options=["Ranch", "Italian", "None"]
+            question="What kind of dressing?", options=["Ranch", "Italian", "None"]
         )
-        
-        with patch("app.agent.nodes.llm_service.generate_clarification_question", 
-                   new_callable=AsyncMock) as mock_gen:
+
+        with patch(
+            "app.agent.nodes.llm_service.generate_clarification_question", new_callable=AsyncMock
+        ) as mock_gen:
             mock_gen.return_value = mock_question
             result = await generate_clarification(state)
-            
+
             assert result["needs_clarification"] is True
             assert result["clarification_count"] == 1
-    
+
     @pytest.mark.asyncio
     async def test_no_clarification_for_high_confidence(self):
         """Should not generate clarification when items have high confidence."""
         state = {
             "nutritional_data": {
-                "items": [
-                    {"name": "Apple", "quantity": "1", "confidence": 0.95, "calories": 95}
-                ]
+                "items": [{"name": "Apple", "quantity": "1", "confidence": 0.95, "calories": 95}]
             },
             "clarification_count": 0,
         }
-        
+
         result = await generate_clarification(state)
         assert result["needs_clarification"] is False
-    
+
     @pytest.mark.asyncio
     async def test_empty_items_no_clarification(self):
         """Should not generate clarification when no items exist."""
@@ -118,40 +122,41 @@ class TestGenerateClarification:
             "nutritional_data": {"items": []},
             "clarification_count": 0,
         }
-        
+
         result = await generate_clarification(state)
         assert result["needs_clarification"] is False
 
 
 class TestGenerateClarificationStreaming:
     """Tests for generate_clarification_streaming node."""
-    
+
     @pytest.mark.asyncio
     async def test_emits_clarification_event_and_updates_db(self):
         """Should emit SSE event and update DB status to clarification."""
         log_id = uuid4()
         state = {
             "nutritional_data": {
-                "items": [
-                    {"name": "Mystery dish", "quantity": "1 plate", "confidence": 0.5, "calories": 200}
-                ]
+                "items": [{"name": "Mystery dish", "quantity": "1 plate", "confidence": 0.5, "calories": 200}]
             },
             "clarification_count": 0,
             "log_id": log_id,
         }
-        
+
         mock_question = ClarificationQuestion(
-            question="What type of food is this?",
-            options=["Pasta", "Rice", "Other"]
+            question="What type of food is this?", options=["Pasta", "Rice", "Other"]
         )
-        
+
         mock_log = MagicMock()
         mock_log.status = "processing"
-        
-        with patch("app.agent.nodes.llm_service.generate_clarification_question", 
-                   new_callable=AsyncMock, return_value=mock_question), \
-             patch("app.agent.nodes.async_session_maker") as mock_session_maker:
-            
+
+        with (
+            patch(
+                "app.agent.nodes.llm_service.generate_clarification_question",
+                new_callable=AsyncMock,
+                return_value=mock_question,
+            ),
+            patch("app.agent.nodes.async_session_maker") as mock_session_maker,
+        ):
             # Setup mock session context manager
             mock_session = AsyncMock()
             mock_result = MagicMock()
@@ -160,26 +165,28 @@ class TestGenerateClarificationStreaming:
             mock_session.commit = AsyncMock()
             mock_session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
             mock_session_maker.return_value.__aexit__ = AsyncMock()
-            
+
             events = []
             async for item in generate_clarification_streaming(state):
                 events.append(item)
-            
+
             # Should have emitted thought, clarification event, and state update
             assert len(events) >= 2
-            
+
             # Check clarification event was emitted
-            clarification_events = [e for e in events if isinstance(e, SSEEvent) and e.type == "agent.clarification"]
+            clarification_events = [
+                e for e in events if isinstance(e, SSEEvent) and e.type == "agent.clarification"
+            ]
             assert len(clarification_events) == 1
             assert clarification_events[0].payload.question == "What type of food is this?"
-            
+
             # Check DB status was updated
             assert mock_log.status == "clarification"
 
 
 class TestFinalizeLog:
     """Tests for finalize_log node."""
-    
+
     @pytest.mark.asyncio
     async def test_sets_needs_review_when_low_confidence_max_attempts(self):
         """Should set needs_review when confidence low after max attempts."""
@@ -188,10 +195,10 @@ class TestFinalizeLog:
             "clarification_count": 2,
             "needs_review": False,
         }
-        
+
         result = await finalize_log(state)
         assert result["needs_review"] is True
-    
+
     @pytest.mark.asyncio
     async def test_no_review_for_high_confidence(self):
         """Should not set needs_review for high confidence."""
@@ -200,14 +207,14 @@ class TestFinalizeLog:
             "clarification_count": 0,
             "needs_review": False,
         }
-        
+
         result = await finalize_log(state)
         assert result["needs_review"] is False
 
 
 class TestFinalizeLogStreaming:
     """Tests for finalize_log_streaming node."""
-    
+
     @pytest.mark.asyncio
     async def test_persists_to_db_with_logged_status(self):
         """Should persist log to DB with status='logged'."""
@@ -216,17 +223,17 @@ class TestFinalizeLogStreaming:
             "log_id": log_id,
             "nutritional_data": {
                 "items": [{"name": "Apple", "quantity": "1", "confidence": 0.95, "calories": 95}],
-                "synthesis_comment": "Healthy snack"
+                "synthesis_comment": "Healthy snack",
             },
             "overall_confidence": 0.95,
             "clarification_count": 0,
             "needs_review": False,
         }
-        
+
         mock_log = MagicMock()
         mock_log.status = "processing"
         mock_log.description = None
-        
+
         with patch("app.agent.nodes.async_session_maker") as mock_session_maker:
             mock_session = AsyncMock()
             mock_result = MagicMock()
@@ -235,17 +242,17 @@ class TestFinalizeLogStreaming:
             mock_session.commit = AsyncMock()
             mock_session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
             mock_session_maker.return_value.__aexit__ = AsyncMock()
-            
+
             events = []
             async for item in finalize_log_streaming(state):
                 events.append(item)
-            
+
             # Check DB was updated
             assert mock_log.status == "logged"
             assert mock_log.needs_review is False
             assert mock_log.calories == 95
             mock_session.commit.assert_called_once()
-    
+
     @pytest.mark.asyncio
     async def test_flags_needs_review_after_max_attempts(self):
         """Should set needs_review flag after max clarification attempts."""
@@ -257,11 +264,11 @@ class TestFinalizeLogStreaming:
             "clarification_count": 2,
             "needs_review": False,
         }
-        
+
         mock_log = MagicMock()
         mock_log.status = "processing"
         mock_log.description = None
-        
+
         with patch("app.agent.nodes.async_session_maker") as mock_session_maker:
             mock_session = AsyncMock()
             mock_result = MagicMock()
@@ -270,13 +277,13 @@ class TestFinalizeLogStreaming:
             mock_session.commit = AsyncMock()
             mock_session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
             mock_session_maker.return_value.__aexit__ = AsyncMock()
-            
+
             events = []
             async for item in finalize_log_streaming(state):
                 events.append(item)
-            
+
             assert mock_log.needs_review is True
-    
+
     @pytest.mark.asyncio
     async def test_emits_response_event(self):
         """Should emit agent.response SSE event."""
@@ -288,11 +295,11 @@ class TestFinalizeLogStreaming:
             "clarification_count": 0,
             "needs_review": False,
         }
-        
+
         mock_log = MagicMock()
         mock_log.status = "processing"
         mock_log.description = None
-        
+
         with patch("app.agent.nodes.async_session_maker") as mock_session_maker:
             mock_session = AsyncMock()
             mock_result = MagicMock()
@@ -301,11 +308,11 @@ class TestFinalizeLogStreaming:
             mock_session.commit = AsyncMock()
             mock_session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
             mock_session_maker.return_value.__aexit__ = AsyncMock()
-            
+
             events = []
             async for item in finalize_log_streaming(state):
                 events.append(item)
-            
+
             response_events = [e for e in events if isinstance(e, SSEEvent) and e.type == "agent.response"]
             assert len(response_events) == 1
             assert response_events[0].payload.status == "logged"

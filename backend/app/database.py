@@ -13,9 +13,7 @@ from .models import Base
 # Handle the protocol replacement for asyncpg safely without deconstructing the URL
 # This avoids issues with special characters in passwords
 if settings.DATABASE_URL.startswith("postgresql://"):
-    async_db_connection_url = settings.DATABASE_URL.replace(
-        "postgresql://", "postgresql+asyncpg://", 1
-    )
+    async_db_connection_url = settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://", 1)
 else:
     async_db_connection_url = settings.DATABASE_URL
 
@@ -38,9 +36,7 @@ engine = create_async_engine(
     },
 )
 
-async_session_maker = async_sessionmaker(
-    engine, expire_on_commit=settings.EXPIRE_ON_COMMIT
-)
+async_session_maker = async_sessionmaker(engine, expire_on_commit=settings.EXPIRE_ON_COMMIT)
 
 
 async def create_db_and_tables():

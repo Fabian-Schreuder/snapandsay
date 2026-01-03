@@ -15,25 +15,23 @@ from app.core.security import UserContext, verify_token
 def mock_settings():
     original_secret = settings.SUPABASE_JWT_SECRET
     original_aud = settings.SUPABASE_AUTH_AUDIENCE
-    
+
     settings.SUPABASE_JWT_SECRET = "supersecretkey"
     settings.SUPABASE_AUTH_AUDIENCE = "authenticated"
-    
+
     yield
-    
+
     # Restore
     settings.SUPABASE_JWT_SECRET = original_secret
     settings.SUPABASE_AUTH_AUDIENCE = original_aud
 
+
 def create_token(uid: str = None, aud: str = "authenticated", role: str = "authenticated"):
     if uid is None:
         uid = str(uuid4())
-    payload = {
-        "sub": uid,
-        "aud": aud,
-        "role": role
-    }
+    payload = {"sub": uid, "aud": aud, "role": role}
     return jwt.encode(payload, settings.SUPABASE_JWT_SECRET, algorithm="HS256")
+
 
 def test_verify_token_valid():
     uid = str(uuid4())
@@ -42,6 +40,7 @@ def test_verify_token_valid():
     assert str(user.id) == uid
     assert user.aud == "authenticated"
 
+
 def test_verify_token_invalid_signature():
     token = create_token()
     # Tamper with token
@@ -49,11 +48,13 @@ def test_verify_token_invalid_signature():
     with pytest.raises(ValueError):
         verify_token(invalid_token)
 
+
 @pytest.mark.asyncio
 async def test_get_current_user_valid():
     token = create_token()
     user = await get_current_user(token)
     assert isinstance(user, UserContext)
+
 
 @pytest.mark.asyncio
 async def test_get_current_user_no_token():
@@ -61,11 +62,13 @@ async def test_get_current_user_no_token():
         await get_current_user(None)
     assert exc.value.status_code == 401
 
+
 @pytest.mark.asyncio
 async def test_get_current_user_invalid_token():
     with pytest.raises(HTTPException) as exc:
         await get_current_user("invalid")
     assert exc.value.status_code == 401
+
 
 def test_verify_token_anon_role():
     """Verify that tokens with 'anon' role are accepted."""

@@ -1,4 +1,5 @@
 """SSE event schemas for agent streaming responses."""
+
 from datetime import UTC, datetime
 from typing import Any, Literal
 from uuid import UUID
@@ -20,9 +21,7 @@ class AgentResponse(BaseModel):
     """Schema for final agent response event."""
 
     log_id: str = Field(..., description="UUID of the created dietary log")
-    nutritional_data: dict[str, Any] = Field(
-        ..., description="Extracted nutritional information"
-    )
+    nutritional_data: dict[str, Any] = Field(..., description="Extracted nutritional information")
     status: str = Field(default="success", description="Processing status")
 
 
@@ -51,9 +50,9 @@ class AgentClarification(BaseModel):
 class SSEEvent(BaseModel):
     """Base SSE event wrapper with type discrimination."""
 
-    type: Literal[
-        "agent.thought", "agent.response", "agent.error", "agent.clarification"
-    ] = Field(..., description="Event type for frontend routing")
+    type: Literal["agent.thought", "agent.response", "agent.error", "agent.clarification"] = Field(
+        ..., description="Event type for frontend routing"
+    )
     payload: AgentThought | AgentResponse | AgentError | AgentClarification = Field(
         ..., description="Event payload data"
     )

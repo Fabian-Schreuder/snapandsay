@@ -1,4 +1,5 @@
 """LLM analysis service using OpenAI GPT-4o."""
+
 import json
 import logging
 from collections.abc import Awaitable, Callable
@@ -23,6 +24,7 @@ class LLMGenerationError(Exception):
 
 class ClarificationQuestion(BaseModel):
     """Schema for generated clarification question."""
+
     question: str
     options: list[str]
 
@@ -33,9 +35,7 @@ def _get_client() -> AsyncOpenAI:
     return AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
 
-def _build_messages(
-    image_url: str | None, transcript: str | None, context: str | None = None
-) -> list[dict]:
+def _build_messages(image_url: str | None, transcript: str | None, context: str | None = None) -> list[dict]:
     """Build the message list for the LLM request."""
     current_time = datetime.now().strftime("%H:%M")
     system_prompt = (
@@ -64,7 +64,7 @@ def _build_messages(
         user_content.append({"type": "image_url", "image_url": {"url": image_url}})
 
     messages.append({"role": "user", "content": user_content})
-    
+
     # Debug logging
     log_content = []
     for item in user_content:
@@ -74,7 +74,7 @@ def _build_messages(
             url = item["image_url"]["url"]
             log_content.append(f"Image: {url[:30]}... (len={len(url)})")
     logger.info(f"Constructed LLM messages: {log_content}")
-    
+
     return messages
 
 
@@ -86,35 +86,32 @@ async def _get_image_content(image_path: str, token: str | None = None) -> str:
     import base64
 
     import httpx
-    
+
     # Return as-is if it's already a public URL or data URI
     if image_path.startswith(("http://", "https://", "data:")) and "supabase" not in image_path:
         return image_path
 
     if token and settings.SUPABASE_URL and "supabase" not in image_path:
-         # Construct authenticated storage URL
+        # Construct authenticated storage URL
         url = f"{settings.SUPABASE_URL}/storage/v1/object/authenticated/raw_uploads/{image_path}"
-        
+
         async with httpx.AsyncClient() as client:
-            response = await client.get(
-                url, 
-                headers={"Authorization": f"Bearer {token}"}
-            )
-            
+            response = await client.get(url, headers={"Authorization": f"Bearer {token}"})
+
             if response.status_code == 200:
                 # Encode to base64
-                b64_image = base64.b64encode(response.content).decode('utf-8')
+                b64_image = base64.b64encode(response.content).decode("utf-8")
                 # Determine mime type (default to jpeg)
                 mime_type = "image/jpeg"
                 if image_path.lower().endswith(".png"):
                     mime_type = "image/png"
                 elif image_path.lower().endswith(".webp"):
                     mime_type = "image/webp"
-                    
+
                 return f"data:{mime_type};base64,{b64_image}"
             else:
-                 logger.warning(f"Failed to download image from Supabase: {response.status_code}")
-                 logger.debug(f"Failed URL: {url}")
+                logger.warning(f"Failed to download image from Supabase: {response.status_code}")
+                logger.debug(f"Failed URL: {url}")
 
     # Fallback: return original path (likely to fail if private)
     return image_path or ""
@@ -217,28 +214,28 @@ async def analyze_multimodal_streaming(
             stream=True,
             response_format={"type": "json_object"},
         )
-        
+
         logger.info("Starting LLM stream iteration...")
         async for chunk in stream:
-                if chunk.choices:
-                    # Log the entire chunk for debugging
-                    logger.info(f"Chunk received: {chunk}")
-                    delta = chunk.choices[0].delta
-                    if delta.content:
-                        content = delta.content
-                        accumulated_content += content
-                        logger.info(f"Token received: {content!r}")
+            if chunk.choices:
+                # Log the entire chunk for debugging
+                logger.info(f"Chunk received: {chunk}")
+                delta = chunk.choices[0].delta
+                if delta.content:
+                    content = delta.content
+                    accumulated_content += content
+                    logger.info(f"Token received: {content!r}")
 
-                        # Call the token callback if provided
-                        if on_token:
-                            await on_token(content)
-                    elif delta.refusal:
-                        accumulated_refusal += delta.refusal
-                        logger.warning(f"Refusal token received: {delta.refusal}")
-                
-                if chunk.choices[0].finish_reason:
-                    logger.info(f"LLM Stream Finished. Reason: {chunk.choices[0].finish_reason}")
-                    logger.info(f"Total accumulated content length: {len(accumulated_content)}")
+                    # Call the token callback if provided
+                    if on_token:
+                        await on_token(content)
+                elif delta.refusal:
+                    accumulated_refusal += delta.refusal
+                    logger.warning(f"Refusal token received: {delta.refusal}")
+
+            if chunk.choices[0].finish_reason:
+                logger.info(f"LLM Stream Finished. Reason: {chunk.choices[0].finish_reason}")
+                logger.info(f"Total accumulated content length: {len(accumulated_content)}")
 
         if accumulated_refusal:
             logger.error(f"LLM returned refusal: {accumulated_refusal}")
@@ -258,12 +255,9 @@ async def analyze_multimodal_streaming(
             return AnalysisResult.model_validate(parsed_data)
         except (json.JSONDecodeError, Exception) as parse_error:
             logger.error(
-                f"Failed to parse streaming response: {parse_error}. "
-                f"Content: {accumulated_content}"
+                f"Failed to parse streaming response: {parse_error}. " f"Content: {accumulated_content}"
             )
-            raise LLMGenerationError(
-                f"Failed to parse LLM response: {str(parse_error)}"
-            ) from parse_error
+            raise LLMGenerationError(f"Failed to parse LLM response: {str(parse_error)}") from parse_error
 
     except Exception as e:
         logger.error(f"LLM streaming generation failed: {e}")
@@ -275,16 +269,16 @@ async def generate_clarification_question(
 ) -> ClarificationQuestion:
     """
     Generate a clarification question for low-confidence food items.
-    
+
     Uses GPT-4o to create a simple, senior-friendly question with 2-3
     suggested options based on the uncertain food items.
-    
+
     Args:
         low_confidence_items: List of FoodItem with low confidence scores.
-        
+
     Returns:
         ClarificationQuestion with question text and options.
-        
+
     Raises:
         LLMGenerationError: If the LLM call fails.
     """
@@ -293,14 +287,13 @@ async def generate_clarification_question(
             question="I'm not sure what you ate. Can you describe it?",
             options=["Breakfast", "Lunch", "Dinner"],
         )
-    
+
     # Build item descriptions for the prompt
     item_descriptions = [
-        f"- {item.name} ({item.quantity}, confidence: {item.confidence:.0%})"
-        for item in low_confidence_items
+        f"- {item.name} ({item.quantity}, confidence: {item.confidence:.0%})" for item in low_confidence_items
     ]
     items_text = "\n".join(item_descriptions)
-    
+
     system_prompt = (
         "You are a friendly dietary assistant helping seniors log their meals. "
         "Generate a single, simple clarification question about uncertain food items. "
@@ -311,17 +304,17 @@ async def generate_clarification_question(
         "- Be friendly and patient\n"
         "- Focus on the most uncertain item"
     )
-    
+
     user_prompt = (
         f"The following food items have low confidence scores:\n{items_text}\n\n"
         "Generate a simple clarification question to help identify them better."
     )
-    
+
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
     ]
-    
+
     try:
         client = _get_client()
         completion = await client.beta.chat.completions.parse(
@@ -337,5 +330,3 @@ async def generate_clarification_question(
             question="Can you tell me more about what you ate?",
             options=["Main dish", "Side dish", "Drink"],
         )
-
-

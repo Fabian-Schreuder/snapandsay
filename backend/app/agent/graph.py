@@ -24,7 +24,7 @@ from app.schemas.sse import SSEEvent
 def get_agent_graph():
     """
     Initialize and compile the agent graph with conditional routing.
-    
+
     Graph Structure:
         START -> analyze_input -> [conditional edge]
             if confidence >= 0.85 or max_attempts: -> finalize_log -> END
@@ -90,7 +90,7 @@ async def run_streaming_agent(
     # Determine routing based on confidence
     overall_confidence = state.get("overall_confidence", 0.0)
     clarification_count = state.get("clarification_count", 0)
-    
+
     needs_clarification = False
 
     # Route conditionally: skip clarification if high confidence or max attempts

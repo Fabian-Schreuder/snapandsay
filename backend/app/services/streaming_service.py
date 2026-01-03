@@ -1,4 +1,5 @@
 """Streaming service for SSE event formatting."""
+
 from collections.abc import AsyncGenerator
 
 from app.schemas.sse import SSEEvent
@@ -55,10 +56,10 @@ async def sse_event_generator(
 
     async for event in events:
         current_time = asyncio.get_event_loop().time()
-        
+
         # Send heartbeat if too much time has passed
         if current_time - last_event_time > heartbeat_interval:
             yield await format_sse_comment("heartbeat")
-        
+
         yield await format_sse(event)
         last_event_time = current_time

@@ -67,26 +67,27 @@ async def test_run_streaming_agent_high_confidence_skips_clarification():
     clarification_ran = False
 
     # Patch the streaming nodes
-    with patch(
-        "app.agent.graph.analyze_input_streaming"
-    ) as mock_analyze, patch(
-        "app.agent.graph.generate_clarification_streaming"
-    ) as mock_clarify, patch(
-        "app.agent.graph.finalize_log_streaming"
-    ) as mock_finalize:
+    with (
+        patch("app.agent.graph.analyze_input_streaming") as mock_analyze,
+        patch("app.agent.graph.generate_clarification_streaming") as mock_clarify,
+        patch("app.agent.graph.finalize_log_streaming") as mock_finalize,
+    ):
         # Mock analyze to return high confidence
         async def mock_analyze_gen(state):
             yield {"nutritional_data": {"items": []}, "overall_confidence": 0.95}
+
         mock_analyze.return_value = mock_analyze_gen(initial_state)
 
         async def mock_clarify_gen(state):
             nonlocal clarification_ran
             clarification_ran = True
             yield {}
+
         mock_clarify.return_value = mock_clarify_gen(initial_state)
 
         async def mock_finalize_gen(state):
             yield {}
+
         mock_finalize.return_value = mock_finalize_gen(initial_state)
 
         async for item in run_streaming_agent(initial_state):
@@ -113,26 +114,27 @@ async def test_run_streaming_agent_low_confidence_runs_clarification():
 
     clarification_ran = False
 
-    with patch(
-        "app.agent.graph.analyze_input_streaming"
-    ) as mock_analyze, patch(
-        "app.agent.graph.generate_clarification_streaming"
-    ) as mock_clarify, patch(
-        "app.agent.graph.finalize_log_streaming"
-    ) as mock_finalize:
+    with (
+        patch("app.agent.graph.analyze_input_streaming") as mock_analyze,
+        patch("app.agent.graph.generate_clarification_streaming") as mock_clarify,
+        patch("app.agent.graph.finalize_log_streaming") as mock_finalize,
+    ):
         # Mock analyze to return low confidence
         async def mock_analyze_gen(state):
             yield {"nutritional_data": {"items": []}, "overall_confidence": 0.5}
+
         mock_analyze.return_value = mock_analyze_gen(initial_state)
 
         async def mock_clarify_gen(state):
             nonlocal clarification_ran
             clarification_ran = True
             yield {}
+
         mock_clarify.return_value = mock_clarify_gen(initial_state)
 
         async def mock_finalize_gen(state):
             yield {}
+
         mock_finalize.return_value = mock_finalize_gen(initial_state)
 
         async for _item in run_streaming_agent(initial_state):
@@ -159,25 +161,27 @@ async def test_run_streaming_agent_max_attempts_skips_clarification():
 
     clarification_ran = False
 
-    with patch(
-        "app.agent.graph.analyze_input_streaming"
-    ) as mock_analyze, patch(
-        "app.agent.graph.generate_clarification_streaming"
-    ) as mock_clarify, patch(
-        "app.agent.graph.finalize_log_streaming"
-    ) as mock_finalize:
+    with (
+        patch("app.agent.graph.analyze_input_streaming") as mock_analyze,
+        patch("app.agent.graph.generate_clarification_streaming") as mock_clarify,
+        patch("app.agent.graph.finalize_log_streaming") as mock_finalize,
+    ):
+
         async def mock_analyze_gen(state):
             yield {"nutritional_data": {"items": []}, "overall_confidence": 0.3}
+
         mock_analyze.return_value = mock_analyze_gen(initial_state)
 
         async def mock_clarify_gen(state):
             nonlocal clarification_ran
             clarification_ran = True
             yield {}
+
         mock_clarify.return_value = mock_clarify_gen(initial_state)
 
         async def mock_finalize_gen(state):
             yield {}
+
         mock_finalize.return_value = mock_finalize_gen(initial_state)
 
         async for _item in run_streaming_agent(initial_state):

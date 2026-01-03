@@ -1,4 +1,5 @@
 """Tests for the streaming service."""
+
 from datetime import datetime
 
 import pytest
