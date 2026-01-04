@@ -44,7 +44,15 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:3000"
 
     # CORS
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "https://snapandsay.vercel.app"]
+    # Can be set as a comma-separated string in env, which pydantic will parse if we use the right validator
+    # But Pydantic V2 handles JSON list parsing from env typically.
+    # We will declare it as list[str] and rely on Pydantic's underlying parsing for env vars.
+    # Defaults include localhost and the main verification domain.
+    CORS_ORIGINS: list[str] = [
+        "http://localhost:3000", 
+        "https://snapandsay.vercel.app",
+        "https://snapandsay-production.up.railway.app"
+    ]
 
     model_config = SettingsConfigDict(
         env_file=(".env", ".env.local"), env_file_encoding="utf-8", extra="ignore"
