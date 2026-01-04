@@ -49,9 +49,9 @@ class Settings(BaseSettings):
     # We will declare it as list[str] and rely on Pydantic's underlying parsing for env vars.
     # Defaults include localhost and the main verification domain.
     CORS_ORIGINS: list[str] = [
-        "http://localhost:3000", 
+        "http://localhost:3000",
         "https://snapandsay.vercel.app",
-        "https://snapandsay-production.up.railway.app"
+        "https://snapandsay-production.up.railway.app",
     ]
 
     model_config = SettingsConfigDict(
