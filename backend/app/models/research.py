@@ -1,8 +1,11 @@
 import uuid
-from sqlalchemy import Column, Integer, String, Float, Boolean, Enum, ForeignKey, DateTime, func
+
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
+
 from . import Base
+
 
 class ResearchLog(Base):
     """
@@ -13,10 +16,12 @@ class ResearchLog(Base):
     __tablename__ = "research_logs"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    log_id = Column(UUID(as_uuid=True), ForeignKey("dietary_logs.id"), nullable=False, unique=True, index=True)
+    log_id = Column(
+        UUID(as_uuid=True), ForeignKey("dietary_logs.id"), nullable=False, unique=True, index=True
+    )
     
     # Research Metrics
-    input_modality = Column(String, nullable=False) # 'voice', 'photo', 'text'
+    input_modality = Column(String, nullable=False)  # 'voice', 'photo', 'text'
     processing_time_ms = Column(Integer, nullable=False)
     agent_turns_count = Column(Integer, nullable=False)
     was_corrected = Column(Boolean, default=False, nullable=False)
