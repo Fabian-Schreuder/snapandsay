@@ -35,3 +35,7 @@ class AgentState(TypedDict):
     needs_clarification: bool
     needs_review: bool
     user_token: str | None
+    
+    # Research Metrics
+    start_time: float | None # Timestamp when analysis started
+    agent_turn_count: int # Total agent responses generated

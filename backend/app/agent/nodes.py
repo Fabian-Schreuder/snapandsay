@@ -45,6 +45,11 @@ async def analyze_input(state: AgentState) -> dict:
     user_token = state.get("user_token")
     transcript = None
     context = None
+    
+    # Initialize start_time for research metrics if not present
+    start_time = state.get("start_time")
+    if not start_time:
+        start_time = datetime.now(UTC).timestamp()
 
     # Fetch context from DB if this is a re-run
     if log_id:
@@ -82,6 +87,8 @@ async def analyze_input(state: AgentState) -> dict:
         return {
             "nutritional_data": result.model_dump(),
             "overall_confidence": result.overall_confidence,
+            "start_time": start_time,
+            "agent_turn_count": state.get("agent_turn_count", 0) + 1,
         }
     except Exception as e:
         logger.error(f"Analysis failed: {e}")
@@ -103,6 +110,11 @@ async def analyze_input_streaming(
     user_token = state.get("user_token")
     transcript = None
     context = None
+    
+    # Initialize start_time for research metrics if not present
+    start_time = state.get("start_time")
+    if not start_time:
+        start_time = datetime.now(UTC).timestamp()
 
     # Fetch context from DB if this is a re-run
     if log_id:
@@ -205,6 +217,8 @@ async def analyze_input_streaming(
         yield {
             "nutritional_data": result.model_dump(),
             "overall_confidence": result.overall_confidence,
+            "start_time": start_time,
+            "agent_turn_count": state.get("agent_turn_count", 0) + 1,
         }
     except Exception as e:
         logger.error(f"Analysis streaming failed: {e}")
@@ -312,6 +326,7 @@ async def generate_clarification_streaming(
             yield {
                 "needs_clarification": True,
                 "clarification_count": clarification_count + 1,
+                "agent_turn_count": state.get("agent_turn_count", 0) + 1,
             }
         except Exception as e:
             logger.error(f"Clarification generation failed: {e}")
@@ -402,6 +417,41 @@ async def finalize_log_streaming(
 
                     await session.commit()
                     logger.info(f"Finalized log {log_id} with status='logged', needs_review={needs_review}")
+                    
+                    # --- Research Metrics Persistence ---
+                    try:
+                        from app.models.research import ResearchLog
+                        
+                        start_time = state.get("start_time")
+                        current_time = datetime.now(UTC).timestamp()
+                        processing_time_ms = int((current_time - start_time) * 1000) if start_time else 0
+                        
+                        # Determine input modality
+                        image_url = state.get("image_url")
+                        audio_url = state.get("audio_url")
+                        modality = "unknown"
+                        if image_url and audio_url:
+                            modality = "multimodal"
+                        elif image_url:
+                            modality = "photo"
+                        elif audio_url:
+                            modality = "voice"
+                        
+                        research_log = ResearchLog(
+                            log_id=log_id,
+                            input_modality=modality,
+                            processing_time_ms=processing_time_ms,
+                            agent_turns_count=state.get("agent_turn_count", 1),
+                            was_corrected=clarification_count > 0, # Simple heuristic for now
+                            confidence_score=overall_confidence
+                        )
+                        session.add(research_log)
+                        await session.commit()
+                        logger.info(f"Persisted research metrics for log {log_id}")
+                    except Exception as research_err:
+                        logger.error(f"Failed to persist research metrics: {research_err}")
+                    # -----------------------------------
+                    
         except Exception as e:
             logger.error(f"Failed to persist finalized log: {e}")
 
