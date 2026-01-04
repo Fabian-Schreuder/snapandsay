@@ -45,7 +45,7 @@ async def analyze_input(state: AgentState) -> dict:
     user_token = state.get("user_token")
     transcript = None
     context = None
-    
+
     # Initialize start_time for research metrics if not present
     start_time = state.get("start_time")
     if not start_time:
@@ -110,7 +110,7 @@ async def analyze_input_streaming(
     user_token = state.get("user_token")
     transcript = None
     context = None
-    
+
     # Initialize start_time for research metrics if not present
     start_time = state.get("start_time")
     if not start_time:
@@ -417,15 +417,15 @@ async def finalize_log_streaming(
 
                     await session.commit()
                     logger.info(f"Finalized log {log_id} with status='logged', needs_review={needs_review}")
-                    
+
                     # --- Research Metrics Persistence ---
                     try:
                         from app.models.research import ResearchLog
-                        
+
                         start_time = state.get("start_time")
                         current_time = datetime.now(UTC).timestamp()
                         processing_time_ms = int((current_time - start_time) * 1000) if start_time else 0
-                        
+
                         # Determine input modality
                         image_url = state.get("image_url")
                         audio_url = state.get("audio_url")
@@ -436,14 +436,14 @@ async def finalize_log_streaming(
                             modality = "photo"
                         elif audio_url:
                             modality = "voice"
-                        
+
                         research_log = ResearchLog(
                             log_id=log_id,
                             input_modality=modality,
                             processing_time_ms=processing_time_ms,
                             agent_turns_count=state.get("agent_turn_count", 1),
-                            was_corrected=clarification_count > 0, # Simple heuristic for now
-                            confidence_score=overall_confidence
+                            was_corrected=clarification_count > 0,  # Simple heuristic for now
+                            confidence_score=overall_confidence,
                         )
                         session.add(research_log)
                         await session.commit()
@@ -451,7 +451,7 @@ async def finalize_log_streaming(
                     except Exception as research_err:
                         logger.error(f"Failed to persist research metrics: {research_err}")
                     # -----------------------------------
-                    
+
         except Exception as e:
             logger.error(f"Failed to persist finalized log: {e}")
 
