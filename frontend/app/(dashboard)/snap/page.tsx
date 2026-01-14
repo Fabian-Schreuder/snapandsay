@@ -244,7 +244,7 @@ export default function SnapPage() {
              {!isUploading && (
                  <VoiceCaptureButton onRecordingComplete={handleRecordingComplete} />
              )}
-             <p className="text-zinc-400 text-sm">Hold to record</p>
+             <p className="text-zinc-400 text-sm">Tap to toggle</p>
           </div>
         </div>
       )}

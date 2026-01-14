@@ -103,7 +103,8 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
       <VoiceButton
         state={buttonState}
         onClick={handleToggleRecording}
-        className={className}
+        className={`${className} w-20 h-20 rounded-full`}
+        waveformClassName="rounded-full"
         size="icon"
         variant="default" 
         // We use size="icon" to keep it compact, but we could allow a label if desired.
