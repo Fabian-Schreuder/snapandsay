@@ -118,12 +118,18 @@ class OracleRunner:
                     elif line.startswith("data:"):
                         data_str = line.split(":", 1)[1].strip()
                         try:
-                            data = json.loads(data_str)
+                            # Parse the wrapper {type: ..., payload: ...}
+                            event_wrapper = json.loads(data_str)
                         except json.JSONDecodeError:
                             continue
                             
+                        # Extract type and payload
+                        # Backend sends: {"type": "...", "payload": {...}} in data field
+                        event_type = event_wrapper.get("type", current_event_type)
+                        data = event_wrapper.get("payload", event_wrapper)
+                            
                         # Handle Event
-                        if current_event_type == "agent.clarification":
+                        if event_type == "agent.clarification":
                             turns += 1
                             question = data.get("question", "")
                             logger.info(f"[{dish.dish_id}] Clarification {turns}: {question}")
@@ -139,7 +145,7 @@ class OracleRunner:
                             # Submit answer asynchronously
                             asyncio.create_task(self._submit_answer(log_id, answer, headers))
                             
-                        elif current_event_type == "agent.response":
+                        elif event_type == "agent.response":
                             # Final result
                             final_log = data.get("nutritional_data")
                             status = data.get("status")
@@ -147,7 +153,7 @@ class OracleRunner:
                             # We can break here as we got the result
                             break
                             
-                        elif current_event_type == "agent.error":
+                        elif event_type == "agent.error":
                             error_msg = data.get("message", "Unknown error")
                             logger.error(f"[{dish.dish_id}] Agent Error: {error_msg}")
                             break
