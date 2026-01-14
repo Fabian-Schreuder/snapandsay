@@ -1,10 +1,11 @@
-from typing import List, Optional
 from pydantic import BaseModel, Field
+
 
 class IngredientInfo(BaseModel):
     id: str
     name: str
     grams: float
+
 
 class NutritionDish(BaseModel):
     dish_id: str = Field(..., description="Unique ID from Nutrition5k dataset")
@@ -13,10 +14,10 @@ class NutritionDish(BaseModel):
     total_fat: float
     total_carb: float
     total_protein: float
-    ingredients: List[IngredientInfo]
+    ingredients: list[IngredientInfo]
     complexity: str = Field(..., description="'simple' or 'complex'")
-    image_path: Optional[str] = None
-    
+    image_path: str | None = None
+
     @property
     def summary(self) -> str:
         """Returns a natural language summary for the Oracle response."""
@@ -26,6 +27,7 @@ class NutritionDish(BaseModel):
             f"Total Macros: {self.total_calories:.0f} kcal, "
             f"P: {self.total_protein:.1f}g, F: {self.total_fat:.1f}g, C: {self.total_carb:.1f}g."
         )
+
 
 class OracleConfig(BaseModel):
     limit: int = 50

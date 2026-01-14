@@ -32,11 +32,7 @@ class ClarificationQuestion(BaseModel):
 @lru_cache(maxsize=1)
 def _get_client() -> AsyncOpenAI:
     """Lazily instantiate and cache the OpenAI client."""
-    return AsyncOpenAI(
-        api_key=settings.OPENAI_API_KEY,
-        timeout=60.0,
-        max_retries=3
-    )
+    return AsyncOpenAI(api_key=settings.OPENAI_API_KEY, timeout=60.0, max_retries=3)
 
 
 def _build_messages(image_url: str | None, transcript: str | None, context: str | None = None) -> list[dict]:
@@ -82,13 +78,13 @@ def _build_messages(image_url: str | None, transcript: str | None, context: str 
     return messages
 
 
-
 async def _get_image_content(image_path: str, token: str | None = None) -> str:
     """
     Get image content as base64 data URI.
     Handles private Supabase Storage paths by downloading with user token.
     """
     import base64
+
     import httpx
 
     # Return as-is if it's already a data URI
@@ -97,34 +93,36 @@ async def _get_image_content(image_path: str, token: str | None = None) -> str:
 
     # If it's a URL, try to download and base64 encode it
     if image_path.startswith(("http://", "https://")):
-        headers = {}
+
         # Add authentication for Supabase authenticated storage
         if token and settings.SUPABASE_URL and "supabase" in image_path:
-             # Basic check if it's the authenticated endpoint or just a public one?
-             # For now, if token provided and 'supabase' in URL, try adding header.
-             # Only if it looks like the authenticated path? 
-             # The existing code added header if 'authenticated' in path? 
-             # The existing code constructed the URL. Here we assume image_path IS the URL.
-             # BUT wait, the existing code constructed the URL if it WAS NOT a URL.
-             pass
+            # Basic check if it's the authenticated endpoint or just a public one?
+            # For now, if token provided and 'supabase' in URL, try adding header.
+            # Only if it looks like the authenticated path?
+            # The existing code added header if 'authenticated' in path?
+            # The existing code constructed the URL. Here we assume image_path IS the URL.
+            # BUT wait, the existing code constructed the URL if it WAS NOT a URL.
+            pass
 
         # If the path is ALREADY a full URL (which it is for GCS), we just download it.
         # If it is a Supabase path (not URL) handled below?
         # The existing code handled:
         # 1. External URL (returns as is)
         # 2. Supabase path (not URL) -> constructs URL and downloads.
-        
+
         # We want to change #1 to Download.
-        
+
         async with httpx.AsyncClient() as client:
             try:
-                # Prepare headers if needed (for now, assume external URLs don't need auth, 
+                # Prepare headers if needed (for now, assume external URLs don't need auth,
                 # or rely on Supabase logic below for internal paths)
                 req_headers = {}
                 if "supabase" in image_path and "/authenticated/" in image_path and token:
-                     req_headers["Authorization"] = f"Bearer {token}"
+                    req_headers["Authorization"] = f"Bearer {token}"
 
-                response = await client.get(image_path, headers=req_headers, follow_redirects=True, timeout=30.0)
+                response = await client.get(
+                    image_path, headers=req_headers, follow_redirects=True, timeout=30.0
+                )
                 if response.status_code == 200:
                     b64_image = base64.b64encode(response.content).decode("utf-8")
                     mime_type = "image/jpeg"
@@ -153,9 +151,9 @@ async def _get_image_content(image_path: str, token: str | None = None) -> str:
                 b64_image = base64.b64encode(response.content).decode("utf-8")
                 mime_type = "image/jpeg"
                 if image_path.lower().endswith(".png"):
-                     mime_type = "image/png"
+                    mime_type = "image/png"
                 elif image_path.lower().endswith(".webp"):
-                     mime_type = "image/webp"
+                    mime_type = "image/webp"
 
                 return f"data:{mime_type};base64,{b64_image}"
             else:
