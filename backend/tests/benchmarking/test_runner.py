@@ -34,7 +34,9 @@ def runner():
         # We also need to mock create_client since it's called in __init__
         with patch("app.benchmarking.oracle_runner.create_client"):
             runner = OracleRunner(
-                api_url="http://test.local", email="test@example.com", password="password"  # noqa: S106
+                api_url="http://test.local",
+                email="test@example.com",
+                password="password",  # noqa: S106
             )
             # Mock the supabase client instance on the runner
             runner.supabase = MagicMock()

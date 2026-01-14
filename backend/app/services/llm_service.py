@@ -93,7 +93,6 @@ async def _get_image_content(image_path: str, token: str | None = None) -> str:
 
     # If it's a URL, try to download and base64 encode it
     if image_path.startswith(("http://", "https://")):
-
         # Add authentication for Supabase authenticated storage
         if token and settings.SUPABASE_URL and "supabase" in image_path:
             # Basic check if it's the authenticated endpoint or just a public one?
