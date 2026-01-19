@@ -415,7 +415,14 @@ export const LiveWaveform = ({
       ctx.clearRect(0, 0, rect.width, rect.height)
 
       const computedBarColor =
-        barColor ||
+        (barColor?.includes("var(")
+          ? (() => {
+              const style = getComputedStyle(canvas)
+              return barColor.replace(/var\(([^)]+)\)/g, (_, varName) => {
+                return style.getPropertyValue(varName).trim()
+              })
+            })()
+          : barColor) ||
         (() => {
           const style = getComputedStyle(canvas)
           // Try to get the computed color value directly

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useAudio } from "../../../hooks/use-audio";
+import { Mic } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -106,10 +107,16 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
         className={`${className} w-20 h-20 rounded-full`}
         waveformClassName="rounded-full"
         size="icon"
-        variant="default" 
-        // We use size="icon" to keep it compact, but we could allow a label if desired.
-        // The original was a circle (w-20 h-20), VoiceButton size="icon" might be smaller (w-10 h-10).
-        // If we want it larger, we can override className.
+        variant="default"
+        aria-label={
+          buttonState === "recording"
+            ? "Stop voice recording"
+            : buttonState === "processing" || buttonState === "success"
+              ? "Processing voice recording"
+              : "Start voice recording"
+        }
+        aria-describedby="tap-to-toggle-text"
+        icon={<Mic className="w-8 h-8" />}
       />
 
       {error && !isPermissionDenied && (

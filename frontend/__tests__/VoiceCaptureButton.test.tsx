@@ -7,6 +7,13 @@ import { useAudio } from '../hooks/use-audio';
 jest.mock('../hooks/use-audio');
 const mockUseAudio = useAudio as jest.Mock;
 
+// Mock ResizeObserver
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 describe('VoiceCaptureButton', () => {
   const mockStartRecording = jest.fn();
   const mockStopRecording = jest.fn();
@@ -27,35 +34,49 @@ describe('VoiceCaptureButton', () => {
 
   it('renders correctly in idle state', () => {
     render(<VoiceCaptureButton onRecordingComplete={mockOnRecordingComplete} />);
-    const button = screen.getByRole('button', { name: /hold to record/i });
+    const button = screen.getByRole('button', { name: /start voice recording/i });
     expect(button).toBeInTheDocument();
     // Check for mic icon presence (class check or svg presence)
     expect(button.querySelector('svg')).toBeInTheDocument();
   });
 
-  it('starts recording on mouse down', async () => {
-    render(<VoiceCaptureButton onRecordingComplete={mockOnRecordingComplete} />);
-    const button = screen.getByRole('button');
+  it('starts recording on click', async () => {
+    // Start with idle state
+    mockUseAudio.mockReturnValue({
+      startRecording: mockStartRecording,
+      stopRecording: mockStopRecording,
+      cancelRecording: jest.fn(),
+      isRecording: false,
+      audioBlob: null,
+      error: null,
+      isPermissionDenied: false,
+    });
 
-    // MouseDown should trigger start
+    render(<VoiceCaptureButton onRecordingComplete={mockOnRecordingComplete} />);
+    const button = screen.getByRole('button', { name: /start voice recording/i });
+
+    // Click should trigger start
     await act(async () => {
-        fireEvent.mouseDown(button);
+        fireEvent.click(button);
     });
 
     expect(mockStartRecording).toHaveBeenCalled();
   });
 
-  it('stops recording on mouse up', async () => {
+  it('stops recording on click when recording', async () => {
+    // Start with recording state
     mockUseAudio.mockReturnValue({
       startRecording: mockStartRecording,
       stopRecording: mockStopRecording,
-      isRecording: true,
+      isRecording: true, // Simulate recording state
       audioBlob: null,
     });
     render(<VoiceCaptureButton onRecordingComplete={mockOnRecordingComplete} />);
-    const button = screen.getByRole('button');
+    
+    // Should see "Stop voice recording" label
+    const button = screen.getByRole('button', { name: /stop voice recording/i });
 
-    fireEvent.mouseUp(button);
+    fireEvent.click(button);
     expect(mockStopRecording).toHaveBeenCalled();
   });
 
@@ -102,8 +123,12 @@ describe('VoiceCaptureButton', () => {
     });
     
     render(<VoiceCaptureButton onRecordingComplete={mockOnRecordingComplete} />);
-    const button = screen.getByRole('button', { name: /hold to record/i });
-    expect(button.className).toContain('animate-pulse');
+    // Check for stop recording label since we are recording
+    const button = screen.getByRole('button', { name: /stop voice recording/i });
+    // Verify recording state via class that VoiceButton applies (bg-primary/10 or similar)
+    // or checks that the inner container has specific recording classes
+    const innerContainer = button.querySelector('div');
+    expect(innerContainer?.className).toContain('bg-primary/10');
   });
 
   it('reloads the page on retry when permission was denied', () => {

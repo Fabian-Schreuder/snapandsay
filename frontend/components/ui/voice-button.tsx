@@ -154,7 +154,7 @@ export const VoiceButton = React.forwardRef<
           size === "icon" && "relative",
           className
         )}
-        aria-label={"Voice Button"}
+        aria-label={props["aria-label"] || (typeof label === 'string' ? label : "Voice Button")}
         {...props}
       >
         {size !== "icon" && displayLabel && (
@@ -179,16 +179,11 @@ export const VoiceButton = React.forwardRef<
         >
           {shouldShowWaveform && (
             <LiveWaveform
-              active={isRecording}
-              processing={isProcessing || isSuccess}
-              barWidth={2}
-              barGap={1}
-              barRadius={4}
+              active={state === "recording"}
+              processing={state === "processing"}
+              barColor={buttonVariant === "default" ? "hsl(var(--primary-foreground))" : "hsl(var(--primary))"}
               fadeEdges={false}
-              sensitivity={1.8}
-              smoothingTimeConstant={0.85}
-              height={20}
-              mode="static"
+              height="100%"
               className="animate-in fade-in absolute inset-0 h-full w-full duration-300"
             />
           )}
