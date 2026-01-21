@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowLeft, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { useLog, useDeleteLog } from '@/hooks/use-logs';
 import { EditLogSheet } from '@/components/features/logs/EditLogSheet';
@@ -18,25 +19,15 @@ function getImageUrl(path: string): string {
 }
 
 /**
- * Format timestamp to human-readable date and time.
- */
-function formatDateTime(isoString: string): string {
-  return new Date(isoString).toLocaleString([], {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-  });
-}
-
-/**
  * Log Detail Page - displays full meal entry with edit/delete options.
  */
 export default function LogDetailPage() {
   const router = useRouter();
   const params = useParams();
+  const t = useTranslations('logDetail');
+  const tCommon = useTranslations('common');
+  const tLogs = useTranslations('logs');
+  const locale = useLocale();
   const logId = params.id as string;
   
   const { data: log, isLoading, error } = useLog(logId);
@@ -64,16 +55,25 @@ export default function LogDetailPage() {
   if (error || !log) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 p-4">
-        <p className="text-lg text-destructive">Failed to load meal</p>
+        <p className="text-lg text-destructive">{t('failed')}</p>
         <Button onClick={() => router.back()} variant="outline" className="h-14">
-          Go Back
+          {t('goBack')}
         </Button>
       </div>
     );
   }
 
-  const displayText = log.description || log.transcript || 'Meal logged';
+  const displayText = log.description || log.transcript || tLogs('defaultTitle');
   const imageUrl = log.image_url || getImageUrl(log.image_path);
+
+  const formattedDate = new Date(log.created_at).toLocaleString(locale, {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: false, // Explicit preference or locale default
+  });
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -84,11 +84,11 @@ export default function LogDetailPage() {
           size="icon"
           onClick={() => router.back()}
           className="h-12 w-12"
-          aria-label="Go back"
+          aria-label={t('goBack')}
         >
           <ArrowLeft className="h-6 w-6" />
         </Button>
-        <h1 className="text-xl font-semibold">Meal Details</h1>
+        <h1 className="text-xl font-semibold">{t('title')}</h1>
       </header>
 
       {/* Content */}
@@ -114,16 +114,16 @@ export default function LogDetailPage() {
               <p className="mt-2 text-base text-muted-foreground">{log.description || log.transcript}</p>
             )}
             <p className="mt-1 text-lg text-muted-foreground">
-              {formatDateTime(log.created_at)}
+              {formattedDate}
             </p>
           </div>
 
           {/* Nutritional Breakdown */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <NutritionCard label="Calories" value={log.calories} unit="cal" primary />
-            <NutritionCard label="Protein" value={log.protein} unit="g" />
-            <NutritionCard label="Carbs" value={log.carbs} unit="g" />
-            <NutritionCard label="Fats" value={log.fats} unit="g" />
+            <NutritionCard label={t('macros.calories')} value={log.calories} unit="cal" primary />
+            <NutritionCard label={t('macros.protein')} value={log.protein} unit="g" />
+            <NutritionCard label={t('macros.carbs')} value={log.carbs} unit="g" />
+            <NutritionCard label={t('macros.fats')} value={log.fats} unit="g" />
           </div>
         </div>
       </main>
@@ -136,7 +136,7 @@ export default function LogDetailPage() {
           variant="outline"
         >
           <Pencil className="h-5 w-5" />
-          Edit
+          {tCommon('edit')}
         </Button>
         <Button
           onClick={() => setIsDeleteOpen(true)}
@@ -144,7 +144,7 @@ export default function LogDetailPage() {
           variant="destructive"
         >
           <Trash2 className="h-5 w-5" />
-          Delete
+          {tCommon('delete')}
         </Button>
       </div>
 

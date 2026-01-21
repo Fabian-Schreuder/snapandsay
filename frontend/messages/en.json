@@ -1,0 +1,141 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "close": "Close",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "nav": {
+    "home": "Home",
+    "snap": "Take Photo",
+    "logs": "Logs",
+    "settings": "Settings",
+    "admin": "Admin",
+    "logout": "Logout"
+  },
+  "dashboard": {
+    "title": "Welcome",
+    "greeting": "Good day",
+    "todaysMeals": "Today's Meals",
+    "noMeals": "No meals logged yet",
+    "snapMeal": "Log a Meal",
+    "viewLogs": "View Logs",
+    "total": "Total: <count>{calories, plural, =0 {No calories} =1 {1 calorie} other {# calories}}</count>",
+    "startTracking": "Start tracking your meals"
+  },
+  "snap": {
+    "title": "Log a Meal",
+    "takePhoto": "Take Photo",
+    "uploadPhoto": "Upload Photo",
+    "recordVoice": "Record Voice",
+    "analyzing": "Analyzing...",
+    "retry": "Try Again",
+    "thoughts": {
+      "analyzing": "Looking at your meal...",
+      "complete": "Analysis complete",
+      "clarifying": "Checking if I need more info...",
+      "saving": "Saving your meal log..."
+    },
+    "whatsInThisMeal": "What's in this meal?",
+    "tapToToggle": "Tap to toggle"
+  },
+  "logs": {
+    "title": "Meal Log",
+    "noLogs": "No meals logged yet",
+    "defaultTitle": "Meal logged",
+    "mealType": {
+      "breakfast": "Breakfast",
+      "lunch": "Lunch",
+      "dinner": "Dinner",
+      "snack": "Snack"
+    },
+    "status": {
+      "processing": "Processing",
+      "logged": "Logged",
+      "clarification": "Clarification needed",
+      "failed": "Failed",
+      "needs_review": "Needs review"
+    },
+    "nutrients": {
+      "calories": "Calories",
+      "protein": "Protein",
+      "carbs": "Carbohydrates",
+      "fats": "Fats"
+    },
+    "delete": {
+      "title": "Delete this meal?",
+      "description": "This action cannot be undone. This will permanently delete your meal entry and all associated data.",
+      "confirm": "Delete",
+      "deleting": "Deleting..."
+    },
+    "edit": {
+      "title": "Edit Meal",
+      "description": "Update the meal details below. Tap Save when done.",
+      "save": "Save",
+      "saving": "Saving...",
+      "labels": {
+        "title": "Title",
+        "description": "Description",
+        "calories": "Calories",
+        "protein": "Protein (g)",
+        "carbs": "Carbs (g)",
+        "fats": "Fats (g)"
+      },
+      "placeholders": {
+        "title": "e.g. Roasted Cashews",
+        "description": "Describe your meal...",
+        "zero": "0"
+      },
+      "errors": {
+        "maxChars": "{count}/500",
+        "range": "Must be 0-5000"
+      }
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "languageDescription": "Choose your preferred language",
+    "dutch": "Dutch",
+    "english": "English"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Connection error. Check your internet connection.",
+    "unauthorized": "Your session has expired. Please log in again.",
+    "notFound": "Not found"
+  },
+  "auth": {
+    "login": "Login",
+    "loginTitle": "Welcome to Snap and Say",
+    "loginDescription": "Log in with your anonymous code",
+    "anonymousCode": "Anonymous code",
+    "enterCode": "Enter your code",
+    "loginButton": "Login"
+  },
+  "logDetail": {
+    "title": "Meal Details",
+    "failed": "Failed to load meal",
+    "goBack": "Go Back",
+    "description": "Description",
+    "macros": {
+      "calories": "Calories",
+      "protein": "Protein",
+      "carbs": "Carbs",
+      "fats": "Fats"
+    }
+  },
+  "admin": {
+    "loading": "Loading dashboard..."
+  }
+}

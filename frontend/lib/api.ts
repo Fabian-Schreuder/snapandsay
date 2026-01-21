@@ -8,6 +8,7 @@ export const analysisApi = {
     image_path: string;
     audio_path?: string | null;
     client_timestamp: string;
+    language: 'en' | 'nl';
   }) => {
     const { data: { session } } = await supabase.auth.getSession();
     

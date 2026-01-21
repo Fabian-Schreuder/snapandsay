@@ -14,12 +14,13 @@ def _get_client() -> AsyncOpenAI:
     return AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
 
-async def transcribe_audio(file_path: str, token: str | None = None) -> str:
+async def transcribe_audio(file_path: str, language: str, token: str | None = None) -> str:
     """
     Transcribe an audio file using OpenAI Whisper.
 
     Args:
         file_path: Path to the audio file (local path or Supabase storage path).
+        language: Language code (e.g. 'nl', 'en') for transcription.
         token: Optional user JWT for accessing restricted Supabase storage.
 
     Returns:
@@ -69,5 +70,7 @@ async def transcribe_audio(file_path: str, token: str | None = None) -> str:
         raise FileNotFoundError(f"Audio file not found: {file_path}")
 
     client = _get_client()
-    transcript = await client.audio.transcriptions.create(model=settings.WHISPER_MODEL_NAME, file=audio_file)
+    transcript = await client.audio.transcriptions.create(
+        model=settings.WHISPER_MODEL_NAME, file=audio_file, language=language
+    )
     return transcript.text

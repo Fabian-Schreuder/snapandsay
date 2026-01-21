@@ -39,3 +39,6 @@ class AgentState(TypedDict):
     # Research Metrics
     start_time: float | None  # Timestamp when analysis started
     agent_turn_count: int  # Total agent responses generated
+
+    # Localization
+    language: str | None  # User's preferred language code (e.g., "nl", "en")

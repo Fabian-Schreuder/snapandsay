@@ -42,9 +42,12 @@ function formatTime(isoString: string): string {
  * │ └──────┘        [⚠️ if needs_review]    │
  * └─────────────────────────────────────────┘
  */
+import { useTranslations } from 'next-intl';
+
 export function FoodEntryCard({ log, onClick }: FoodEntryCardProps) {
+  const t = useTranslations('logs');
   const router = useRouter();
-  const displayText = log.title || log.description || log.transcript || 'Meal logged';
+  const displayText = log.title || log.description || log.transcript || t('defaultTitle');
   const imageUrl = log.image_url || getImageUrl(log.image_path);
   const timeDisplay = formatTime(log.created_at);
 

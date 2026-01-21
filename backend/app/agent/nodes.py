@@ -10,13 +10,10 @@ from app.agent.constants import (
     EVENT_ERROR,
     EVENT_RESPONSE,
     EVENT_THOUGHT,
-    MSG_ANALYZING_COMPLETE,
-    MSG_ANALYZING_START,
-    MSG_CLARIFYING,
-    MSG_FINALIZING,
     STEP_ANALYZING,
     STEP_CLARIFYING,
     STEP_FINALIZING,
+    get_message,
 )
 from app.agent.state import AgentState
 from app.database import async_session_maker
@@ -128,20 +125,26 @@ async def analyze_input_streaming(
         except Exception as e:
             logger.warning(f"Failed to fetch log context: {e}")
 
+    # Get language from state, default to Dutch
+    language = state.get("language", "nl") or "nl"
+
     # Emit start thought
     yield SSEEvent(
         type=EVENT_THOUGHT,
         payload=AgentThought(
             step=STEP_ANALYZING,
-            message=MSG_ANALYZING_START,
+            message=get_message("analyzing_start", language),
             timestamp=datetime.now(UTC),
         ),
     )
 
+    language = state.get("language", "nl")
+
+    # Process audio if provided
     if audio_url:
-        logger.info(f"Transcribing audio from {audio_url}")
+        logger.info(f"Transcribing audio from {audio_url} (language={language})")
         try:
-            transcript = await voice_service.transcribe_audio(audio_url, token=user_token)
+            transcript = await voice_service.transcribe_audio(audio_url, language=language, token=user_token)
 
             # Persist transcript
             if log_id:
@@ -165,7 +168,7 @@ async def analyze_input_streaming(
                     type=EVENT_ERROR,
                     payload=AgentError(
                         code="TRANSCRIPTION_ERROR",
-                        message="I'm having trouble understanding the audio.",
+                        message=get_message("error_transcription", language),
                     ),
                 )
                 return
@@ -176,7 +179,7 @@ async def analyze_input_streaming(
             type=EVENT_ERROR,
             payload=AgentError(
                 code="NO_INPUT_ERROR",
-                message="I didn't receive any image or voice input to analyze.",
+                message=get_message("error_no_input", language),
             ),
         )
         return
@@ -202,6 +205,7 @@ async def analyze_input_streaming(
             context=context,
             on_token=on_token,
             user_token=user_token,
+            language=language,
         )
 
         # Emit complete thought
@@ -209,7 +213,7 @@ async def analyze_input_streaming(
             type=EVENT_THOUGHT,
             payload=AgentThought(
                 step=STEP_ANALYZING,
-                message=MSG_ANALYZING_COMPLETE,
+                message=get_message("analyzing_complete", language),
                 timestamp=datetime.now(UTC),
             ),
         )
@@ -243,7 +247,7 @@ async def analyze_input_streaming(
             type=EVENT_ERROR,
             payload=AgentError(
                 code="ANALYSIS_ERROR",
-                message="I encountered an error while analyzing your meal.",
+                message=get_message("error_analysis", language),
             ),
         )
 
@@ -275,11 +279,14 @@ async def generate_clarification_streaming(
     state: AgentState,
 ) -> AsyncGenerator[SSEEvent | dict, None]:
     """Generate clarification with streaming events."""
+    # Get language from state, default to Dutch
+    language = state.get("language", "nl") or "nl"
+
     yield SSEEvent(
         type=EVENT_THOUGHT,
         payload=AgentThought(
             step=STEP_CLARIFYING,
-            message=MSG_CLARIFYING,
+            message=get_message("clarifying", language),
             timestamp=datetime.now(UTC),
         ),
     )
@@ -296,7 +303,7 @@ async def generate_clarification_streaming(
 
     if low_confidence_items and log_id:
         try:
-            question = await llm_service.generate_clarification_question(low_confidence_items)
+            question = await llm_service.generate_clarification_question(low_confidence_items, language)
 
             # Update log status to clarification in database
             async with async_session_maker() as session:
@@ -357,11 +364,14 @@ async def finalize_log_streaming(
     state: AgentState,
 ) -> AsyncGenerator[SSEEvent | dict, None]:
     """Finalize log with streaming events and DB persistence."""
+    # Get language from state, default to Dutch
+    language = state.get("language", "nl") or "nl"
+
     yield SSEEvent(
         type=EVENT_THOUGHT,
         payload=AgentThought(
             step=STEP_FINALIZING,
-            message=MSG_FINALIZING,
+            message=get_message("finalizing", language),
             timestamp=datetime.now(UTC),
         ),
     )

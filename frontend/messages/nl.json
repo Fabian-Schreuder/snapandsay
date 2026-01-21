@@ -1,0 +1,141 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "error": "Fout",
+    "success": "Gelukt",
+    "cancel": "Annuleren",
+    "save": "Opslaan",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "back": "Terug",
+    "next": "Volgende",
+    "submit": "Versturen",
+    "close": "Sluiten",
+    "confirm": "Bevestigen",
+    "yes": "Ja",
+    "no": "Nee"
+  },
+  "nav": {
+    "home": "Home",
+    "snap": "Foto maken",
+    "logs": "Logboek",
+    "settings": "Instellingen",
+    "admin": "Beheer",
+    "logout": "Uitloggen"
+  },
+  "dashboard": {
+    "title": "Welkom",
+    "greeting": "Goedendag",
+    "todaysMeals": "Maaltijden van vandaag",
+    "noMeals": "Nog geen maaltijden gelogd",
+    "snapMeal": "Maaltijd vastleggen",
+    "viewLogs": "Bekijk logboek",
+    "total": "Totaal: <count>{calories, plural, =0 {Geen calorieën} =1 {1 calorie} other {# calorieën}}</count>",
+    "startTracking": "Begin met het loggen van je maaltijden"
+  },
+  "snap": {
+    "title": "Maaltijd vastleggen",
+    "takePhoto": "Foto maken",
+    "uploadPhoto": "Foto uploaden",
+    "recordVoice": "Spraak opnemen",
+    "analyzing": "Bezig met analyseren...",
+    "retry": "Opnieuw proberen",
+    "thoughts": {
+      "analyzing": "Ik bekijk je maaltijd...",
+      "complete": "Analyse voltooid",
+      "clarifying": "Ik kijk of ik meer info nodig heb...",
+      "saving": "Je maaltijd wordt opgeslagen..."
+    },
+    "whatsInThisMeal": "Wat zit er in deze maaltijd?",
+    "tapToToggle": "Tik om op te nemen of te stoppen met opnemen"
+  },
+  "logs": {
+    "title": "Maaltijd logboek",
+    "noLogs": "Nog geen maaltijden gelogd",
+    "defaultTitle": "Maaltijd gelogd",
+    "mealType": {
+      "breakfast": "Ontbijt",
+      "lunch": "Lunch",
+      "dinner": "Diner",
+      "snack": "Tussendoortje"
+    },
+    "status": {
+      "processing": "Wordt verwerkt",
+      "logged": "Gelogd",
+      "clarification": "Verduidelijking nodig",
+      "failed": "Mislukt",
+      "needs_review": "Controle nodig"
+    },
+    "nutrients": {
+      "calories": "Calorieën",
+      "protein": "Eiwit",
+      "carbs": "Koolhydraten",
+      "fats": "Vetten"
+    },
+    "delete": {
+      "title": "Deze maaltijd verwijderen?",
+      "description": "Deze actie kan niet ongedaan worden gemaakt. Dit zal je maaltijdnotitie en alle bijbehorende gegevens permanent verwijderen.",
+      "confirm": "Verwijderen",
+      "deleting": "Verwijderen..."
+    },
+    "edit": {
+      "title": "Maaltijd Bewerken",
+      "description": "Werk de maaltijddetails hieronder bij. Tik op Opslaan als je klaar bent.",
+      "save": "Opslaan",
+      "saving": "Opslaan...",
+      "labels": {
+        "title": "Titel",
+        "description": "Beschrijving",
+        "calories": "Calorieën",
+        "protein": "Eiwitten (g)",
+        "carbs": "Koolhydraten (g)",
+        "fats": "Vetten (g)"
+      },
+      "placeholders": {
+        "title": "bijv. Geroosterde Cashewnoten",
+        "description": "Beschrijf je maaltijd...",
+        "zero": "0"
+      },
+      "errors": {
+        "maxChars": "{count}/500",
+        "range": "Moet 0-5000 zijn"
+      }
+    }
+  },
+  "settings": {
+    "title": "Instellingen",
+    "language": "Taal",
+    "languageDescription": "Kies je voorkeurstaal",
+    "dutch": "Nederlands",
+    "english": "Engels"
+  },
+  "errors": {
+    "generic": "Er is iets misgegaan. Probeer het opnieuw.",
+    "network": "Verbindingsfout. Controleer je internetverbinding.",
+    "unauthorized": "Je sessie is verlopen. Log opnieuw in.",
+    "notFound": "Niet gevonden"
+  },
+  "auth": {
+    "login": "Inloggen",
+    "loginTitle": "Welkom bij Snap and Say",
+    "loginDescription": "Log in met je anonieme code",
+    "anonymousCode": "Anonieme code",
+    "enterCode": "Voer je code in",
+    "loginButton": "Inloggen"
+  },
+  "logDetail": {
+    "title": "Maaltijd Details",
+    "failed": "Kon maaltijd niet laden",
+    "goBack": "Ga terug",
+    "description": "Beschrijving",
+    "macros": {
+      "calories": "Calorieën",
+      "protein": "Eiwitten",
+      "carbs": "Koolhydraten",
+      "fats": "Vetten"
+    }
+  },
+  "admin": {
+    "loading": "Dashboard laden..."
+  }
+}

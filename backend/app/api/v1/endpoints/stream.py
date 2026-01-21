@@ -7,7 +7,7 @@ from collections.abc import AsyncGenerator
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 
-from app.agent.constants import EVENT_ERROR, EVENT_RESPONSE
+from app.agent.constants import EVENT_ERROR, EVENT_RESPONSE, get_message
 from app.agent.graph import run_streaming_agent
 from app.agent.state import AgentState
 from app.api import deps
@@ -37,6 +37,9 @@ async def event_generator(
     Yields:
         SSE-formatted strings.
     """
+    # Get language with fallback to Dutch
+    language = request.language or "nl"
+
     initial_state: AgentState = {
         "messages": [],
         "image_url": request.image_path,
@@ -44,6 +47,7 @@ async def event_generator(
         "nutritional_data": None,
         "user_token": token,
         "log_id": request.log_id,
+        "language": language,
     }
 
     last_heartbeat = asyncio.get_event_loop().time()
@@ -87,7 +91,7 @@ async def event_generator(
                 type=EVENT_ERROR,
                 payload=AgentError(
                     code="NO_RESULT",
-                    message="I wasn't able to analyze your meal. Please try again.",
+                    message=get_message("error_analysis", language),
                 ),
             )
             yield await format_sse(error_event)
@@ -98,7 +102,7 @@ async def event_generator(
             type=EVENT_ERROR,
             payload=AgentError(
                 code="TIMEOUT",
-                message="Processing took too long. Please try again.",
+                message=get_message("error_timeout", language),
             ),
         )
         yield await format_sse(error_event)
@@ -109,7 +113,7 @@ async def event_generator(
             type=EVENT_ERROR,
             payload=AgentError(
                 code="INTERNAL_ERROR",
-                message="Something went wrong. Please try again.",
+                message=get_message("error_internal", language),
             ),
         )
         yield await format_sse(error_event)

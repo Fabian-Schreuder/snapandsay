@@ -35,10 +35,18 @@ def _get_client() -> AsyncOpenAI:
     return AsyncOpenAI(api_key=settings.OPENAI_API_KEY, timeout=60.0, max_retries=3)
 
 
-def _build_messages(image_url: str | None, transcript: str | None, context: str | None = None) -> list[dict]:
+def _build_messages(
+    image_url: str | None,
+    transcript: str | None,
+    context: str | None = None,
+    language: str = "nl",
+) -> list[dict]:
     """Build the message list for the LLM request."""
     current_time = datetime.now().strftime("%H:%M")
+    lang_name = "Dutch" if language == "nl" else "English"
+    lang_instruction = f"IMPORTANT: Respond entirely in {lang_name}. " if language != "en" else ""
     system_prompt = (
+        f"{lang_instruction}"
         f"You are a dietary expert. The current time is {current_time}. "
         "Analyze the provided input (image and/or audio transcript) to identify food items, "
         "estimate quantities, calories, and provide a confidence score. "
@@ -168,6 +176,7 @@ async def analyze_multimodal(
     transcript: str | None = None,
     context: str | None = None,
     user_token: str | None = None,
+    language: str = "nl",
 ) -> AnalysisResult:
     """
     Analyze image and/or transcript using GPT-4o to extract dietary data.
@@ -177,6 +186,7 @@ async def analyze_multimodal(
         transcript: Audio transcript to analyze (optional).
         context: Additional textual context (e.g. clarification response) (optional).
         user_token: User JWT for accessing private images (optional).
+        language: Language code for response (default: "nl" for Dutch).
 
     Returns:
         AnalysisResult with identified food items and synthesis comment.
@@ -193,7 +203,7 @@ async def analyze_multimodal(
     if image_url:
         final_image_url = await _get_image_content(image_url, user_token)
 
-    messages = _build_messages(final_image_url, transcript, context)
+    messages = _build_messages(final_image_url, transcript, context, language)
 
     try:
         client = _get_client()
@@ -216,6 +226,7 @@ async def analyze_multimodal_streaming(
     context: str | None = None,
     on_token: Callable[[str], Awaitable[None]] | None = None,
     user_token: str | None = None,
+    language: str = "nl",
 ) -> AnalysisResult:
     """
     Analyze image and/or transcript using GPT-4o with streaming tokens.
@@ -229,6 +240,7 @@ async def analyze_multimodal_streaming(
         context: Additional textual context (e.g. clarification response) (optional).
         on_token: Optional async callback invoked with each text chunk.
         user_token: User JWT for accessing private images (optional).
+        language: Language code for response (default: "nl" for Dutch).
 
     Returns:
         AnalysisResult with identified food items and synthesis comment.
@@ -245,7 +257,7 @@ async def analyze_multimodal_streaming(
     if image_url:
         final_image_url = await _get_image_content(image_url, user_token)
 
-    messages = _build_messages(final_image_url, transcript, context)
+    messages = _build_messages(final_image_url, transcript, context, language)
     accumulated_content = ""
     accumulated_refusal = ""
 
@@ -312,6 +324,7 @@ async def analyze_multimodal_streaming(
 
 async def generate_clarification_question(
     low_confidence_items: list[FoodItem],
+    language: str = "nl",
 ) -> ClarificationQuestion:
     """
     Generate a clarification question for low-confidence food items.
@@ -321,6 +334,7 @@ async def generate_clarification_question(
 
     Args:
         low_confidence_items: List of FoodItem with low confidence scores.
+        language: Language code for response (default: "nl" for Dutch).
 
     Returns:
         ClarificationQuestion with question text and options.
@@ -328,10 +342,27 @@ async def generate_clarification_question(
     Raises:
         LLMGenerationError: If the LLM call fails.
     """
+    # Localized fallback messages
+    fallback_messages = {
+        "nl": {
+            "empty_question": "Ik weet niet zeker wat u at. Kunt u het beschrijven?",
+            "empty_options": ["Ontbijt", "Lunch", "Diner"],
+            "generic_question": "Kunt u mij meer vertellen over wat u at?",
+            "generic_options": ["Hoofdgerecht", "Bijgerecht", "Drank"],
+        },
+        "en": {
+            "empty_question": "I'm not sure what you ate. Can you describe it?",
+            "empty_options": ["Breakfast", "Lunch", "Dinner"],
+            "generic_question": "Can you tell me more about what you ate?",
+            "generic_options": ["Main dish", "Side dish", "Drink"],
+        },
+    }
+    msgs = fallback_messages.get(language, fallback_messages["nl"])
+
     if not low_confidence_items:
         return ClarificationQuestion(
-            question="I'm not sure what you ate. Can you describe it?",
-            options=["Breakfast", "Lunch", "Dinner"],
+            question=msgs["empty_question"],
+            options=msgs["empty_options"],
         )
 
     # Build item descriptions for the prompt
@@ -340,7 +371,11 @@ async def generate_clarification_question(
     ]
     items_text = "\n".join(item_descriptions)
 
+    lang_name = "Dutch" if language == "nl" else "English"
+    lang_instruction = f"IMPORTANT: Respond entirely in {lang_name}. " if language != "en" else ""
+
     system_prompt = (
+        f"{lang_instruction}"
         "You are a friendly dietary assistant helping seniors log their meals. "
         "Generate a single, simple clarification question about uncertain food items. "
         "Requirements:\n"
@@ -371,8 +406,8 @@ async def generate_clarification_question(
         return completion.choices[0].message.parsed
     except Exception as e:
         logger.error(f"Clarification generation failed: {e}")
-        # Fallback to generic question
+        # Fallback to generic question in user's language
         return ClarificationQuestion(
-            question="Can you tell me more about what you ate?",
-            options=["Main dish", "Side dish", "Drink"],
+            question=msgs["generic_question"],
+            options=msgs["generic_options"],
         )

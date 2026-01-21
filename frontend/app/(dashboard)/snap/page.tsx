@@ -2,6 +2,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslations, useLocale } from 'next-intl'
 import CameraCapture from '@/components/features/camera/CameraCapture'
 import ImagePreview from '@/components/features/camera/ImagePreview'
 import ThinkingIndicator from '@/components/features/analysis/ThinkingIndicator'
@@ -26,6 +27,9 @@ import { Loader2 } from "lucide-react";
 export default function SnapPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const t = useTranslations();
+  const locale = useLocale();
+  const uploadLocale = (locale === 'en' || locale === 'nl') ? locale : 'nl'; // Type safe
   const [step, setStep] = useState<'capture' | 'preview' | 'record' | 'streaming' | 'clarifying'>('capture');
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -119,7 +123,8 @@ export default function SnapPage() {
       const response = await analysisApi.upload({
         image_path: imagePath,
         audio_path: audioPath,
-        client_timestamp: new Date().toISOString()
+        client_timestamp: new Date().toISOString(),
+        language: uploadLocale
       });
       const newLogId = response.log_id;
 
@@ -159,7 +164,7 @@ export default function SnapPage() {
       <AlertDialog open={!!errorMessage}>
         <AlertDialogContent className="max-w-[80vw] rounded-2xl bg-zinc-900 border-zinc-800 text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-red-400">Something went wrong</AlertDialogTitle>
+            <AlertDialogTitle className="text-red-400">{t('errors.generic')}</AlertDialogTitle>
             <AlertDialogDescription className="text-zinc-400 text-lg">
               {errorMessage}
             </AlertDialogDescription>
@@ -173,7 +178,7 @@ export default function SnapPage() {
               }}
               className="bg-white text-black hover:bg-zinc-200 w-full h-14 text-lg font-medium rounded-xl"
             >
-              Try Again
+              {t('snap.retry')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -186,7 +191,7 @@ export default function SnapPage() {
              <div className="absolute inset-0 bg-indigo-500/20 rounded-full blur-xl animate-pulse" />
              <Loader2 className="w-16 h-16 text-indigo-500 animate-spin relative z-10" />
           </div>
-          <p className="text-white text-xl font-medium animate-pulse">Uploading...</p>
+          <p className="text-white text-xl font-medium animate-pulse">{t('common.loading')}</p>
         </div>
       )}
 
@@ -235,7 +240,7 @@ export default function SnapPage() {
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
             <div className="absolute bottom-4 left-0 right-0 text-center">
-               <p className="text-white/90 font-medium">What&apos;s in this meal?</p>
+               <p className="text-white/90 font-medium">{t('snap.whatsInThisMeal')}</p>
             </div>
           </div>
 
@@ -244,7 +249,7 @@ export default function SnapPage() {
              {!isUploading && (
                  <VoiceCaptureButton onRecordingComplete={handleRecordingComplete} />
              )}
-             <p id="tap-to-toggle-text" className="text-zinc-400 text-sm">Tap to toggle</p>
+             <p id="tap-to-toggle-text" className="text-zinc-400 text-sm">{t('snap.tapToToggle')}</p>
           </div>
         </div>
       )}

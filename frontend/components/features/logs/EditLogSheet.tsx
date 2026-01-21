@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Sheet,
   SheetContent,
@@ -8,6 +9,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+/* ... imports ... */
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +28,8 @@ interface EditLogSheetProps {
  * Senior-friendly with large inputs and clear labels.
  */
 export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
+  const t = useTranslations('logs.edit');
+  const tCommon = useTranslations('common');
   const updateLog = useUpdateLog();
   
   // Form state
@@ -136,9 +140,9 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="bottom" className="h-[85vh] overflow-y-auto">
         <SheetHeader className="text-left">
-          <SheetTitle className="text-xl">Edit Meal</SheetTitle>
+          <SheetTitle className="text-xl">{t('title')}</SheetTitle>
           <SheetDescription>
-            Update the meal details below. Tap Save when done.
+            {t('description')}
           </SheetDescription>
         </SheetHeader>
 
@@ -146,7 +150,7 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
           {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="title" className="text-base">
-              Title
+              {t('labels.title')}
             </Label>
             <Input
               id="title"
@@ -154,14 +158,14 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
               onChange={(e) => setTitle(e.target.value)}
               maxLength={100}
               className="h-14 w-full rounded-lg border bg-background px-4 text-lg focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="e.g. Roasted Cashews"
+              placeholder={t('placeholders.title')}
             />
           </div>
 
           {/* Description */}
           <div className="space-y-2">
             <Label htmlFor="description" className="text-base">
-              Description
+              {t('labels.description')}
             </Label>
             <textarea
               id="description"
@@ -169,17 +173,17 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
               onChange={(e) => setDescription(e.target.value)}
               maxLength={500}
               className="h-24 w-full rounded-lg border bg-background px-4 py-3 text-lg resize-none focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="Describe your meal..."
+              placeholder={t('placeholders.description')}
             />
             <p className="text-sm text-muted-foreground text-right">
-              {description.length}/500
+              {t('errors.maxChars', { count: description.length })}
             </p>
           </div>
 
           {/* Calories */}
           <div className="space-y-2">
             <Label htmlFor="calories" className="text-base">
-              Calories
+              {t('labels.calories')}
             </Label>
             <Input
               id="calories"
@@ -189,10 +193,10 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
               min={0}
               max={5000}
               className="h-14 text-lg"
-              placeholder="0"
+              placeholder={t('placeholders.zero')}
             />
             {caloriesNum !== null && (caloriesNum < 0 || caloriesNum > 5000) && (
-              <p className="text-sm text-destructive">Must be 0-5000</p>
+              <p className="text-sm text-destructive">{t('errors.range')}</p>
             )}
           </div>
 
@@ -200,7 +204,7 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="protein" className="text-base">
-                Protein (g)
+                {t('labels.protein')}
               </Label>
               <Input
                 id="protein"
@@ -210,12 +214,12 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
                 min={0}
                 max={500}
                 className="h-14 text-lg"
-                placeholder="0"
+                placeholder={t('placeholders.zero')}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="carbs" className="text-base">
-                Carbs (g)
+                {t('labels.carbs')}
               </Label>
               <Input
                 id="carbs"
@@ -225,12 +229,12 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
                 min={0}
                 max={500}
                 className="h-14 text-lg"
-                placeholder="0"
+                placeholder={t('placeholders.zero')}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="fats" className="text-base">
-                Fats (g)
+                {t('labels.fats')}
               </Label>
               <Input
                 id="fats"
@@ -240,7 +244,7 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
                 min={0}
                 max={500}
                 className="h-14 text-lg"
-                placeholder="0"
+                placeholder={t('placeholders.zero')}
               />
             </div>
           </div>
@@ -252,7 +256,7 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
               onClick={() => onOpenChange(false)}
               className="h-14 flex-1 text-lg"
             >
-              Cancel
+              {tCommon('cancel')}
             </Button>
             <Button
               onClick={handleSave}
@@ -262,10 +266,10 @@ export function EditLogSheet({ log, open, onOpenChange }: EditLogSheetProps) {
               {updateLog.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Saving...
+                  {t('saving')}
                 </>
               ) : (
-                'Save'
+                t('save')
               )}
             </Button>
           </div>

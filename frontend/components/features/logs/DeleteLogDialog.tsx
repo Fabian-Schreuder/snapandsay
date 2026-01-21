@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,14 +30,16 @@ export function DeleteLogDialog({
   onConfirm,
   isDeleting,
 }: DeleteLogDialogProps) {
+  const t = useTranslations('logs.delete');
+  const tCommon = useTranslations('common');
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-xl">Delete this meal?</AlertDialogTitle>
+          <AlertDialogTitle className="text-xl">{t('title')}</AlertDialogTitle>
           <AlertDialogDescription className="text-base">
-            This action cannot be undone. This will permanently delete your meal
-            entry and all associated data.
+            {t('description')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-col gap-3 sm:flex-row">
@@ -44,7 +47,7 @@ export function DeleteLogDialog({
             className="h-14 w-full text-lg sm:w-auto"
             disabled={isDeleting}
           >
-            Cancel
+            {tCommon('cancel')}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
@@ -57,10 +60,10 @@ export function DeleteLogDialog({
             {isDeleting ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Deleting...
+                {t('deleting')}
               </>
             ) : (
-              'Delete'
+              t('confirm')
             )}
           </AlertDialogAction>
         </AlertDialogFooter>

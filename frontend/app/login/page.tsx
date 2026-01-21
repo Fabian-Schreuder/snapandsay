@@ -2,10 +2,12 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
+  const t = useTranslations("auth");
 
   useEffect(() => {
     // Check if already authenticated, redirect to app
@@ -21,8 +23,8 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8 text-center">
-        <h1 className="text-2xl font-bold">Welcome to SnapAndSay</h1>
-        <p className="text-gray-600">Signing you in anonymously...</p>
+        <h1 className="text-2xl font-bold">{t("loginTitle")}</h1>
+        <p className="text-gray-600">{t("loginDescription")}</p>
         {/* AuthGuard in layout will handle the actual auto-sign-in logic */}
         <div className="mt-4 flex justify-center">
              <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>

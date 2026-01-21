@@ -1,9 +1,11 @@
 "use client";
 import { useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import AdminGuard from "@/components/AdminGuard";
 import { AdminLogsTable } from "@/components/features/admin/AdminLogsTable";
 import { AdminFilters } from "@/components/features/admin/AdminFilters";
 import { ExportDataButton } from "@/components/features/admin/ExportDataButton";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { adminApi } from "@/lib/api";
 import { PagePagination } from "@/components/page-pagination";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
@@ -13,6 +15,7 @@ import { Suspense } from "react";
 
 function AdminDashboardContent() {
   const searchParams = useSearchParams();
+  const t = useTranslations();
   
   const page = Number(searchParams.get('page')) || 1;
   const limit = Number(searchParams.get('size')) || 20;
@@ -37,21 +40,24 @@ function AdminDashboardContent() {
   return (
     <div className="container mx-auto py-8 space-y-8">
       <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <ExportDataButton />
+          <h1 className="text-3xl font-bold">{t('nav.admin')}</h1>
+          <div className="flex items-center gap-4">
+            <LanguageToggle />
+            <ExportDataButton />
+          </div>
       </div>
       
       <AdminFilters />
 
       {error && (
           <div className="rounded bg-red-100 p-4 text-red-700">
-              {error instanceof Error ? error.message : 'Failed to fetch logs'}
+              {error instanceof Error ? error.message : t('errors.generic')}
           </div>
       )}
 
       <div className="space-y-4">
             {isLoading ? (
-                <div className="p-8 text-center text-muted-foreground">Loading logs...</div>
+                <div className="p-8 text-center text-muted-foreground">{t('common.loading')}</div>
             ) : (
               <>
                   <AdminLogsTable logs={logs} onView={() => {}} />
@@ -70,9 +76,10 @@ function AdminDashboardContent() {
 }
 
 export default function AdminDashboardPage() {
+  const t = useTranslations();
   return (
     <AdminGuard>
-      <Suspense fallback={<div className="p-8 text-center">Loading dashboard...</div>}>
+      <Suspense fallback={<div className="p-8 text-center">{t('admin.loading')}</div>}>
          <AdminDashboardContent />
       </Suspense>
     </AdminGuard>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { useLogs } from '@/hooks/use-logs';
 import { DailySummary } from '@/components/features/logs/DailySummary';
 import { FoodEntryCard } from '@/components/features/logs/FoodEntryCard';
@@ -16,6 +17,7 @@ import { Plus } from 'lucide-react';
  * Handles loading, empty, error, and success states.
  */
 export default function DashboardPage() {
+  const t = useTranslations('dashboard');
   const { data, isLoading, isError, refetch } = useLogs();
 
   return (
@@ -62,7 +64,7 @@ export default function DashboardPage() {
           <Button asChild size="lg" className="w-full mt-4 text-lg py-6 sticky bottom-4 shadow-lg">
             <Link href="/snap">
               <Plus className="mr-2 h-5 w-5" />
-              Log Another Meal
+              {t('snapMeal')}
             </Link>
           </Button>
         )}

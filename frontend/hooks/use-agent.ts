@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useQueryClient } from '@tanstack/react-query';
+import { useLocale } from 'next-intl';
 
 // SSE Event Types
 type AgentEventType =
@@ -72,6 +73,8 @@ import { supabase } from "@/lib/supabase";
 
 export const useAgent = (): UseAgentReturn => {
   const queryClient = useQueryClient();
+  const locale = useLocale();
+  const statusLocale = (locale === 'en' || locale === 'nl') ? locale : 'nl'; // Type guard
   const [status, setStatus] = useState<AgentStatus>("idle");
   const [thoughts, setThoughts] = useState<string[]>([]);
   const [result, setResult] = useState<AgentResponse | null>(null);
@@ -237,6 +240,7 @@ export const useAgent = (): UseAgentReturn => {
             log_id: logId,
             image_path: imagePath,
             audio_path: audioPath,
+            language: statusLocale,
           }),
         });
 
@@ -348,7 +352,7 @@ export const useAgent = (): UseAgentReturn => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [cleanup, resetHeartbeatTimer, triggerCompletionFeedback, skipClarification]
+    [cleanup, resetHeartbeatTimer, triggerCompletionFeedback, skipClarification, statusLocale]
   );
 
   const submitClarificationResponse = useCallback(
