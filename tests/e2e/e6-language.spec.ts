@@ -18,7 +18,8 @@ test.describe('Dutch Language Support', () => {
     const page = authenticatedPage;
     
     // Navigate to dashboard
-    await page.goto('/');
+    // Navigate to dashboard
+    // page.goto('/') is handled by authenticatedPage fixture
     await page.waitForLoadState('networkidle');
     
     // Look for Dutch text - the "Log a Meal" button should say "Maaltijd vastleggen"

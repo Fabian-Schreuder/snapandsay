@@ -1,7 +1,8 @@
 {
 	"scripts": {
 		"dev": "concurrently \"pnpm --filter nextjs-frontend dev\" \"cd backend && uv run uvicorn app.main:app --reload\"",
-		"test:e2e": "playwright test"
+		"test:e2e": "playwright test",
+		"dev:frontend": "pnpm --filter nextjs-frontend dev"
 	},
 	"devDependencies": {
 		"@faker-js/faker": "^10.1.0",
