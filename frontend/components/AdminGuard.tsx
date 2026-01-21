@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
@@ -72,8 +73,9 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
             <Card className="w-full max-w-md">
-                <CardHeader>
-                    <CardTitle className="text-center">Admin Access</CardTitle>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-xl">Admin Access</CardTitle>
+                    <LanguageToggle />
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleLogin} className="space-y-4">

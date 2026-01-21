@@ -1,26 +1,38 @@
-<testsuites id="" name="" tests="9" failures="0" skipped="0" errors="0" time="21.816004">
-<testsuite name="e5-admin.spec.ts" timestamp="2025-12-10T17:01:00.366Z" hostname="chromium" tests="3" failures="0" skipped="0" time="32.271" errors="0">
-<testcase name="Epic 5: Admin Oversight › TS-5.1: Admin Access &amp; Dashboard View" classname="e5-admin.spec.ts" time="10.169">
+<testsuites id="" name="" tests="15" failures="0" skipped="0" errors="0" time="41.664347">
+<testsuite name="e6-language.spec.ts" timestamp="2026-01-21T20:40:07.570Z" hostname="chromium" tests="5" failures="0" skipped="0" time="99.53" errors="0">
+<testcase name="Dutch Language Support › TS-I18N-1: Default language is Dutch" classname="e6-language.spec.ts" time="17.959">
 </testcase>
-<testcase name="Epic 5: Admin Oversight › TS-5.2: Filtering Logs" classname="e5-admin.spec.ts" time="11.351">
+<testcase name="Dutch Language Support › TS-I18N-2: Dutch translations display on dashboard" classname="e6-language.spec.ts" time="18.255">
 </testcase>
-<testcase name="Epic 5: Admin Oversight › TS-5.3: Data Export" classname="e5-admin.spec.ts" time="10.751">
+<testcase name="Dutch Language Support › TS-I18N-3: Language toggle available in admin" classname="e6-language.spec.ts" time="18.956">
 </testcase>
-</testsuite>
-<testsuite name="e5-admin.spec.ts" timestamp="2025-12-10T17:01:00.366Z" hostname="firefox" tests="3" failures="0" skipped="0" time="32.117" errors="0">
-<testcase name="Epic 5: Admin Oversight › TS-5.1: Admin Access &amp; Dashboard View" classname="e5-admin.spec.ts" time="10.011">
+<testcase name="Dutch Language Support › TS-I18N-4: Language switch persists to cookie" classname="e6-language.spec.ts" time="25.298">
 </testcase>
-<testcase name="Epic 5: Admin Oversight › TS-5.2: Filtering Logs" classname="e5-admin.spec.ts" time="11.269">
-</testcase>
-<testcase name="Epic 5: Admin Oversight › TS-5.3: Data Export" classname="e5-admin.spec.ts" time="10.837">
+<testcase name="Dutch Language Support › TS-I18N-5: Error messages display in Dutch" classname="e6-language.spec.ts" time="19.062">
 </testcase>
 </testsuite>
-<testsuite name="e5-admin.spec.ts" timestamp="2025-12-10T17:01:00.366Z" hostname="webkit" tests="3" failures="0" skipped="0" time="33.175" errors="0">
-<testcase name="Epic 5: Admin Oversight › TS-5.1: Admin Access &amp; Dashboard View" classname="e5-admin.spec.ts" time="10.217">
+<testsuite name="e6-language.spec.ts" timestamp="2026-01-21T20:40:07.570Z" hostname="firefox" tests="5" failures="0" skipped="0" time="110.02" errors="0">
+<testcase name="Dutch Language Support › TS-I18N-1: Default language is Dutch" classname="e6-language.spec.ts" time="18.254">
 </testcase>
-<testcase name="Epic 5: Admin Oversight › TS-5.2: Filtering Logs" classname="e5-admin.spec.ts" time="11.213">
+<testcase name="Dutch Language Support › TS-I18N-2: Dutch translations display on dashboard" classname="e6-language.spec.ts" time="24.581">
 </testcase>
-<testcase name="Epic 5: Admin Oversight › TS-5.3: Data Export" classname="e5-admin.spec.ts" time="11.745">
+<testcase name="Dutch Language Support › TS-I18N-3: Language toggle available in admin" classname="e6-language.spec.ts" time="23.61">
+</testcase>
+<testcase name="Dutch Language Support › TS-I18N-4: Language switch persists to cookie" classname="e6-language.spec.ts" time="26.084">
+</testcase>
+<testcase name="Dutch Language Support › TS-I18N-5: Error messages display in Dutch" classname="e6-language.spec.ts" time="17.491">
+</testcase>
+</testsuite>
+<testsuite name="e6-language.spec.ts" timestamp="2026-01-21T20:40:07.570Z" hostname="webkit" tests="5" failures="0" skipped="0" time="52.757" errors="0">
+<testcase name="Dutch Language Support › TS-I18N-1: Default language is Dutch" classname="e6-language.spec.ts" time="18.98">
+</testcase>
+<testcase name="Dutch Language Support › TS-I18N-2: Dutch translations display on dashboard" classname="e6-language.spec.ts" time="8.326">
+</testcase>
+<testcase name="Dutch Language Support › TS-I18N-3: Language toggle available in admin" classname="e6-language.spec.ts" time="8.519">
+</testcase>
+<testcase name="Dutch Language Support › TS-I18N-4: Language switch persists to cookie" classname="e6-language.spec.ts" time="9.503">
+</testcase>
+<testcase name="Dutch Language Support › TS-I18N-5: Error messages display in Dutch" classname="e6-language.spec.ts" time="7.429">
 </testcase>
 </testsuite>
 </testsuites>

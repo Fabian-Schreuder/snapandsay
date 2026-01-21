@@ -4,6 +4,7 @@ import "./globals.css";
 import AuthGuard from "@/components/AuthGuard";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { IntlProvider } from "@/components/providers/IntlProvider";
+import { cookies } from "next/headers";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = localFont({
@@ -22,13 +23,15 @@ export const metadata: Metadata = {
   description: "Conversational dietary assessment tool",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const cookieStore = await cookies();
+  const locale = cookieStore.get("locale")?.value || "nl";
   return (
-    <html lang="nl">
+    <html lang={locale}>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <QueryProvider>
           <IntlProvider>
