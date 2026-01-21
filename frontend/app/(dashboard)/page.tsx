@@ -5,7 +5,11 @@ import { DailySummary } from '@/components/features/logs/DailySummary';
 import { FoodEntryCard } from '@/components/features/logs/FoodEntryCard';
 import { FoodEntryCardSkeleton } from '@/components/features/logs/FoodEntryCardSkeleton';
 import { EmptyLogState } from '@/components/features/logs/EmptyLogState';
+
 import { LogListError } from '@/components/features/logs/LogListError';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
 
 /**
  * Dashboard page showing today's meal logs.
@@ -50,6 +54,17 @@ export default function DashboardPage() {
           data.data.map((log) => (
             <FoodEntryCard key={log.id} log={log} />
           ))
+        )}
+
+
+        {/* Log Another Meal Button - Only show when we have logs */}
+        {!isLoading && !isError && data?.data && data.data.length > 0 && (
+          <Button asChild size="lg" className="w-full mt-4 text-lg py-6 sticky bottom-4 shadow-lg">
+            <Link href="/snap">
+              <Plus className="mr-2 h-5 w-5" />
+              Log Another Meal
+            </Link>
+          </Button>
         )}
       </div>
     </div>
