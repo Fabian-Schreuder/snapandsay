@@ -72,7 +72,7 @@ test.describe('Epic 5: Admin Oversight', () => {
         await page.getByRole('button', { name: 'Sign In' }).click();
 
         // 4. Wait for Dashboard to confirm login success
-        await expect(page.getByRole('heading', { name: 'Admin Dashboard' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Beheer' })).toBeVisible();
     }
 
     test.beforeEach(async ({ page }) => {
@@ -170,7 +170,7 @@ test.describe('Epic 5: Admin Oversight', () => {
         await page.getByLabel('Password').fill('password123');
         await page.getByRole('button', { name: 'Sign In' }).click();
 
-        await expect(page.getByRole('heading', { name: 'Admin Dashboard' })).toBeVisible();
+        await expect(page.getByRole('heading', { name: 'Beheer' })).toBeVisible();
         await expect(page.getByText('Log 1 Description')).toBeVisible();
         await expect(page.getByText('user-A')).toBeVisible();
     });

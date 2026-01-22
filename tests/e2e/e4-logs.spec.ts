@@ -134,21 +134,22 @@ test.describe('Epic 4: Dietary Log Management', () => {
     });
 
     // 1. Click the first card
+    await page.waitForLoadState('networkidle');
     await page.getByText('Morning oatmeal with berries').click();
 
     // 2. Wait for Navigation to Detail Page
     await expect(page).toHaveURL(/\/log\/log-1/);
-    await expect(page.getByRole('heading', { name: 'Meal Details' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Maaltijd Details' })).toBeVisible();
 
     // 3. Click Delete (Bottom bar)
-    await page.getByRole('button', { name: 'Delete' }).click();
+    await page.getByRole('button', { name: 'Verwijderen' }).click();
 
     // 4. Verify Dialog
     await expect(page.getByRole('alertdialog')).toBeVisible();
-    await expect(page.getByText('This action cannot be undone')).toBeVisible();
+    await expect(page.getByText('Deze actie kan niet ongedaan worden gemaakt')).toBeVisible();
 
     // 5. Confirm Delete
-    const confirmBtn = page.getByRole('alertdialog').getByRole('button', { name: 'Delete' });
+    const confirmBtn = page.getByRole('alertdialog').getByRole('button', { name: 'Verwijderen' });
     await confirmBtn.click();
 
     // 6. Verify API Call
@@ -196,20 +197,21 @@ test.describe('Epic 4: Dietary Log Management', () => {
     });
 
     // 1. Navigate to log
+    await page.waitForLoadState('networkidle');
     await page.getByText('Morning oatmeal with berries').click();
     await expect(page).toHaveURL(/\/log\/log-1/);
 
     // 2. Click Edit
-    await page.getByRole('button', { name: 'Edit' }).click();
+    await page.getByRole('button', { name: 'Bewerken' }).click();
     
     // 3. Verify Sheet
-    await expect(page.getByRole('heading', { name: 'Edit Meal' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Maaltijd Bewerken' })).toBeVisible();
 
     // 4. Edit Description
-    await page.getByLabel('Description').fill('Updated Oatmeal Delight');
+    await page.getByLabel('Beschrijving').fill('Updated Oatmeal Delight');
     
     // 5. Save
-    await page.getByRole('button', { name: 'Save' }).click();
+    await page.getByRole('button', { name: 'Opslaan' }).click();
 
     // 6. Verify PUT payload
     await expect(async () => {
@@ -218,7 +220,7 @@ test.describe('Epic 4: Dietary Log Management', () => {
     }).toPass();
 
     // 7. Verify UI Update (on Detail Page)
-    await expect(page.getByRole('heading', { name: 'Edit Meal' })).not.toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Maaltijd Bewerken' })).not.toBeVisible();
     await expect(page.getByRole('heading', { name: 'Updated Oatmeal Delight' })).toBeVisible();
   });
 });
