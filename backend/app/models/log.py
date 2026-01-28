@@ -45,7 +45,7 @@ class DietaryLog(Base):
 
     # Status
     status = Column(
-        Enum("processing", "clarification", "logged", "failed", name="log_status_enum"),
+        Enum("processing", "clarification", "logged", "failed", "invalid", name="log_status_enum"),
         default="processing",
         nullable=False,
     )

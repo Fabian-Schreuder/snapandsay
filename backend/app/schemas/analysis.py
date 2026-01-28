@@ -32,6 +32,10 @@ class AnalysisResult(BaseModel):
     meal_type: str | None = Field(None, description="Type of meal (e.g., Breakfast, Lunch, Dinner, Snack)")
     synthesis_comment: str = Field(..., description="Overall summary or analysis comment")
 
+    # Validation
+    is_food: bool = Field(False, description="Whether the input is a valid food/drink item")
+    non_food_reason: str | None = Field(None, description="Reason why input is not food (if is_food=False)")
+
     @property
     def overall_confidence(self) -> float:
         """Compute overall confidence as simple average of item confidences."""

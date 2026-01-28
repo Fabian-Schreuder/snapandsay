@@ -224,6 +224,39 @@ async def analyze_input_streaming(
             "start_time": start_time,
             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
         }
+
+        # Check for invalid input (non-food)
+        if not result.is_food:
+            logger.info(f"Input identified as non-food: {result.non_food_reason}")
+            if log_id:
+                try:
+                    async with async_session_maker() as session:
+                        res = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
+                        log_entry = res.scalar_one_or_none()
+                        if log_entry:
+                            log_entry.status = "invalid"  # This status must exist in the Enum
+                            if result.non_food_reason:
+                                log_entry.description = f"[Invalid]: {result.non_food_reason}"
+                            await session.commit()
+                            logger.info(f"Updated log {log_id} status to 'invalid'")
+                except Exception as db_err:
+                    logger.error(f"Failed to update log status to invalid: {db_err}")
+
+            # We can optionally stop the stream here or let the graph handle it.
+            # Assuming the graph will proceed to clarification/finalize, we need to ensure they don't break.
+            # But "invalid" is a terminal state usually.
+            # We should probably emit an EVENT_RESPONSE with status='invalid' to notify frontend immediately?
+            # The tech spec says "Mark log status as invalid". The frontend component handles the rest.
+            if log_id:
+                yield SSEEvent(
+                    type=EVENT_RESPONSE,
+                    payload=AgentResponse(
+                        log_id=str(log_id),
+                        nutritional_data=result.model_dump(),
+                        status="invalid",
+                    ),
+                )
+
     except Exception as e:
         logger.error(f"Analysis streaming failed: {e}")
 

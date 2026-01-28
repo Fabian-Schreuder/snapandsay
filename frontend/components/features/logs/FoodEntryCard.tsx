@@ -62,7 +62,9 @@ export function FoodEntryCard({ log, onClick }: FoodEntryCardProps) {
   return (
     <button
       onClick={handleClick}
-      className="flex w-full items-center gap-4 p-4 min-h-[100px] rounded-xl bg-card text-card-foreground shadow-sm hover:shadow-md transition-shadow text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className={`flex w-full items-center gap-4 p-4 min-h-[100px] rounded-xl text-card-foreground shadow-sm hover:shadow-md transition-shadow text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+        log.status === 'invalid' ? 'bg-destructive/10 border-2 border-destructive/20' : 'bg-card'
+      }`}
       type="button"
     >
       {/* Thumbnail */}
@@ -71,20 +73,28 @@ export function FoodEntryCard({ log, onClick }: FoodEntryCardProps) {
           src={imageUrl}
           alt={displayText}
           fill
-          className="object-cover"
+          className={`object-cover ${log.status === 'invalid' ? 'opacity-50 grayscale' : ''}`}
           sizes="80px"
         />
+        {log.status === 'invalid' && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/10">
+            <AlertTriangle className="h-8 w-8 text-destructive" />
+          </div>
+        )}
       </div>
 
       {/* Content */}
       <div className="flex flex-1 flex-col gap-1 min-w-0">
-        <p className="text-lg font-medium leading-snug line-clamp-2">
-          {displayText}
+        <p className={`text-lg font-medium leading-snug line-clamp-2 ${log.status === 'invalid' ? 'text-destructive' : ''}`}>
+          {log.status === 'invalid' ? 'Invalid Entry' : displayText}
         </p>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>{timeDisplay}</span>
-          {log.needs_review && (
+          {log.needs_review && log.status !== 'invalid' && (
             <AlertTriangle className="h-4 w-4 text-amber-500" aria-label="Needs review" />
+          )}
+          {log.status === 'invalid' && log.description && (
+             <span className="text-xs text-destructive/80 line-clamp-1">{log.description.replace(/^\[Invalid\]:\s*/i, '').trim()}</span>
           )}
         </div>
       </div>
