@@ -3,6 +3,8 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useQueryClient } from '@tanstack/react-query';
 import { useLocale } from 'next-intl';
+import { useFeedback } from "./use-feedback";
+
 
 // SSE Event Types
 type AgentEventType =
@@ -61,7 +63,9 @@ export interface UseAgentReturn {
 }
 
 // Ding sound for completion feedback
-const DING_SOUND_URL = "/sounds/ding.mp3";
+// (UseFeedback hook imported at top)
+
+
 const MAX_RETRIES = 3;
 const RETRY_DELAYS = [1000, 2000, 4000]; // Exponential backoff
 const CLARIFICATION_TIMEOUT_MS = 30000; // 30 seconds
@@ -84,7 +88,6 @@ export const useAgent = (): UseAgentReturn => {
   );
 
   const eventSourceRef = useRef<EventSource | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const retryCountRef = useRef(0);
   const heartbeatTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const clarificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -94,11 +97,8 @@ export const useAgent = (): UseAgentReturn => {
     audioPath?: string;
   } | null>(null);
 
-  // Preload the ding sound
-  useEffect(() => {
-    audioRef.current = new Audio(DING_SOUND_URL);
-    audioRef.current.preload = "auto";
-  }, []);
+  // Use centralized feedback hook
+  const feedback = useFeedback();
 
   // Cleanup on unmount
   useEffect(() => {
@@ -172,18 +172,8 @@ export const useAgent = (): UseAgentReturn => {
   }, [cleanup]);
 
   const triggerCompletionFeedback = useCallback(() => {
-    // Play ding sound
-    if (audioRef.current) {
-      audioRef.current.play().catch(() => {
-        // Ignore audio play errors (autoplay policies)
-      });
-    }
-
-    // Haptic feedback on supported devices
-    if (navigator.vibrate) {
-      navigator.vibrate(50);
-    }
-  }, []);
+    feedback.success();
+  }, [feedback]);
 
   const resetHeartbeatTimer = useCallback(() => {
     if (heartbeatTimeoutRef.current) {

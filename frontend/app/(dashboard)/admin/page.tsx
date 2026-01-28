@@ -6,6 +6,7 @@ import { AdminLogsTable } from "@/components/features/admin/AdminLogsTable";
 import { AdminFilters } from "@/components/features/admin/AdminFilters";
 import { ExportDataButton } from "@/components/features/admin/ExportDataButton";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { FeedbackSettingsToggle } from "@/components/FeedbackSettingsToggle";
 import { adminApi } from "@/lib/api";
 import { PagePagination } from "@/components/page-pagination";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
@@ -48,6 +49,16 @@ function AdminDashboardContent() {
       </div>
       
       <AdminFilters />
+
+      {/* Settings Section */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="p-4 border rounded-lg">
+          <LanguageToggle />
+        </div>
+        <div className="p-4 border rounded-lg">
+          <FeedbackSettingsToggle />
+        </div>
+      </div>
 
       {error && (
           <div className="rounded bg-red-100 p-4 text-red-700">

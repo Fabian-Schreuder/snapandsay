@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useAudio } from "../../../hooks/use-audio";
+import { useFeedback } from "../../../hooks/use-feedback";
 import { Mic } from "lucide-react";
 import {
   AlertDialog,
@@ -30,6 +31,7 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
 
   const [buttonState, setButtonState] = useState<VoiceButtonState>("idle");
   const [showPermissionDialog, setShowPermissionDialog] = useState(false);
+  const feedback = useFeedback();
 
   // Sync hook state to button state
   useEffect(() => {
@@ -48,13 +50,10 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
   // Handle successful recording completion
   useEffect(() => {
     if (audioBlob) {
-      // Vibrate for success
-      if (typeof navigator !== "undefined" && navigator.vibrate) {
-        navigator.vibrate([20, 50, 20]);
-      }
+      feedback.success();
       onRecordingComplete(audioBlob);
     }
-  }, [audioBlob, onRecordingComplete]);
+  }, [audioBlob, onRecordingComplete, feedback]);
 
   // Click-to-toggle handler
   const handleToggleRecording = useCallback(async () => {
@@ -70,16 +69,14 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
     } else {
       // Start logic
       try {
-        if (typeof navigator !== "undefined" && navigator.vibrate) {
-          navigator.vibrate(50); // Single bump for start
-        }
+        feedback.start();
         await startRecording();
       } catch (err) {
         // Error is handled by hook state
         console.error("Failed to start recording", err);
       }
     }
-  }, [isRecording, isPermissionDenied, stopRecording, startRecording]);
+  }, [isRecording, isPermissionDenied, stopRecording, startRecording, feedback]);
 
   const handleRetry = () => {
     window.location.reload();

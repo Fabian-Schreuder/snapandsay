@@ -107,7 +107,11 @@
     "language": "Taal",
     "languageDescription": "Kies je voorkeurstaal",
     "dutch": "Nederlands",
-    "english": "Engels"
+    "english": "Engels",
+    "feedback": "Terugkoppeling",
+    "feedbackDescription": "Beheer geluids- en trillingsterugkoppeling",
+    "soundEnabled": "Geluid",
+    "vibrationEnabled": "Trillen"
   },
   "errors": {
     "generic": "Er is iets misgegaan. Probeer het opnieuw.",

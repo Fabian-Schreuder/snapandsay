@@ -3,6 +3,7 @@ import React, { useRef, useCallback, useState, useEffect } from 'react'
 import Webcam from 'react-webcam'
 import { Camera } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useFeedback } from '@/hooks/use-feedback'
 import PermissionErrorState from './PermissionErrorState'
 
 interface CameraCaptureProps {
@@ -18,6 +19,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
   const [errorType, setErrorType] = useState<'permission' | 'device' | 'unknown' | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isFlashing, setIsFlashing] = useState(false);
+  const feedback = useFeedback();
   // Refs for cleanup
   const flashTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const captureTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -63,10 +65,8 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
     // Shorter, snappier flash (75ms)
     flashTimeoutRef.current = setTimeout(() => setIsFlashing(false), 75); 
 
-    // 2. Haptic Feedback
-    if (typeof navigator !== 'undefined' && navigator.vibrate) {
-      navigator.vibrate(50);
-    }
+    // 2. Haptic Feedback via feedback hook
+    feedback.tap();
 
     const imageSrc = webcamRef.current?.getScreenshot();
     
@@ -76,7 +76,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
         onCapture(imageSrc);
       }, 100);
     }
-  }, [webcamRef, onCapture]);
+  }, [webcamRef, onCapture, feedback]);
 
   const handleUserMediaError = useCallback((error: string | DOMException) => {
     console.error("Camera Error:", error);

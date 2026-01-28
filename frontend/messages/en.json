@@ -107,7 +107,11 @@
     "language": "Language",
     "languageDescription": "Choose your preferred language",
     "dutch": "Dutch",
-    "english": "English"
+    "english": "English",
+    "feedback": "Feedback",
+    "feedbackDescription": "Control sound and vibration feedback",
+    "soundEnabled": "Sound",
+    "vibrationEnabled": "Vibration"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
