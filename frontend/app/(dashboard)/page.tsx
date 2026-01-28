@@ -11,6 +11,7 @@ import { LogListError } from '@/components/features/logs/LogListError';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
+import { SettingsSheet } from '@/components/SettingsSheet';
 
 /**
  * Dashboard page showing today's meal logs.
@@ -22,6 +23,11 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col min-h-[100dvh] p-4 pb-24">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <SettingsSheet />
+      </div>
+
       {/* Daily Summary - show skeleton or real data */}
       {isLoading ? (
         <div className="mb-6">

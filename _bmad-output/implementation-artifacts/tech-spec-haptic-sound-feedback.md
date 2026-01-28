@@ -96,7 +96,7 @@ Create a **centralized `useFeedback()` hook** that:
 
 #### Phase 1: Sound Assets
 
-- [ ] **Task 1**: Add placeholder sound files
+- [x] **Task 1**: Add placeholder sound files
   - Files: `frontend/public/sounds/{success,error,start,stop,tap}.mp3`
   - Action: Source or generate 5 short MP3 sound effects (~100KB each max)
   - Notes: Can use free sources like [freesound.org](https://freesound.org) or generate with `ffmpeg`. Keep files small for PWA performance. Delete the placeholder `ding.mp3`.
@@ -105,7 +105,7 @@ Create a **centralized `useFeedback()` hook** that:
 
 #### Phase 2: Core Hook
 
-- [ ] **Task 2**: Create `useFeedback()` hook
+- [x] **Task 2**: Create `useFeedback()` hook
   - File: `frontend/hooks/use-feedback.ts` (NEW)
   - Action: Implement hook with:
     - Interface: `UseFeedbackReturn` with methods `success()`, `error()`, `tap()`, `start()`, `stop()`
@@ -115,7 +115,7 @@ Create a **centralized `useFeedback()` hook** that:
     - SSR-safe guards for `window`, `navigator.vibrate`, `Audio`
   - Notes: Follow `use-agent.ts` audio preload pattern
 
-- [ ] **Task 3**: Create unit tests for `useFeedback()`
+- [x] **Task 3**: Create unit tests for `useFeedback()`
   - File: `frontend/__tests__/hooks/use-feedback.test.ts` (NEW)
   - Action: Test cases:
     - Default preferences are `true`
@@ -180,7 +180,7 @@ Create a **centralized `useFeedback()` hook** that:
 
 #### Phase 5: Integration
 
-- [ ] **Task 9**: Wire settings into settings page/modal
+- [x] **Task 9**: Wire settings into settings page/modal
   - File: Determine existing settings location (likely same place as `LanguageToggle`)
   - Action: Add `<FeedbackSettingsToggle />` below `<LanguageToggle />`
   - Notes: If no dedicated settings page exists, may need to create one or add to an existing modal

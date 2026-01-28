@@ -104,6 +104,7 @@
   },
   "settings": {
     "title": "Instellingen",
+    "description": "Beheer uw applicatievoorkeuren",
     "language": "Taal",
     "languageDescription": "Kies je voorkeurstaal",
     "dutch": "Nederlands",
