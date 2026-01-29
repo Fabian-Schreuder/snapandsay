@@ -40,41 +40,55 @@ def _build_messages(
     transcript: str | None,
     context: str | None = None,
     language: str = "nl",
+    system_prompt_override: str | None = None,
 ) -> list[dict]:
     """Build the message list for the LLM request."""
     current_time = datetime.now().strftime("%H:%M")
     lang_name = "Dutch" if language == "nl" else "English"
     lang_instruction = f"IMPORTANT: Respond entirely in {lang_name}. " if language != "en" else ""
-    system_prompt = (
-        f"{lang_instruction}"
-        f"You are a dietary expert. The current time is {current_time}. "
-        "Analyze the provided input (image and/or audio transcript) to identify food items, "
-        "estimate quantities, calories, and provide a confidence score.\n\n"
-        "CRITICAL ESTIMATION RULES:\n"
-        "1. First estimate the WEIGHT in grams by comparing to standard references:\n"
-        "   - Dinner plate ~25cm, food portion often 150-300g\n"
-        "   - Palm-sized portion ~100g\n"
-        "2. Apply correct CALORIC DENSITY:\n"
-        "   - Sausage/processed meat: 250-350 kcal/100g (HIGH FAT)\n"
-        "   - Red meat (beef, pork): 200-250 kcal/100g\n"
-        "   - Chicken breast: 165 kcal/100g\n"
-        "   - Eggs: 155 kcal/100g (~70 kcal per egg)\n"
-        "   - Rice/pasta cooked: 130 kcal/100g\n"
-        "   - Vegetables: 25-50 kcal/100g\n"
-        "   - Fruit: 40-60 kcal/100g\n"
-        "3. When uncertain, estimate HIGHER rather than lower.\n\n"
-        "Generate a short, descriptive title for the meal (e.g. 'Roasted Cashews', 'Chicken Salad'). "
-        "Infer the meal type (Breakfast, Lunch, Dinner, Snack) based on time and content.\n\n"
-        "VALIDATION RULES:\n"
-        "- If the input contains food, drink, or supplements (vitamins, etc), set 'is_food' to true.\n"
-        "- If the input is CLEARLY NOT food (e.g. shoes, car, furniture, pets), "
-        "set 'is_food' to false and provide a 'non_food_reason'.\n"
-        "- If the input is AMBIGUOUS, BLURRY, or UNCLEAR, set 'is_food' to true "
-        "so we can ask for clarification (do not reject).\n"
-        "- If you cannot analyze it, return a valid JSON with empty items and an explanation.\n\n"
-        "Provide the output in JSON format complying with this schema: "
-        f"{json.dumps(AnalysisResult.model_json_schema(), ensure_ascii=False)}"
-    )
+
+    if system_prompt_override:
+        # Use provided override, injecting standard parameters if they exist in template
+        # Need to handle {current_time}, {schema}, {lang_instruction} if present
+        schema_json = json.dumps(AnalysisResult.model_json_schema(), ensure_ascii=False)
+        try:
+            system_prompt = system_prompt_override.format(
+                current_time=current_time, schema=schema_json, lang_instruction=lang_instruction
+            )
+        except (KeyError, ValueError):
+            # If standard formatting fails, just use the string as is
+            system_prompt = system_prompt_override
+    else:
+        system_prompt = (
+            f"{lang_instruction}"
+            f"You are a dietary expert. The current time is {current_time}. "
+            "Analyze the provided input (image and/or audio transcript) to identify food items, "
+            "estimate quantities, calories, and provide a confidence score.\n\n"
+            "CRITICAL ESTIMATION RULES:\n"
+            "1. First estimate the WEIGHT in grams by comparing to standard references:\n"
+            "   - Dinner plate ~25cm, food portion often 150-300g\n"
+            "   - Palm-sized portion ~100g\n"
+            "2. Apply correct CALORIC DENSITY:\n"
+            "   - Sausage/processed meat: 250-350 kcal/100g (HIGH FAT)\n"
+            "   - Red meat (beef, pork): 200-250 kcal/100g\n"
+            "   - Chicken breast: 165 kcal/100g\n"
+            "   - Eggs: 155 kcal/100g (~70 kcal per egg)\n"
+            "   - Rice/pasta cooked: 130 kcal/100g\n"
+            "   - Vegetables: 25-50 kcal/100g\n"
+            "   - Fruit: 40-60 kcal/100g\n"
+            "3. When uncertain, estimate HIGHER rather than lower.\n\n"
+            "Generate a short, descriptive title for the meal (e.g. 'Roasted Cashews', 'Chicken Salad'). "
+            "Infer the meal type (Breakfast, Lunch, Dinner, Snack) based on time and content.\n\n"
+            "VALIDATION RULES:\n"
+            "- If the input contains food, drink, or supplements (vitamins, etc), set 'is_food' to true.\n"
+            "- If the input is CLEARLY NOT food (e.g. shoes, car, furniture, pets), "
+            "set 'is_food' to false and provide a 'non_food_reason'.\n"
+            "- If the input is AMBIGUOUS, BLURRY, or UNCLEAR, set 'is_food' to true "
+            "so we can ask for clarification (do not reject).\n"
+            "- If you cannot analyze it, return a valid JSON with empty items and an explanation.\n\n"
+            "Provide the output in JSON format complying with this schema: "
+            f"{json.dumps(AnalysisResult.model_json_schema(), ensure_ascii=False)}"
+        )
 
     messages = [{"role": "system", "content": system_prompt}]
 
@@ -194,6 +208,7 @@ async def analyze_multimodal(
     context: str | None = None,
     user_token: str | None = None,
     language: str = "nl",
+    system_prompt_override: str | None = None,
 ) -> AnalysisResult:
     """
     Analyze image and/or transcript using GPT-4o to extract dietary data.
@@ -204,6 +219,7 @@ async def analyze_multimodal(
         context: Additional textual context (e.g. clarification response) (optional).
         user_token: User JWT for accessing private images (optional).
         language: Language code for response (default: "nl" for Dutch).
+        system_prompt_override: Optional system prompt to use instead of the default.
 
     Returns:
         AnalysisResult with identified food items and synthesis comment.
@@ -220,7 +236,7 @@ async def analyze_multimodal(
     if image_url:
         final_image_url = await _get_image_content(image_url, user_token)
 
-    messages = _build_messages(final_image_url, transcript, context, language)
+    messages = _build_messages(final_image_url, transcript, context, language, system_prompt_override)
 
     try:
         client = _get_client()
@@ -244,6 +260,7 @@ async def analyze_multimodal_streaming(
     on_token: Callable[[str], Awaitable[None]] | None = None,
     user_token: str | None = None,
     language: str = "nl",
+    system_prompt_override: str | None = None,
 ) -> AnalysisResult:
     """
     Analyze image and/or transcript using GPT-4o with streaming tokens.
@@ -258,6 +275,7 @@ async def analyze_multimodal_streaming(
         on_token: Optional async callback invoked with each text chunk.
         user_token: User JWT for accessing private images (optional).
         language: Language code for response (default: "nl" for Dutch).
+        system_prompt_override: Optional system prompt to use instead of the default.
 
     Returns:
         AnalysisResult with identified food items and synthesis comment.
@@ -274,7 +292,7 @@ async def analyze_multimodal_streaming(
     if image_url:
         final_image_url = await _get_image_content(image_url, user_token)
 
-    messages = _build_messages(final_image_url, transcript, context, language)
+    messages = _build_messages(final_image_url, transcript, context, language, system_prompt_override)
     accumulated_content = ""
     accumulated_refusal = ""
 

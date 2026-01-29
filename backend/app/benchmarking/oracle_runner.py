@@ -50,7 +50,9 @@ class OracleRunner:
     async def close(self):
         await self.client.aclose()
 
-    async def run_dish(self, dish: NutritionDish) -> dict[str, Any]:
+    async def run_dish(
+        self, dish: NutritionDish, system_prompt_override: str | None = None
+    ) -> dict[str, Any]:
         """
         Orchestrates the benchmarking loop for a single dish.
         Returns result dict including latency_seconds for timing.
@@ -87,14 +89,19 @@ class OracleRunner:
             }
 
         # 2. SSE Loop
-        result = await self._process_loop(log_id, dish, headers, image_url)
+        result = await self._process_loop(log_id, dish, headers, image_url, system_prompt_override)
 
         # Add latency to result
         result["latency_seconds"] = time.perf_counter() - start_time
         return result
 
     async def _process_loop(
-        self, log_id: str, dish: NutritionDish, headers: dict, image_url: str
+        self,
+        log_id: str,
+        dish: NutritionDish,
+        headers: dict,
+        image_url: str,
+        system_prompt_override: str | None = None,
     ) -> dict[str, Any]:
         """
         Connects to SSE stream and handles events.
@@ -103,7 +110,12 @@ class OracleRunner:
         final_log = None
         error_msg = None
 
-        stream_payload = {"log_id": log_id, "image_path": image_url, "audio_path": None}
+        stream_payload = {
+            "log_id": log_id,
+            "image_path": image_url,
+            "audio_path": None,
+            "system_prompt_override": system_prompt_override,
+        }
 
         # Note: In a real scenario, the stream URL might expect GET for event-stream,
         # but analysis/stream is POST.

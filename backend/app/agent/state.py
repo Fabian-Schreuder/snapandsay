@@ -42,3 +42,6 @@ class AgentState(TypedDict):
 
     # Localization
     language: str | None  # User's preferred language code (e.g., "nl", "en")
+
+    # Research/Experimentation
+    system_prompt_override: str | None

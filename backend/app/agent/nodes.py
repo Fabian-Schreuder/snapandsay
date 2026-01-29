@@ -79,7 +79,11 @@ async def analyze_input(state: AgentState) -> dict:
     logger.info("Analyzing multimodal input")
     try:
         result = await llm_service.analyze_multimodal(
-            image_url=image_url, transcript=transcript, context=context, user_token=user_token
+            image_url=image_url,
+            transcript=transcript,
+            context=context,
+            user_token=user_token,
+            system_prompt_override=state.get("system_prompt_override"),
         )
         return {
             "nutritional_data": result.model_dump(),
@@ -206,6 +210,7 @@ async def analyze_input_streaming(
             on_token=on_token,
             user_token=user_token,
             language=language,
+            system_prompt_override=state.get("system_prompt_override"),
         )
 
         # Emit complete thought

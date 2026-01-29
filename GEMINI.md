@@ -70,6 +70,27 @@ cd backend
 uv run pytest
 ```
 
+### Benchmarking & Prompt Optimization
+
+The project includes an automated system for measuring and improving nutritional accuracy.
+
+**Run a Benchmark Experiment:**
+```bash
+cd backend
+# Run experiment with prompt v2 on 10 dishes
+uv run python -m app.benchmarking.cli experiment --prompt v2 --limit 10
+```
+
+**View Experiment History:**
+```bash
+uv run python -m app.benchmarking.cli history
+```
+
+**Analyze Errors & Suggest Improvements:**
+```bash
+uv run python -m app.benchmarking.cli optimize --experiment-id <ID>
+```
+
 ### Code Quality & Maintenance
 
 **Linting:**

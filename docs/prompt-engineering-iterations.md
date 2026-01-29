@@ -139,9 +139,35 @@ Generate a short, descriptive title...
 4. **Conservative bias helps** - "Estimate HIGHER when uncertain" reduced underestimation
 5. **Trade-offs exist** - Optimizing for calories may affect macronutrient accuracy
 
+---
+
+## Process Automation
+
+To scale the prompt engineering process, we have implemented an **Automated Prompt Optimization System**.
+
+### Architecture
+- **Prompt Registry:** Externalized templates in `backend/app/benchmarking/prompts/*.yaml`.
+- **Experiment Runner:** Automated execution via `PromptOptimizer` class.
+- **Dynamic Overrides:** The `/stream` API now supports `system_prompt_override` to test prompts without redeploying.
+- **Structured Logging:** All experiments are logged to `benchmark_output/experiments/` for full reproducibility.
+
+### Usage
+```bash
+# Run experiment with a specific version
+uv run python -m app.benchmarking.cli experiment --prompt v2 --limit 10
+
+# View history
+uv run python -m app.benchmarking.cli history
+
+# Get LLM-based improvement suggestions
+uv run python -m app.benchmarking.cli optimize --experiment-id <ID>
+```
+
+---
+
 ## Recommended Next Steps
 
 - Test v2 on larger sample (N=250+) to validate at scale
+- Use the `optimize` command to iteratively refine caloric densities
 - Add more food-specific densities (cheese, nuts, oils, sauces)
-- Consider separate macronutrient estimation guidance
 - Investigate chain-of-thought reasoning approaches

@@ -423,6 +423,28 @@ Naming, Structure, and Communication patterns are defined.
 - Leverages "Best in Class" tools (Next.js for UI, FastAPI for Python/AI).
 - Clear Agentic pattern (LangGraph + SSE).
 
+## Research Infrastructure: Benchmarking & Optimization
+
+To ensure medical-grade accuracy and continuous improvement of the dietary assessment engine, we have implemented a dedicated research infrastructure for automated prompt engineering and benchmarking.
+
+### Multimodal Oracle Benchmarker
+- **Dataset:** Integrated with the **Nutrition5K** dataset (overhead camera views).
+- **Oracle Runner:** Orchestrates automated runs by uploading images, initiating agent processing, and simulating user clarification turns using a question-aware oracle.
+- **Metrics:** Automatically calculates **Mean Absolute Error (MAE)** for Calories, Protein, Fat, and Carbohydrates. Tracks p50/p95/p99 latency.
+
+### Automated Prompt Optimization System
+- **Prompt Registry:** Version-controlled prompt templates stored in `backend/app/benchmarking/prompts/*.yaml`.
+- **Dynamic Overrides:** The Agent logic supports safe, authenticated prompt overrides in the SSE stream payload, enabling rapid experimentation without code changes.
+- **Experiment Logging:** Structured JSON logging for every run, including configuration, per-dish delta metrics, and LLM-generated error analysis.
+- **Optimization Loop:** An LLM-powered improver analyzes the top errors from a benchmark run and suggests revised prompt templates to address specific estimation failures.
+
+### Key Components:
+- `app.benchmarking.oracle_runner`: The core executor for automated benchmarks.
+- `app.benchmarking.prompt_optimizer`: Orchestrates experiments and generates improvement suggestions.
+- `app.benchmarking.experiment_log`: Ensures data fidelity and reproducibility for academic reporting.
+
+---
+
 ## Architecture Completion Summary
 
 ### Workflow Completion

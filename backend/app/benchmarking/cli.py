@@ -15,9 +15,12 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from app.benchmarking.experiment_log import ExperimentLog
 from app.benchmarking.metrics import LatencyTracker, MetricsCalculator
 from app.benchmarking.nutrition5k_loader import Nutrition5kLoader
 from app.benchmarking.oracle_runner import OracleRunner
+from app.benchmarking.prompt_optimizer import PromptOptimizer
+from app.benchmarking.prompts import PromptRegistry
 from app.benchmarking.schemas import NutritionDish
 
 # Setup logging
@@ -203,10 +206,73 @@ def generate_report(
 
 async def main_async(args):
     """Main async benchmark execution."""
-    # Setup output directory
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # Initialize components
+    prompts_dir = Path("backend/app/benchmarking/prompts")
+    prompt_registry = PromptRegistry(prompts_dir)
+    experiment_log = ExperimentLog(output_dir / "experiments")
+    optimizer = PromptOptimizer(
+        prompt_registry=prompt_registry,
+        experiment_log=experiment_log,
+        api_url=args.api_url,
+        email=args.email,
+        password=args.password,
+    )
+
+    if args.command == "experiment":
+        result = await optimizer.run_experiment(
+            prompt_id=args.prompt, limit=args.limit, complexity=args.complexity, seed=args.seed
+        )
+        print(f"\nExperiment {result.experiment_id} completed.")
+        print(f"Calories MAE: {result.metrics['calories']:.2f}")
+        await optimizer.close()
+        return
+
+    if args.command == "history":
+        print(experiment_log.export_markdown())
+        await optimizer.close()
+        return
+
+    if args.command == "optimize":
+        history = experiment_log.get_history()
+        if not history:
+            print("No experiments found. Run an experiment first.")
+            await optimizer.close()
+            return
+
+        experiment_id = args.experiment_id or history[-1]["experiment_id"]
+        detail_file = output_dir / "experiments" / f"experiment_{experiment_id}.json"
+
+        if not detail_file.exists():
+            print(f"Experiment detail not found: {experiment_id}")
+            await optimizer.close()
+            return
+
+        with open(detail_file) as f:
+            from app.benchmarking.experiment_log import ExperimentResult
+
+            data = json.load(f)
+            result = ExperimentResult(
+                experiment_id=data["experiment_id"],
+                prompt_version=data["prompt_version"],
+                timestamp=data["timestamp"],
+                metrics=data["metrics"],
+                latency_stats=data["latency_stats"],
+                per_dish_results=data["per_dish_results"],
+                config=data["config"],
+            )
+
+        suggestion = await optimizer.suggest_improvements(result)
+        print("\n" + "=" * 40)
+        print("PROMPT IMPROVEMENT SUGGESTION")
+        print("=" * 40)
+        print(suggestion)
+        await optimizer.close()
+        return
+
+    # Original benchmark flow...
     checkpoint_file = output_dir / "benchmark_checkpoint.json"
     results = []
     processed_ids: set[str] = set()
@@ -369,54 +435,36 @@ async def main_async(args):
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Snap and Say Oracle Benchmark - Research-Grade Evaluation Tool",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Run 250 simple dishes
-  uv run python -m app.benchmarking.cli --limit 250 --complexity simple
+    parser = argparse.ArgumentParser(description="Snap and Say Oracle Benchmark")
+    subparsers = parser.add_subparsers(dest="command", help="Subcommand to run")
 
-  # Resume from checkpoint
-  uv run python -m app.benchmarking.cli --limit 500 --resume
+    # benchmark command (legacy)
+    bench_parser = subparsers.add_parser("run", help="Run standard benchmark")
+    bench_parser.add_argument("--limit", type=int, default=250)
+    bench_parser.add_argument("--complexity", choices=["simple", "complex"])
+    bench_parser.add_argument("--seed", type=int, default=42)
+    bench_parser.add_argument("--batch-size", type=int, default=50)
+    bench_parser.add_argument("--resume", action="store_true")
+    bench_parser.add_argument("--delay", type=float, default=1.0)
+    bench_parser.add_argument("--max-turns", type=int, default=3)
 
-  # Full N=500 benchmark (250 simple + 250 complex)
-  uv run python -m app.benchmarking.cli --limit 250 --complexity simple --seed 42
-  uv run python -m app.benchmarking.cli --limit 250 --complexity complex --seed 42
-        """,
-    )
+    # experiment command
+    exp_parser = subparsers.add_parser("experiment", help="Run prompt experiment")
+    exp_parser.add_argument("--prompt", type=str, required=True, help="Prompt version ID (e.g. v2)")
+    exp_parser.add_argument("--limit", type=int, default=5)
+    exp_parser.add_argument("--complexity", choices=["simple", "complex"], default="simple")
+    exp_parser.add_argument("--seed", type=int, default=42)
 
-    # Data selection
-    parser.add_argument("--limit", type=int, default=250, help="Number of dishes to test (default: 250)")
-    parser.add_argument(
-        "--complexity",
-        type=str,
-        default=None,
-        choices=["simple", "complex"],
-        help="Dish complexity filter (default: all)",
-    )
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for selection (default: 42)")
+    # history command
+    subparsers.add_parser("history", help="View experiment history")
 
-    # Execution
-    parser.add_argument("--batch-size", type=int, default=50, help="Checkpoint after N dishes (default: 50)")
-    parser.add_argument("--resume", action="store_true", help="Resume from checkpoint")
-    parser.add_argument(
-        "--delay", type=float, default=1.0, help="Delay between dishes in seconds (default: 1.0)"
-    )
-    parser.add_argument("--max-turns", type=int, default=3, help="Max clarification turns (default: 3)")
+    # optimize command
+    opt_parser = subparsers.add_parser("optimize", help="Suggest improvements")
+    opt_parser.add_argument("--experiment-id", type=str, help="Experiment ID to analyze")
 
-    # Output
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="benchmark_output",
-        help="Output directory for results (default: benchmark_output)",
-    )
-
-    # API connection
-    parser.add_argument(
-        "--api-url", type=str, default=os.getenv("API_URL", "http://localhost:8000"), help="Backend API URL"
-    )
+    # Global args
+    parser.add_argument("--output-dir", type=str, default="benchmark_output")
+    parser.add_argument("--api-url", type=str, default=os.getenv("API_URL", "http://localhost:8000"))
     parser.add_argument("--email", type=str, help="Test user email (or ENV: TEST_EMAIL)")
     parser.add_argument("--password", type=str, help="Test user password (or ENV: TEST_PASSWORD)")
 
@@ -429,10 +477,7 @@ Examples:
         args.password = os.getenv("TEST_PASSWORD")
 
     if not args.email or not args.password:
-        parser.error(
-            "Email and password are required. Provide via --email/--password or "
-            "TEST_EMAIL/TEST_PASSWORD env vars."
-        )
+        parser.error("Email and password are required.")
 
     asyncio.run(main_async(args))
 
