@@ -3,7 +3,7 @@ import uuid
 from datetime import datetime
 
 from app.benchmarking.experiment_log import ExperimentLog, ExperimentResult
-from app.benchmarking.metrics import LatencyTracker, calculate_mae
+from app.benchmarking.metrics import LatencyTracker, MetricsCalculator
 from app.benchmarking.nutrition5k_loader import Nutrition5kLoader
 from app.benchmarking.oracle_runner import OracleRunner
 from app.benchmarking.prompts import PromptRegistry
@@ -39,8 +39,10 @@ class PromptOptimizer:
 
         results = []
         latency_tracker = LatencyTracker()
+        metrics_calculator = MetricsCalculator()
 
         experiment_id = str(uuid.uuid4())[:8]
+        dish_maes = []
 
         for i, dish in enumerate(dishes):
             logger.info(f"Experiment {experiment_id} | Dish {i+1}/{len(dishes)}: {dish.dish_id}")
@@ -49,14 +51,25 @@ class PromptOptimizer:
             result = await self.runner.run_dish(dish, system_prompt_override=prompt.template)
 
             if result["success"]:
-                latency_tracker.add(result["latency_seconds"])
+                latency_tracker.record(dish.dish_id, result["latency_seconds"], dish.complexity)
                 results.append(result)
+
+                # Calculate per-dish MAE
+                predicted = result.get("final_data")
+                dish_mae = metrics_calculator.calculate_dish_mae(predicted, dish)
+                dish_maes.append(dish_mae)
             else:
                 logger.error(f"Dish {dish.dish_id} failed: {result.get('error')}")
 
-        # Calculate metrics
-        mae_metrics = calculate_mae(results, dishes)
-        latency_stats = latency_tracker.get_stats()
+        # Calculate aggregate metrics
+        aggregate = metrics_calculator.aggregate_mae(dish_maes)
+        mae_metrics = {
+            "calories": aggregate.mean_calories,
+            "protein": aggregate.mean_protein,
+            "fat": aggregate.mean_fat,
+            "carbs": aggregate.mean_carbs,
+        }
+        latency_stats = latency_tracker.aggregate().to_dict()
 
         experiment_result = ExperimentResult(
             experiment_id=experiment_id,

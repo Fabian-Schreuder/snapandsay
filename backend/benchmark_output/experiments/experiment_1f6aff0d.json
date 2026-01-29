@@ -1,0 +1,125 @@
+{
+  "experiment_id": "1f6aff0d",
+  "prompt_version": "v2",
+  "timestamp": "2026-01-29T16:43:14.226643",
+  "metrics": {
+    "calories": 141.23500566666667,
+    "protein": 7.117999999999999,
+    "fat": 11.640334,
+    "carbs": 2.2073333333333336
+  },
+  "latency_stats": {
+    "mean_seconds": 8.79,
+    "p50_seconds": 10.16,
+    "p95_seconds": 10.23,
+    "p99_seconds": 10.23,
+    "per_complexity": {
+      "simple_mean": 8.79,
+      "complex_mean": 0.0
+    },
+    "sample_count": 3
+  },
+  "per_dish_results": [
+    {
+      "dish_id": "dish_1562086595",
+      "success": true,
+      "turns": 0,
+      "final_data": {
+        "title": "Roerei met Vers Fruit",
+        "items": [
+          {
+            "name": "Roerei",
+            "quantity": "1 portie",
+            "calories": 200,
+            "protein": 14,
+            "carbs": 2,
+            "fats": 15,
+            "confidence": 0.9
+          },
+          {
+            "name": "Vers fruit salade",
+            "quantity": "1 portie",
+            "calories": 100,
+            "protein": 1,
+            "carbs": 25,
+            "fats": 0,
+            "confidence": 0.9
+          },
+          {
+            "name": "Slagroom",
+            "quantity": "Kleine hoeveelheid",
+            "calories": 50,
+            "protein": 0,
+            "carbs": 2,
+            "fats": 5,
+            "confidence": 0.8
+          }
+        ],
+        "meal_type": "Lunch",
+        "synthesis_comment": "Deze maaltijd bestaat uit roerei en een gezonde fruitsalade, afgemaakt met een beetje slagroom.",
+        "is_food": true,
+        "non_food_reason": null
+      },
+      "error": null,
+      "log_id": "7dd78661-ae62-48e7-8da2-f0fa89e0a66d",
+      "latency_seconds": 10.235391332998915
+    },
+    {
+      "dish_id": "dish_1558375833",
+      "success": true,
+      "turns": 0,
+      "final_data": {
+        "title": "Gebakken Worstjes",
+        "items": [
+          {
+            "name": "Gebakken Worst",
+            "quantity": "Kleine portie",
+            "calories": 150,
+            "protein": 10,
+            "carbs": 2,
+            "fats": 12,
+            "confidence": 0.9
+          }
+        ],
+        "meal_type": "Snack",
+        "synthesis_comment": "Een kleine portie gebakken worst, waarschijnlijk een hartige snack.",
+        "is_food": true,
+        "non_food_reason": null
+      },
+      "error": null,
+      "log_id": "16994e4f-3bd3-446f-a348-bc2afb273990",
+      "latency_seconds": 5.97736292800073
+    },
+    {
+      "dish_id": "dish_1562602589",
+      "success": true,
+      "turns": 0,
+      "final_data": {
+        "title": "Worststukjes",
+        "items": [
+          {
+            "name": "Worststukjes",
+            "quantity": "5 stukjes",
+            "calories": 150,
+            "protein": 10,
+            "carbs": 2,
+            "fats": 12,
+            "confidence": 0.9
+          }
+        ],
+        "meal_type": "Snack",
+        "synthesis_comment": "Dit gerecht bestaat uit een aantal worststukjes op een bordje, waarschijnlijk een snack.",
+        "is_food": true,
+        "non_food_reason": null
+      },
+      "error": null,
+      "log_id": "be00ebc1-6ff1-48e8-913e-0fd8d65115d7",
+      "latency_seconds": 10.160049500000241
+    }
+  ],
+  "config": {
+    "limit": 3,
+    "complexity": "simple",
+    "seed": 42
+  }
+}

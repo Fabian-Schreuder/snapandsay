@@ -210,7 +210,7 @@ async def main_async(args):
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Initialize components
-    prompts_dir = Path("backend/app/benchmarking/prompts")
+    prompts_dir = Path(__file__).parent / "prompts"
     prompt_registry = PromptRegistry(prompts_dir)
     experiment_log = ExperimentLog(output_dir / "experiments")
     optimizer = PromptOptimizer(
@@ -225,6 +225,7 @@ async def main_async(args):
         result = await optimizer.run_experiment(
             prompt_id=args.prompt, limit=args.limit, complexity=args.complexity, seed=args.seed
         )
+        experiment_log.log_experiment(result)
         print(f"\nExperiment {result.experiment_id} completed.")
         print(f"Calories MAE: {result.metrics['calories']:.2f}")
         await optimizer.close()
