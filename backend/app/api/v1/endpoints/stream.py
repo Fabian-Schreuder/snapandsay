@@ -11,6 +11,7 @@ from app.agent.constants import EVENT_ERROR, EVENT_RESPONSE, get_message
 from app.agent.graph import run_streaming_agent
 from app.agent.state import AgentState
 from app.api import deps
+from app.config import settings
 from app.schemas.sse import AgentError, AgentResponse, SSEEvent
 from app.schemas.stream import StreamAnalysisRequest
 from app.services.streaming_service import format_sse, format_sse_comment
@@ -39,6 +40,10 @@ async def event_generator(
     """
     # Get language with fallback to Dutch
     language = request.language or "nl"
+
+    logger.info(f"Stream Request Provider: {request.provider}")
+    logger.info(f"Config LLM_PROVIDER: {settings.LLM_PROVIDER}")
+    logger.info(f"Using Google Key: {settings.GOOGLE_API_KEY[:5] if settings.GOOGLE_API_KEY else 'None'}")
 
     initial_state: AgentState = {
         "messages": [],

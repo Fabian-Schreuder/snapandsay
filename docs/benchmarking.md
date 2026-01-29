@@ -51,7 +51,7 @@ uv run python -m app.benchmarking.cli experiment --prompt v2 --limit 5 --seed 42
 You can specify the LLM provider and model for experiments or standard runs:
 ```bash
 # Run with Google Gemini 2.0 Flash
-uv run python -m app.benchmarking.cli experiment --prompt v2 --provider google --model gemini-3.0-flash --limit 10
+uv run python -m app.benchmarking.cli experiment --prompt v2 --provider google --model gemini-3-flash-preview --limit 10
 
 # Run standard benchmark with GPT-4o-mini
 uv run python -m app.benchmarking.cli run --provider openai --model gpt-4o-mini --limit 10
@@ -68,7 +68,7 @@ uv run python -m app.benchmarking.cli history
 ### Auto-Optimization
 Analyze the top errors from an experiment and get a suggested prompt revision:
 ```bash
-uv run python -m app.benchmarking.cli optimize --experiment-id <ID> --provider google --model gemini-3.0-flash
+uv run python -m app.benchmarking.cli optimize --experiment-id <ID> --provider google --model gemini-3-flash-preview
 ```
 
 ---

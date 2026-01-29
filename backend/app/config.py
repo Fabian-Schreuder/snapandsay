@@ -30,7 +30,7 @@ class Settings(BaseSettings):
 
     # Google
     GOOGLE_API_KEY: str | None = None
-    GOOGLE_MODEL_NAME: str = "gemini-3.0-flash"
+    GOOGLE_MODEL_NAME: str = "gemini-3-flash-preview"
 
     # Provider
     LLM_PROVIDER: str = "google"  # openai, google

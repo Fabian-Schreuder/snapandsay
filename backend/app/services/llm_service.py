@@ -7,6 +7,7 @@ from datetime import datetime
 from functools import lru_cache
 
 from google import genai
+from google.genai import types
 from openai import AsyncOpenAI
 from pydantic import BaseModel
 
@@ -308,7 +309,8 @@ async def _analyze_google(
             header, encoded = image_data_uri.split(",", 1)
             mime_type = header.split(";")[0].split(":")[1]
             image_bytes = base64.b64decode(encoded)
-            contents.append({"mime_type": mime_type, "data": image_bytes})
+            contents.append(types.Part.from_bytes(data=image_bytes, mime_type=mime_type))
+
         else:
             # If it's still a URL (fallback), Gemini might not support it directly in prompt parts easily
             # But the service usually ensures it's a data URI.
@@ -466,7 +468,7 @@ async def _analyze_google_streaming(
             header, encoded = image_data_uri.split(",", 1)
             mime_type = header.split(";")[0].split(":")[1]
             image_bytes = base64.b64decode(encoded)
-            contents.append({"mime_type": mime_type, "data": image_bytes})
+            contents.append(types.Part.from_bytes(data=image_bytes, mime_type=mime_type))
 
     accumulated_content = ""
     try:

@@ -144,10 +144,14 @@ class PromptOptimizer:
             # For now, let's just use OpenAI or Google directly based on provider
             provider = provider or settings.LLM_PROVIDER
             if provider == "google":
-                from app.services.llm_service import _get_google_model
+                from app.services.llm_service import _get_google_client
 
-                model_inst = _get_google_model(model)
-                resp = await model_inst.generate_content_async(analysis_prompt)
+                client = _get_google_client()
+                model_id = model or settings.GOOGLE_MODEL_NAME
+                resp = await client.aio.models.generate_content(
+                    model=model_id,
+                    contents=analysis_prompt,
+                )
                 return resp.text
             else:
                 client = _get_openai_client()
