@@ -9,6 +9,7 @@ The benchmarking system leverages the **Nutrition5K** dataset and a "Virtual Use
 2.  Simulate conversational clarification turns based on dataset metadata.
 3.  Calculate **Mean Absolute Error (MAE)** for nutritional estimations.
 4.  Iteratively optimize prompts using LLM-based error analysis.
+12. **Compare different LLM Providers** (OpenAI vs Google Gemini) to identify the best model for specific tasks.
 
 ---
 
@@ -46,6 +47,18 @@ Run a controlled experiment with a specific prompt version (defined in `backend/
 uv run python -m app.benchmarking.cli experiment --prompt v2 --limit 5 --seed 42
 ```
 
+### Multi-Model Benchmarking
+You can specify the LLM provider and model for experiments or standard runs:
+```bash
+# Run with Google Gemini 2.0 Flash
+uv run python -m app.benchmarking.cli experiment --prompt v2 --provider google --model gemini-2.0-flash --limit 10
+
+# Run standard benchmark with GPT-4o-mini
+uv run python -m app.benchmarking.cli run --provider openai --model gpt-4o-mini --limit 10
+```
+
+Supported providers: `openai` (default), `google`.
+
 ### View History
 See a markdown table of all recorded experiments:
 ```bash
@@ -55,7 +68,7 @@ uv run python -m app.benchmarking.cli history
 ### Auto-Optimization
 Analyze the top errors from an experiment and get a suggested prompt revision:
 ```bash
-uv run python -m app.benchmarking.cli optimize --experiment-id <ID>
+uv run python -m app.benchmarking.cli optimize --experiment-id <ID> --provider google --model gemini-2.0-flash
 ```
 
 ---
@@ -86,5 +99,5 @@ Results are saved to `benchmark_output/experiments/` as structured JSON, enablin
 - Regression testing for new model versions.
 
 ### Propagation
-Prompt overrides are passed via:
+Prompt overrides, provider selection, and model configuration are passed via:
 `CLI` -> `OracleRunner` -> `SSE Stream API` -> `AgentState` -> `AgentNodes` -> `LLMService`.

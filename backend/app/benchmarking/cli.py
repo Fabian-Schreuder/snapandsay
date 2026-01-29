@@ -22,6 +22,7 @@ from app.benchmarking.oracle_runner import OracleRunner
 from app.benchmarking.prompt_optimizer import PromptOptimizer
 from app.benchmarking.prompts import PromptRegistry
 from app.benchmarking.schemas import NutritionDish
+from app.config import settings
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -479,13 +480,15 @@ def main():
 
     # Global args
     parser.add_argument("--output-dir", type=str, default="benchmark_output")
-    parser.add_argument("--api-url", type=str, default=os.getenv("API_URL", "http://localhost:8000"))
+    parser.add_argument("--api-url", type=str, default=settings.FRONTEND_URL.replace(":3000", ":8000"))
     parser.add_argument("--email", type=str, help="Test user email (or ENV: TEST_EMAIL)")
     parser.add_argument("--password", type=str, help="Test user password (or ENV: TEST_PASSWORD)")
 
     args = parser.parse_args()
 
-    # Env fallback
+    # Env / Settings fallback
+    args.email = args.email or settings.TEST_EMAIL or os.getenv("TEST_EMAIL")
+    args.password = args.password or settings.TEST_PASSWORD or os.getenv("TEST_PASSWORD")
     if not args.email:
         args.email = os.getenv("TEST_EMAIL")
     if not args.password:

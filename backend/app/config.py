@@ -51,6 +51,10 @@ class Settings(BaseSettings):
     # Frontend
     FRONTEND_URL: str = "http://localhost:3000"
 
+    # Benchmarking
+    TEST_EMAIL: str | None = None
+    TEST_PASSWORD: str | None = None
+
     # CORS
     # Can be set as a comma-separated string in env, which pydantic will parse if we use the right validator
     # But Pydantic V2 handles JSON list parsing from env typically.
