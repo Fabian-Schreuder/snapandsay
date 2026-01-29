@@ -3,6 +3,7 @@ import random
 from pathlib import Path
 
 from app.benchmarking.schemas import IngredientInfo, NutritionDish
+from app.benchmarking.stratification import StratificationEngine
 
 # Default path relative to this file
 # .../backend/app/benchmarking/nutrition5k_loader.py -> .../root/data/nutrition5k
@@ -12,6 +13,7 @@ DEFAULT_DATA_DIR = Path(__file__).resolve().parent.parent.parent.parent / "data"
 class Nutrition5kLoader:
     def __init__(self, data_dir: Path | None = None):
         self.data_dir = data_dir or DEFAULT_DATA_DIR
+        self._stratification_engine = StratificationEngine()
 
     def load_dishes(
         self, seed: int = 42, complexity: str | None = None, limit: int | None = None
@@ -88,16 +90,13 @@ class Nutrition5kLoader:
             except (ValueError, IndexError):
                 break
 
-        # Stratification Logic
-        # Simple: <= 3 ingredients
-        complexity = "simple" if len(ingredients) <= 3 else "complex"
-
         # Image Path Check
         # Image path: imagery/realsense_overhead/<dish_id>/rgb.png
         image_p = self.data_dir / "imagery" / "realsense_overhead" / dish_id / "rgb.png"
         image_path_str = str(image_p) if image_p.exists() else None
 
-        return NutritionDish(
+        # Create dish with placeholder complexity (will be classified below)
+        dish = NutritionDish(
             dish_id=dish_id,
             total_calories=total_calories,
             total_mass=total_mass,
@@ -105,6 +104,11 @@ class Nutrition5kLoader:
             total_carb=total_carb,
             total_protein=total_protein,
             ingredients=ingredients,
-            complexity=complexity,
+            complexity="pending",  # Will be classified
             image_path=image_path_str,
         )
+
+        # Use multi-factor stratification engine
+        dish.complexity = self._stratification_engine.classify(dish)
+
+        return dish

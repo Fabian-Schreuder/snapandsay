@@ -1,12 +1,14 @@
 import asyncio
 import json
 import logging
+import time
 from datetime import UTC, datetime
 from typing import Any
 
 import httpx
 from supabase import Client, create_client
 
+from app.benchmarking.question_parser import QuestionParser
 from app.benchmarking.schemas import NutritionDish
 from app.config import settings
 
@@ -28,6 +30,9 @@ class OracleRunner:
         # Async HTTP client for API calls
         self.client = httpx.AsyncClient(base_url=self.api_url, timeout=120.0, verify=False)  # noqa: S501
 
+        # Question parser for targeted Oracle responses
+        self._question_parser = QuestionParser()
+
     async def login(self):
         """Authenticate with Supabase to get JWT."""
         try:
@@ -48,7 +53,10 @@ class OracleRunner:
     async def run_dish(self, dish: NutritionDish) -> dict[str, Any]:
         """
         Orchestrates the benchmarking loop for a single dish.
+        Returns result dict including latency_seconds for timing.
         """
+        start_time = time.perf_counter()
+
         if not self.access_token:
             await self.login()
 
@@ -69,10 +77,21 @@ class OracleRunner:
             log_id = data["log_id"]
         except Exception as e:
             logger.error(f"Upload failed for {dish.dish_id}: {e}")
-            return {"dish_id": dish.dish_id, "success": False, "error": f"Upload: {e}", "log_id": None}
+            latency = time.perf_counter() - start_time
+            return {
+                "dish_id": dish.dish_id,
+                "success": False,
+                "error": f"Upload: {e}",
+                "log_id": None,
+                "latency_seconds": latency,
+            }
 
         # 2. SSE Loop
-        return await self._process_loop(log_id, dish, headers, image_url)
+        result = await self._process_loop(log_id, dish, headers, image_url)
+
+        # Add latency to result
+        result["latency_seconds"] = time.perf_counter() - start_time
+        return result
 
     async def _process_loop(
         self, log_id: str, dish: NutritionDish, headers: dict, image_url: str
@@ -132,9 +151,13 @@ class OracleRunner:
                                 logger.warning(f"[{dish.dish_id}] Max turns reached")
                                 break
 
-                            # Provide Oracle Answer
-                            answer = dish.summary
-                            logger.info(f"[{dish.dish_id}] Answering: {answer[:50]}...")
+                            # Use QuestionParser for targeted Oracle answer
+                            intent = self._question_parser.parse(question)
+                            answer = self._question_parser.lookup_answer(intent, dish)
+                            logger.info(
+                                f"[{dish.dish_id}] Intent: {intent.question_type.name}, "
+                                f"Answering: {answer[:50]}..."
+                            )
 
                             # Submit answer asynchronously
                             asyncio.create_task(self._submit_answer(log_id, answer, headers))

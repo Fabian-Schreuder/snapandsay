@@ -1,0 +1,235 @@
+[
+  {
+    "dish_id": "dish_1567789190",
+    "success": true,
+    "turns": 0,
+    "final_data": {
+      "title": "Worst met Groenten",
+      "items": [
+        {
+          "name": "Worst",
+          "quantity": "10 stukken",
+          "calories": 250,
+          "protein": 15,
+          "carbs": 2,
+          "fats": 20,
+          "confidence": 0.9
+        },
+        {
+          "name": "Groentesalade",
+          "quantity": "1 portie",
+          "calories": 50,
+          "protein": 2,
+          "carbs": 10,
+          "fats": 1,
+          "confidence": 0.8
+        }
+      ],
+      "meal_type": "Lunch",
+      "synthesis_comment": "Een voedzame lunch bestaande uit worst en een verse groentesalade.",
+      "is_food": true,
+      "non_food_reason": null
+    },
+    "error": null,
+    "log_id": "b2934e3b-1c88-437a-9ec5-ac997fd18ad6"
+  },
+  {
+    "dish_id": "dish_1559841163",
+    "success": true,
+    "turns": 0,
+    "final_data": {
+      "title": "Gevarieerd Ontbijtbord",
+      "items": [
+        {
+          "name": "roerei",
+          "quantity": "1 portie",
+          "calories": 150,
+          "protein": 10,
+          "carbs": 1,
+          "fats": 12,
+          "confidence": 0.9
+        },
+        {
+          "name": "broccoli",
+          "quantity": "1 portie",
+          "calories": 55,
+          "protein": 4,
+          "carbs": 11,
+          "fats": 0,
+          "confidence": 0.9
+        },
+        {
+          "name": "aardappelen",
+          "quantity": "enkele stukjes",
+          "calories": 80,
+          "protein": 2,
+          "carbs": 19,
+          "fats": 0,
+          "confidence": 0.8
+        },
+        {
+          "name": "zwarte bessen",
+          "quantity": "handvol",
+          "calories": 43,
+          "protein": 1,
+          "carbs": 10,
+          "fats": 0,
+          "confidence": 0.9
+        },
+        {
+          "name": "worstjes",
+          "quantity": "enkele stukjes",
+          "calories": 150,
+          "protein": 10,
+          "carbs": 1,
+          "fats": 12,
+          "confidence": 0.85
+        }
+      ],
+      "meal_type": "Lunch",
+      "synthesis_comment": "Het bord bevat een evenwichtige mix van eiwitten, groenten en fruit, ideaal voor een voedzame lunch.",
+      "is_food": true,
+      "non_food_reason": null
+    },
+    "error": null,
+    "log_id": "0d51d2d8-1a01-40ff-9607-ce5175f284b9"
+  },
+  {
+    "dish_id": "dish_1562169840",
+    "success": true,
+    "turns": 1,
+    "final_data": {
+      "title": "Roerei met spruitjes en worstjes",
+      "items": [
+        {
+          "name": "Roerei",
+          "quantity": "1 portie",
+          "calories": 200,
+          "protein": 15,
+          "carbs": 2,
+          "fats": 15,
+          "confidence": 0.9
+        },
+        {
+          "name": "Spruitjes",
+          "quantity": "1 portie",
+          "calories": 50,
+          "protein": 4,
+          "carbs": 10,
+          "fats": 0,
+          "confidence": 0.8
+        },
+        {
+          "name": "Vegetarische worstjes",
+          "quantity": "2 stuks",
+          "calories": 160,
+          "protein": 12,
+          "carbs": 5,
+          "fats": 10,
+          "confidence": 0.8
+        },
+        {
+          "name": "Groene salade",
+          "quantity": "1 portie",
+          "calories": 40,
+          "protein": 2,
+          "carbs": 6,
+          "fats": 1,
+          "confidence": 0.7
+        }
+      ],
+      "meal_type": "Lunch",
+      "synthesis_comment": "Dit gerecht bevat een goede mix van eiwitten, vezels en vetten. Het is waarschijnlijk een lunch gezien de vari\u00ebteit aan voedingsmiddelen.",
+      "is_food": true,
+      "non_food_reason": null
+    },
+    "error": null,
+    "log_id": "9fc70d44-1459-4ad9-ba23-eefcfb8813a9"
+  },
+  {
+    "dish_id": "dish_1560456794",
+    "success": true,
+    "turns": 0,
+    "final_data": {
+      "title": "Kip met Groenten",
+      "items": [
+        {
+          "name": "Kip",
+          "quantity": "100g",
+          "calories": 165,
+          "protein": 31,
+          "carbs": 0,
+          "fats": 3,
+          "confidence": 0.9
+        },
+        {
+          "name": "Groenten",
+          "quantity": "50g",
+          "calories": 15,
+          "protein": 1,
+          "carbs": 3,
+          "fats": 0,
+          "confidence": 0.8
+        }
+      ],
+      "meal_type": "Lunch",
+      "synthesis_comment": "Een gezonde lunch met kip en groenten.",
+      "is_food": true,
+      "non_food_reason": null
+    },
+    "error": null,
+    "log_id": "ddcc6c83-adfc-4ab9-a4ad-5b8a8c6809a5"
+  },
+  {
+    "dish_id": "dish_1558718906",
+    "success": true,
+    "turns": 0,
+    "final_data": {
+      "title": "Gezonde Snack Platter",
+      "items": [
+        {
+          "name": "Maiskolf",
+          "quantity": "2 halve stukken",
+          "calories": 50,
+          "protein": 2,
+          "carbs": 10,
+          "fats": 1,
+          "confidence": 0.9
+        },
+        {
+          "name": "Amandelen",
+          "quantity": "handvol (ongeveer 20-25 stuks)",
+          "calories": 170,
+          "protein": 6,
+          "carbs": 6,
+          "fats": 15,
+          "confidence": 0.9
+        },
+        {
+          "name": "Meloenstukjes",
+          "quantity": "enkele blokjes",
+          "calories": 30,
+          "protein": 1,
+          "carbs": 8,
+          "fats": 0,
+          "confidence": 0.8
+        },
+        {
+          "name": "Bloemkoolroosjes",
+          "quantity": "enkele stukken",
+          "calories": 15,
+          "protein": 1,
+          "carbs": 3,
+          "fats": 0,
+          "confidence": 0.9
+        }
+      ],
+      "meal_type": "Snack",
+      "synthesis_comment": "Deze kleurrijke snack bevat een mix van groenten, fruit en noten, ideaal voor een gezonde tussendoor.",
+      "is_food": true,
+      "non_food_reason": null
+    },
+    "error": null,
+    "log_id": "0704f69d-667d-459e-ae32-2bdbda78d0e7"
+  }
+]
