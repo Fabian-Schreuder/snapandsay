@@ -45,3 +45,7 @@ class AgentState(TypedDict):
 
     # Research/Experimentation
     system_prompt_override: str | None
+    provider: str | None
+    model: str | None
+    is_food: bool | None
+    non_food_reason: str | None

@@ -84,6 +84,8 @@ async def analyze_input(state: AgentState) -> dict:
             context=context,
             user_token=user_token,
             system_prompt_override=state.get("system_prompt_override"),
+            provider=state.get("provider"),
+            model=state.get("model"),
         )
         return {
             "nutritional_data": result.model_dump(),
@@ -211,6 +213,8 @@ async def analyze_input_streaming(
             user_token=user_token,
             language=language,
             system_prompt_override=state.get("system_prompt_override"),
+            provider=state.get("provider"),
+            model=state.get("model"),
         )
 
         # Emit complete thought
@@ -304,7 +308,9 @@ async def generate_clarification(state: AgentState) -> dict:
     ]
 
     if low_confidence_items:
-        await llm_service.generate_clarification_question(low_confidence_items)
+        await llm_service.generate_clarification_question(
+            low_confidence_items, provider=state.get("provider"), model=state.get("model")
+        )
         return {
             "needs_clarification": True,
             "clarification_count": clarification_count + 1,
@@ -341,7 +347,9 @@ async def generate_clarification_streaming(
 
     if low_confidence_items and log_id:
         try:
-            question = await llm_service.generate_clarification_question(low_confidence_items, language)
+            question = await llm_service.generate_clarification_question(
+                low_confidence_items, language, provider=state.get("provider"), model=state.get("model")
+            )
 
             # Update log status to clarification in database
             async with async_session_maker() as session:

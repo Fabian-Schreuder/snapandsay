@@ -6,6 +6,7 @@ from collections.abc import Awaitable, Callable
 from datetime import datetime
 from functools import lru_cache
 
+from google import genai
 from openai import AsyncOpenAI
 from pydantic import BaseModel
 
@@ -30,9 +31,15 @@ class ClarificationQuestion(BaseModel):
 
 
 @lru_cache(maxsize=1)
-def _get_client() -> AsyncOpenAI:
+def _get_openai_client() -> AsyncOpenAI:
     """Lazily instantiate and cache the OpenAI client."""
     return AsyncOpenAI(api_key=settings.OPENAI_API_KEY, timeout=60.0, max_retries=3)
+
+
+@lru_cache(maxsize=1)
+def _get_google_client() -> genai.Client:
+    """Lazily instantiate and cache the Google GenAI client."""
+    return genai.Client(api_key=settings.GOOGLE_API_KEY)
 
 
 def _build_messages(
@@ -209,39 +216,35 @@ async def analyze_multimodal(
     user_token: str | None = None,
     language: str = "nl",
     system_prompt_override: str | None = None,
+    provider: str | None = None,
+    model: str | None = None,
 ) -> AnalysisResult:
     """
-    Analyze image and/or transcript using GPT-4o to extract dietary data.
-
-    Args:
-        image_url: URL or path of the image to analyze (optional).
-        transcript: Audio transcript to analyze (optional).
-        context: Additional textual context (e.g. clarification response) (optional).
-        user_token: User JWT for accessing private images (optional).
-        language: Language code for response (default: "nl" for Dutch).
-        system_prompt_override: Optional system prompt to use instead of the default.
-
-    Returns:
-        AnalysisResult with identified food items and synthesis comment.
-
-    Raises:
-        ValueError: If neither image_url nor transcript is provided.
-        LLMGenerationError: If the LLM API call fails.
+    Analyze image and/or transcript to extract dietary data.
+    Supports OpenAI and Google Gemini providers.
     """
     if not image_url and not transcript:
         raise ValueError("No input provided (image_url or transcript required)")
+
+    provider = provider or settings.LLM_PROVIDER
 
     # Process image if provided
     final_image_url = image_url
     if image_url:
         final_image_url = await _get_image_content(image_url, user_token)
 
-    messages = _build_messages(final_image_url, transcript, context, language, system_prompt_override)
+    if provider == "google":
+        return await _analyze_google(
+            final_image_url, transcript, context, language, system_prompt_override, model
+        )
 
+    # Default to OpenAI
+    messages = _build_messages(final_image_url, transcript, context, language, system_prompt_override)
     try:
-        client = _get_client()
+        client = _get_openai_client()
+        model_name = model or settings.OPENAI_MODEL_NAME
         completion = await client.beta.chat.completions.parse(
-            model=settings.OPENAI_MODEL_NAME,
+            model=model_name,
             messages=messages,
             response_format=AnalysisResult,
         )
@@ -249,8 +252,79 @@ async def analyze_multimodal(
             raise LLMGenerationError(f"LLM Refusal: {completion.choices[0].message.refusal}")
         return completion.choices[0].message.parsed
     except Exception as e:
-        logger.error(f"LLM generation failed: {e}")
-        raise LLMGenerationError(f"Failed to analyze input: {str(e)}") from e
+        logger.error(f"OpenAI analysis failed: {e}")
+        raise LLMGenerationError(f"Failed to analyze input with OpenAI: {str(e)}") from e
+
+
+async def _analyze_google(
+    image_data_uri: str | None,
+    transcript: str | None,
+    context: str | None,
+    language: str,
+    system_prompt_override: str | None,
+    model_name: str | None,
+) -> AnalysisResult:
+    """Inner helper for Google Gemini analysis."""
+    client = _get_google_client()
+    model_id = model_name or settings.GOOGLE_MODEL_NAME
+
+    # Build prompt and parts
+    current_time = datetime.now().strftime("%H:%M")
+    lang_name = "Dutch" if language == "nl" else "English"
+    lang_instruction = f"IMPORTANT: Respond entirely in {lang_name}." if language != "en" else ""
+
+    schema_json = json.dumps(AnalysisResult.model_json_schema(), ensure_ascii=False)
+
+    if system_prompt_override:
+        try:
+            prompt = system_prompt_override.format(
+                current_time=current_time, schema=schema_json, lang_instruction=lang_instruction
+            )
+        except (KeyError, ValueError):
+            prompt = system_prompt_override
+    else:
+        # Simplified version of the OpenAI prompt for Gemini
+        prompt = (
+            f"{lang_instruction}\n"
+            f"You are a dietary expert. Current time is {current_time}. "
+            "Analyze the input to identify food items, estimate quantities, calories, and confidence.\n"
+            "Respond ONLY with valid JSON matching this schema: " + schema_json
+        )
+
+    contents = []
+    if prompt:
+        contents.append(prompt)
+    if context:
+        contents.append(f"Context: {context}")
+    if transcript:
+        contents.append(f"Transcript: {transcript}")
+
+    if image_data_uri:
+        if image_data_uri.startswith("data:"):
+            import base64
+
+            header, encoded = image_data_uri.split(",", 1)
+            mime_type = header.split(";")[0].split(":")[1]
+            image_bytes = base64.b64decode(encoded)
+            contents.append({"mime_type": mime_type, "data": image_bytes})
+        else:
+            # If it's still a URL (fallback), Gemini might not support it directly in prompt parts easily
+            # But the service usually ensures it's a data URI.
+            pass
+
+    try:
+        response = await client.aio.models.generate_content(
+            model=model_id,
+            contents=contents,
+            config={
+                "response_mime_type": "application/json",
+                "response_schema": AnalysisResult,
+            },
+        )
+        return AnalysisResult.model_validate_json(response.text)
+    except Exception as e:
+        logger.error(f"Google analysis failed: {e}")
+        raise LLMGenerationError(f"Failed to analyze input with Google: {str(e)}") from e
 
 
 async def analyze_multimodal_streaming(
@@ -261,64 +335,55 @@ async def analyze_multimodal_streaming(
     user_token: str | None = None,
     language: str = "nl",
     system_prompt_override: str | None = None,
+    provider: str | None = None,
+    model: str | None = None,
 ) -> AnalysisResult:
     """
-    Analyze image and/or transcript using GPT-4o with streaming tokens.
-
-    This method streams tokens as they are generated, calling on_token for each
-    chunk to enable real-time progress feedback in the UI.
-
-    Args:
-        image_url: URL or path of the image to analyze (optional).
-        transcript: Audio transcript to analyze (optional).
-        context: Additional textual context (e.g. clarification response) (optional).
-        on_token: Optional async callback invoked with each text chunk.
-        user_token: User JWT for accessing private images (optional).
-        language: Language code for response (default: "nl" for Dutch).
-        system_prompt_override: Optional system prompt to use instead of the default.
-
-    Returns:
-        AnalysisResult with identified food items and synthesis comment.
-
-    Raises:
-        ValueError: If neither image_url nor transcript is provided.
-        LLMGenerationError: If the LLM API call fails.
+    Analyze image and/or transcript with streaming tokens.
+    Supports OpenAI and Google Gemini providers.
     """
     if not image_url and not transcript:
         raise ValueError("No input provided (image_url or transcript required)")
+
+    provider = provider or settings.LLM_PROVIDER
 
     # Process image if provided
     final_image_url = image_url
     if image_url:
         final_image_url = await _get_image_content(image_url, user_token)
 
+    if provider == "google":
+        return await _analyze_google_streaming(
+            final_image_url, transcript, context, on_token, language, system_prompt_override, model
+        )
+
+    # Default to OpenAI
     messages = _build_messages(final_image_url, transcript, context, language, system_prompt_override)
     accumulated_content = ""
     accumulated_refusal = ""
 
     try:
-        client = _get_client()
+        client = _get_openai_client()
+        model_name = model or settings.OPENAI_MODEL_NAME
 
         # Use streaming mode
-        logger.info(f"Sending messages to LLM: {messages}")
+        logger.info(f"Sending messages to OpenAI: {messages}")
         stream = await client.chat.completions.create(
-            model=settings.OPENAI_MODEL_NAME,
+            model=model_name,
             messages=messages,
             stream=True,
             response_format={"type": "json_object"},
         )
 
-        logger.info("Starting LLM stream iteration...")
+        logger.info("Starting OpenAI stream iteration...")
         async for chunk in stream:
             if chunk.choices:
                 # Log the entire chunk for debugging
-                logger.info(f"Chunk received: {chunk}")
+                logger.debug(f"Chunk received: {chunk}")
                 delta = chunk.choices[0].delta
                 if delta.content:
                     content = delta.content
                     accumulated_content += content
-                    logger.info(f"Token received: {content!r}")
-
                     # Call the token callback if provided
                     if on_token:
                         await on_token(content)
@@ -327,56 +392,114 @@ async def analyze_multimodal_streaming(
                     logger.warning(f"Refusal token received: {delta.refusal}")
 
             if chunk.choices[0].finish_reason:
-                logger.info(f"LLM Stream Finished. Reason: {chunk.choices[0].finish_reason}")
-                logger.info(f"Total accumulated content length: {len(accumulated_content)}")
+                logger.info(f"OpenAI Stream Finished. Reason: {chunk.choices[0].finish_reason}")
 
         if accumulated_refusal:
-            logger.error(f"LLM returned refusal: {accumulated_refusal}")
-            raise LLMGenerationError(f"LLM Refused to process input: {accumulated_refusal}")
+            logger.error(f"OpenAI returned refusal: {accumulated_refusal}")
+            raise LLMGenerationError(f"OpenAI Refused to process input: {accumulated_refusal}")
 
         if not accumulated_content:
-            logger.error("LLM returned empty response. Accumulated content is empty.")
-            # dump messages to see what we sent
-            logger.error(f"Request messages were: {json.dumps(messages, default=str)}")
-            raise LLMGenerationError("LLM returned empty response")
-
-        logger.info(f"LLM Response Content (first 200 chars): {accumulated_content[:200]}")
+            logger.error("OpenAI returned empty response.")
+            raise LLMGenerationError("OpenAI returned empty response")
 
         # Parse the accumulated JSON into AnalysisResult
         try:
             parsed_data = json.loads(accumulated_content)
             return AnalysisResult.model_validate(parsed_data)
         except (json.JSONDecodeError, Exception) as parse_error:
-            logger.error(
-                f"Failed to parse streaming response: {parse_error}. " f"Content: {accumulated_content}"
-            )
-            raise LLMGenerationError(f"Failed to parse LLM response: {str(parse_error)}") from parse_error
+            logger.error(f"Failed to parse OpenAI response: {parse_error}")
+            raise LLMGenerationError(f"Failed to parse OpenAI response: {str(parse_error)}") from parse_error
 
     except Exception as e:
         logger.error(f"LLM streaming generation failed: {e}")
         raise LLMGenerationError(f"Failed to analyze input: {str(e)}") from e
 
 
+async def _analyze_google_streaming(
+    image_data_uri: str | None,
+    transcript: str | None,
+    context: str | None,
+    on_token: Callable[[str], Awaitable[None]] | None,
+    language: str,
+    system_prompt_override: str | None,
+    model_name: str | None,
+) -> AnalysisResult:
+    """Inner helper for Google Gemini streaming analysis."""
+    client = _get_google_client()
+    model_id = model_name or settings.GOOGLE_MODEL_NAME
+
+    # Build prompt and parts (reusing logic from _analyze_google)
+    current_time = datetime.now().strftime("%H:%M")
+    lang_name = "Dutch" if language == "nl" else "English"
+    lang_instruction = f"IMPORTANT: Respond entirely in {lang_name}." if language != "en" else ""
+    schema_json = json.dumps(AnalysisResult.model_json_schema(), ensure_ascii=False)
+
+    if system_prompt_override:
+        try:
+            prompt = system_prompt_override.format(
+                current_time=current_time, schema=schema_json, lang_instruction=lang_instruction
+            )
+        except (KeyError, ValueError):
+            prompt = system_prompt_override
+    else:
+        prompt = (
+            f"{lang_instruction}\n"
+            f"You are a dietary expert. Current time is {current_time}. "
+            "Analyze the input to identify food items, estimate quantities, calories, and confidence.\n"
+            "Respond ONLY with valid JSON matching this schema: " + schema_json
+        )
+
+    contents = []
+    if prompt:
+        contents.append(prompt)
+    if context:
+        contents.append(f"Context: {context}")
+    if transcript:
+        contents.append(f"Transcript: {transcript}")
+
+    if image_data_uri:
+        if image_data_uri.startswith("data:"):
+            import base64
+
+            header, encoded = image_data_uri.split(",", 1)
+            mime_type = header.split(";")[0].split(":")[1]
+            image_bytes = base64.b64decode(encoded)
+            contents.append({"mime_type": mime_type, "data": image_bytes})
+
+    accumulated_content = ""
+    try:
+        response_stream = client.aio.models.generate_content_stream(
+            model=model_id,
+            contents=contents,
+            config={
+                "response_mime_type": "application/json",
+            },
+        )
+
+        async for chunk in response_stream:
+            text = chunk.text
+            accumulated_content += text
+            if on_token:
+                await on_token(text)
+
+        return AnalysisResult.model_validate_json(accumulated_content)
+    except Exception as e:
+        logger.error(f"Google streaming analysis failed: {e}")
+        raise LLMGenerationError(f"Failed to analyze input with Google (streaming): {str(e)}") from e
+
+
 async def generate_clarification_question(
     low_confidence_items: list[FoodItem],
     language: str = "nl",
+    provider: str | None = None,
+    model: str | None = None,
 ) -> ClarificationQuestion:
     """
     Generate a clarification question for low-confidence food items.
-
-    Uses GPT-4o to create a simple, senior-friendly question with 2-3
-    suggested options based on the uncertain food items.
-
-    Args:
-        low_confidence_items: List of FoodItem with low confidence scores.
-        language: Language code for response (default: "nl" for Dutch).
-
-    Returns:
-        ClarificationQuestion with question text and options.
-
-    Raises:
-        LLMGenerationError: If the LLM call fails.
+    Supports OpenAI and Google Gemini providers.
     """
+    provider = provider or settings.LLM_PROVIDER
+
     # Localized fallback messages
     fallback_messages = {
         "nl": {
@@ -426,23 +549,54 @@ async def generate_clarification_question(
         "Generate a simple clarification question to help identify them better."
     )
 
+    if provider == "google":
+        return await _generate_google_clarification(system_prompt, user_prompt, language, model)
+
     messages = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
     ]
 
     try:
-        client = _get_client()
+        client = _get_openai_client()
+        model_name = model or settings.OPENAI_MODEL_NAME
         completion = await client.beta.chat.completions.parse(
-            model=settings.OPENAI_MODEL_NAME,
+            model=model_name,
             messages=messages,
             response_format=ClarificationQuestion,
         )
         return completion.choices[0].message.parsed
     except Exception as e:
-        logger.error(f"Clarification generation failed: {e}")
-        # Fallback to generic question in user's language
+        logger.error(f"OpenAI clarification generation failed: {e}")
         return ClarificationQuestion(
             question=msgs["generic_question"],
             options=msgs["generic_options"],
+        )
+
+
+async def _generate_google_clarification(
+    system_prompt: str,
+    user_prompt: str,
+    language: str,
+    model_name: str | None,
+) -> ClarificationQuestion:
+    """Inner helper for Google Gemini clarification generation."""
+    client = _get_google_client()
+    model_id = model_name or settings.GOOGLE_MODEL_NAME
+
+    try:
+        response = await client.aio.models.generate_content(
+            model=model_id,
+            contents=[system_prompt, user_prompt],
+            config={
+                "response_mime_type": "application/json",
+                "response_schema": ClarificationQuestion,
+            },
+        )
+        return ClarificationQuestion.model_validate_json(response.text)
+    except Exception as e:
+        logger.error(f"Google clarification generation failed: {e}")
+        return ClarificationQuestion(
+            question="Can you tell me more about what you ate?",
+            options=["Main dish", "Side dish", "Drink"],
         )

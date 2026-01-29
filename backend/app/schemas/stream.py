@@ -15,3 +15,5 @@ class StreamAnalysisRequest(BaseModel):
     system_prompt_override: str | None = Field(
         None, description="Optional system prompt to use for experiments"
     )
+    provider: str | None = Field(None, description="LLM provider (openai, google)")
+    model: str | None = Field(None, description="Specific model name to use")

@@ -223,7 +223,12 @@ async def main_async(args):
 
     if args.command == "experiment":
         result = await optimizer.run_experiment(
-            prompt_id=args.prompt, limit=args.limit, complexity=args.complexity, seed=args.seed
+            prompt_id=args.prompt,
+            limit=args.limit,
+            complexity=args.complexity,
+            seed=args.seed,
+            provider=args.provider,
+            model=args.model,
         )
         experiment_log.log_experiment(result)
         print(f"\nExperiment {result.experiment_id} completed.")
@@ -265,7 +270,7 @@ async def main_async(args):
                 config=data["config"],
             )
 
-        suggestion = await optimizer.suggest_improvements(result)
+        suggestion = await optimizer.suggest_improvements(result, provider=args.provider, model=args.model)
         print("\n" + "=" * 40)
         print("PROMPT IMPROVEMENT SUGGESTION")
         print("=" * 40)
@@ -302,7 +307,10 @@ async def main_async(args):
     else:
         # 2. Init Runner
         runner = OracleRunner(
-            api_url=args.api_url, email=args.email, password=args.password, max_turns=args.max_turns
+            api_url=args.api_url,
+            email=args.email,
+            password=args.password,
+            max_turns=args.max_turns,
         )
 
         # 3. Login
@@ -328,7 +336,7 @@ async def main_async(args):
                     f"Overall {len(results)+1}/{len(all_dishes)}: {dish.dish_id} ---"
                 )
 
-                result = await runner.run_dish(dish)
+                result = await runner.run_dish(dish, provider=args.provider, model=args.model)
                 results.append(result)
 
                 # Record latency
@@ -448,6 +456,8 @@ def main():
     bench_parser.add_argument("--resume", action="store_true")
     bench_parser.add_argument("--delay", type=float, default=1.0)
     bench_parser.add_argument("--max-turns", type=int, default=3)
+    bench_parser.add_argument("--provider", type=str, help="LLM provider (openai, google)")
+    bench_parser.add_argument("--model", type=str, help="Specific model name")
 
     # experiment command
     exp_parser = subparsers.add_parser("experiment", help="Run prompt experiment")
@@ -455,6 +465,8 @@ def main():
     exp_parser.add_argument("--limit", type=int, default=5)
     exp_parser.add_argument("--complexity", choices=["simple", "complex"], default="simple")
     exp_parser.add_argument("--seed", type=int, default=42)
+    exp_parser.add_argument("--provider", type=str, help="LLM provider (openai, google)")
+    exp_parser.add_argument("--model", type=str, help="Specific model name")
 
     # history command
     subparsers.add_parser("history", help="View experiment history")
@@ -462,6 +474,8 @@ def main():
     # optimize command
     opt_parser = subparsers.add_parser("optimize", help="Suggest improvements")
     opt_parser.add_argument("--experiment-id", type=str, help="Experiment ID to analyze")
+    opt_parser.add_argument("--provider", type=str, help="LLM provider (openai, google)")
+    opt_parser.add_argument("--model", type=str, help="Specific model name")
 
     # Global args
     parser.add_argument("--output-dir", type=str, default="benchmark_output")

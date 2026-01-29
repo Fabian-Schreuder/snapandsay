@@ -27,7 +27,13 @@ class PromptOptimizer:
         self.loader = Nutrition5kLoader()
 
     async def run_experiment(
-        self, prompt_id: str, limit: int = 5, complexity: str = "simple", seed: int = 42
+        self,
+        prompt_id: str,
+        limit: int = 5,
+        complexity: str = "simple",
+        seed: int = 42,
+        provider: str | None = None,
+        model: str | None = None,
     ) -> ExperimentResult:
         """Run a benchmark experiment with a specific prompt version."""
         prompt = self.registry.get(prompt_id)
@@ -48,7 +54,9 @@ class PromptOptimizer:
             logger.info(f"Experiment {experiment_id} | Dish {i+1}/{len(dishes)}: {dish.dish_id}")
 
             # Pass the override to the runner
-            result = await self.runner.run_dish(dish, system_prompt_override=prompt.template)
+            result = await self.runner.run_dish(
+                dish, system_prompt_override=prompt.template, provider=provider, model=model
+            )
 
             if result["success"]:
                 latency_tracker.record(dish.dish_id, result["latency_seconds"], dish.complexity)
@@ -78,11 +86,19 @@ class PromptOptimizer:
             metrics=mae_metrics,
             latency_stats=latency_stats,
             per_dish_results=results,
-            config={"limit": limit, "complexity": complexity, "seed": seed},
+            config={
+                "limit": limit,
+                "complexity": complexity,
+                "seed": seed,
+                "provider": provider,
+                "model": model,
+            },
         )
         return experiment_result
 
-    async def suggest_improvements(self, result: ExperimentResult) -> str:
+    async def suggest_improvements(
+        self, result: ExperimentResult, provider: str | None = None, model: str | None = None
+    ) -> str:
         """Analyze errors and suggest prompt improvements using LLM."""
         logger.info(f"Analyzing errors for experiment {result.experiment_id}...")
 
@@ -119,13 +135,27 @@ class PromptOptimizer:
         """
 
         try:
-            from app.services.llm_service import _get_client
+            from app.services.llm_service import _get_openai_client
 
-            client = _get_client()
-            resp = await client.chat.completions.create(
-                model=settings.OPENAI_MODEL_NAME, messages=[{"role": "user", "content": analysis_prompt}]
-            )
-            return resp.choices[0].message.content
+            # Use analyze_multimodal to be provider-agnostic if possible,
+            # but suggest_improvements is more of a generic chat completion.
+            # We'll use the provider-aware analyze_multimodal logic but with a string return.
+
+            # For now, let's just use OpenAI or Google directly based on provider
+            provider = provider or settings.LLM_PROVIDER
+            if provider == "google":
+                from app.services.llm_service import _get_google_model
+
+                model_inst = _get_google_model(model)
+                resp = await model_inst.generate_content_async(analysis_prompt)
+                return resp.text
+            else:
+                client = _get_openai_client()
+                model_name = model or settings.OPENAI_MODEL_NAME
+                resp = await client.chat.completions.create(
+                    model=model_name, messages=[{"role": "user", "content": analysis_prompt}]
+                )
+                return resp.choices[0].message.content
         except Exception as e:
             logger.error(f"Failed to suggest improvements: {e}")
             return "Could not generate suggestions."

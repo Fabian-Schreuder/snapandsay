@@ -27,7 +27,7 @@ async def test_analyze_multimodal_success():
     mock_client = MagicMock()
     mock_client.beta.chat.completions.parse = AsyncMock(return_value=mock_response)
 
-    with patch("app.services.llm_service._get_client", return_value=mock_client):
+    with patch("app.services.llm_service._get_openai_client", return_value=mock_client):
         result = await analyze_multimodal(image_url="http://test.com/image.jpg", transcript="A red apple")
 
         assert result == mock_result
@@ -47,6 +47,6 @@ async def test_analyze_multimodal_api_error():
     mock_client = MagicMock()
     mock_client.beta.chat.completions.parse = AsyncMock(side_effect=Exception("API Error"))
 
-    with patch("app.services.llm_service._get_client", return_value=mock_client):
+    with patch("app.services.llm_service._get_openai_client", return_value=mock_client):
         with pytest.raises(LLMGenerationError, match="Failed to analyze input"):
             await analyze_multimodal(image_url="http://test.com/image.jpg")

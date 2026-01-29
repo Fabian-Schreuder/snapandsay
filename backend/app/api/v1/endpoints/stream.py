@@ -49,6 +49,8 @@ async def event_generator(
         "log_id": request.log_id,
         "language": language,
         "system_prompt_override": request.system_prompt_override,
+        "provider": request.provider,
+        "model": request.model,
     }
 
     last_heartbeat = asyncio.get_event_loop().time()

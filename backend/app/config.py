@@ -28,6 +28,13 @@ class Settings(BaseSettings):
     OPENAI_MODEL_NAME: str = "gpt-4o"
     WHISPER_MODEL_NAME: str = "whisper-1"
 
+    # Google
+    GOOGLE_API_KEY: str | None = None
+    GOOGLE_MODEL_NAME: str = "gemini-3.0-flash"
+
+    # Provider
+    LLM_PROVIDER: str = "google"  # openai, google
+
     # Email
     MAIL_USERNAME: str | None = None
     MAIL_PASSWORD: str | None = None
