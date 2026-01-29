@@ -115,7 +115,6 @@ class OracleRunner:
         Connects to SSE stream and handles events.
         """
         turns = 0
-        turns = 0
         final_log = None
         error_msg = None
         clarification_history = []
@@ -183,12 +182,14 @@ class OracleRunner:
                                 f"Answering: {answer[:50]}..."
                             )
 
-                            clarification_history.append({
-                                "question": question,
-                                "intent": intent.question_type.name,
-                                "entity": intent.entity,
-                                "answer": answer
-                            })
+                            clarification_history.append(
+                                {
+                                    "question": question,
+                                    "intent": intent.question_type.name,
+                                    "entity": intent.entity,
+                                    "answer": answer,
+                                }
+                            )
 
                             # Submit answer asynchronously
                             asyncio.create_task(self._submit_answer(log_id, answer, headers))
@@ -210,13 +211,6 @@ class OracleRunner:
             logger.error(f"Stream exception for {dish.dish_id}: {e}")
             error_msg = str(e)
 
-        success = final_log is not None
-        return {
-            "dish_id": dish.dish_id,
-            "success": success,
-            "turns": turns,
-            "final_data": final_log,
-            "error": error_msg,
         success = final_log is not None
         return {
             "dish_id": dish.dish_id,
