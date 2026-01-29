@@ -18,12 +18,12 @@ class MockAudio {
   preload: string = "";
   volume: number = 1;
   currentTime: number = 0;
-  
+
   constructor(src?: string) {
     if (src) this.src = src;
     mockAudioInstances.push(this);
   }
-  
+
   play = mockPlay;
 }
 
@@ -40,7 +40,9 @@ const localStorageMock = {
     delete mockLocalStorage[key];
   }),
   clear: jest.fn(() => {
-    Object.keys(mockLocalStorage).forEach((key) => delete mockLocalStorage[key]);
+    Object.keys(mockLocalStorage).forEach(
+      (key) => delete mockLocalStorage[key],
+    );
   }),
 };
 
@@ -200,7 +202,7 @@ describe("useFeedback", () => {
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         "feedback_sound_enabled",
-        "false"
+        "false",
       );
     });
 
@@ -213,7 +215,7 @@ describe("useFeedback", () => {
 
       expect(localStorageMock.setItem).toHaveBeenCalledWith(
         "feedback_vibration_enabled",
-        "false"
+        "false",
       );
     });
   });

@@ -21,19 +21,17 @@ export function SettingsSheet() {
     <Sheet>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" aria-label={t("title")}>
-           <Settings className="h-5 w-5" />
+          <Settings className="h-5 w-5" />
         </Button>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
           <SheetTitle>{t("title")}</SheetTitle>
-          <SheetDescription>
-            {t("description")}
-          </SheetDescription>
+          <SheetDescription>{t("description")}</SheetDescription>
         </SheetHeader>
         <div className="grid gap-6 py-6">
           <div className="space-y-4">
-             <LanguageToggle />
+            <LanguageToggle />
           </div>
           <div className="space-y-4">
             <FeedbackSettingsToggle />

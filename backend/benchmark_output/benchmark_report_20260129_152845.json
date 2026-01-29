@@ -1,0 +1,183 @@
+{
+  "metadata": {
+    "timestamp": "2026-01-29T14:28:45.743557+00:00",
+    "seed": 42,
+    "limit": 5,
+    "complexity_filter": "simple",
+    "total_dishes": 5,
+    "simple_dishes": 5,
+    "complex_dishes": 0
+  },
+  "accuracy": {
+    "success_rate": 1.0,
+    "success_rate_simple": 1.0,
+    "success_rate_complex": 0.0,
+    "total_clarification_turns": 0,
+    "avg_clarification_turns": 0.0,
+    "clarification_trigger_rate": 0.0
+  },
+  "wfr_comparison": {
+    "mae": {
+      "calories": 47.72,
+      "protein": 2.98,
+      "fat": 5.17,
+      "carbs": 5.4
+    },
+    "std_dev": {
+      "calories": 45.46,
+      "protein": 4.35,
+      "fat": 5.34,
+      "carbs": 5.89
+    },
+    "within_10_percent": {
+      "calories": 0.2,
+      "protein": 0.2,
+      "fat": 0.0,
+      "carbs": 0.2
+    },
+    "sample_count": 5
+  },
+  "latency": {
+    "mean_seconds": 9.26,
+    "p50_seconds": 8.51,
+    "p95_seconds": 14.83,
+    "p99_seconds": 15.89,
+    "per_complexity": {
+      "simple_mean": 9.26,
+      "complex_mean": 0.0
+    },
+    "sample_count": 5
+  },
+  "results": [
+    {
+      "dish_id": "dish_1562086595",
+      "success": true,
+      "turns": 0,
+      "latency_seconds": 16.16,
+      "log_id": "20c04945-16bb-42d4-b838-7271ade10292",
+      "error": null,
+      "ground_truth": {
+        "calories": 308.602997,
+        "protein": 18.139999,
+        "fat": 15.132999,
+        "carbs": 26.694
+      },
+      "predicted": {
+        "calories": 350,
+        "protein": 15,
+        "fat": 20,
+        "carbs": 28
+      },
+      "mae": {
+        "calories": 41.397002999999984,
+        "protein": 3.1399989999999995,
+        "fat": 4.867001,
+        "carbs": 1.306000000000001
+      }
+    },
+    {
+      "dish_id": "dish_1558375833",
+      "success": true,
+      "turns": 0,
+      "latency_seconds": 6.62,
+      "log_id": "92b34b04-d55f-4cc9-bdea-9d786d699c58",
+      "error": null,
+      "ground_truth": {
+        "calories": 317.032013,
+        "protein": 17.756001,
+        "fat": 25.116001,
+        "carbs": 3.864
+      },
+      "predicted": {
+        "calories": 250,
+        "protein": 18,
+        "fat": 20,
+        "carbs": 2
+      },
+      "mae": {
+        "calories": 67.032013,
+        "protein": 0.24399899999999874,
+        "fat": 5.116001000000001,
+        "carbs": 1.8639999999999999
+      }
+    },
+    {
+      "dish_id": "dish_1562602589",
+      "success": true,
+      "turns": 0,
+      "latency_seconds": 9.51,
+      "log_id": "37a3864b-6000-48f8-85c5-a21e06ac3a28",
+      "error": null,
+      "ground_truth": {
+        "calories": 365.276001,
+        "protein": 20.458,
+        "fat": 28.938,
+        "carbs": 4.452
+      },
+      "predicted": {
+        "calories": 250,
+        "protein": 10,
+        "fat": 15,
+        "carbs": 20
+      },
+      "mae": {
+        "calories": 115.27600100000001,
+        "protein": 10.457999999999998,
+        "fat": 13.937999999999999,
+        "carbs": 15.548
+      }
+    },
+    {
+      "dish_id": "dish_1562945131",
+      "success": true,
+      "turns": 0,
+      "latency_seconds": 8.51,
+      "log_id": "0ad7eb48-7e79-4e3e-964c-e9297e48700d",
+      "error": null,
+      "ground_truth": {
+        "calories": 37.323902,
+        "protein": 1.56878,
+        "fat": 1.89561,
+        "carbs": 4.57561
+      },
+      "predicted": {
+        "calories": 40,
+        "protein": 1,
+        "fat": 0,
+        "carbs": 10
+      },
+      "mae": {
+        "calories": 2.676098000000003,
+        "protein": 0.5687800000000001,
+        "fat": 1.89561,
+        "carbs": 5.42439
+      }
+    },
+    {
+      "dish_id": "dish_1563824250",
+      "success": true,
+      "turns": 0,
+      "latency_seconds": 5.49,
+      "log_id": "84a8e51c-eb65-44a6-9925-eacebfe2901d",
+      "error": null,
+      "ground_truth": {
+        "calories": 17.200001,
+        "protein": 0.473,
+        "fat": 0.043,
+        "carbs": 3.87
+      },
+      "predicted": {
+        "calories": 5,
+        "protein": 0,
+        "fat": 0,
+        "carbs": 1
+      },
+      "mae": {
+        "calories": 12.200001,
+        "protein": 0.473,
+        "fat": 0.043,
+        "carbs": 2.87
+      }
+    }
+  ]
+}

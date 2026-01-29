@@ -5,7 +5,7 @@ import { ThinkingIndicator } from "@/components/features/analysis/ThinkingIndica
 describe("ThinkingIndicator", () => {
   it("should not render when status is idle", () => {
     const { container } = render(
-      <ThinkingIndicator thoughts={[]} status="idle" />
+      <ThinkingIndicator thoughts={[]} status="idle" />,
     );
 
     expect(container.firstChild).toBeNull();
@@ -34,7 +34,7 @@ describe("ThinkingIndicator", () => {
     expect(screen.getByRole("status")).toBeInTheDocument();
     // Check for completion screen reader text
     expect(
-      screen.getByText("Analysis complete. Your meal has been logged.")
+      screen.getByText("Analysis complete. Your meal has been logged."),
     ).toBeInTheDocument();
   });
 
@@ -49,7 +49,7 @@ describe("ThinkingIndicator", () => {
 
     expect(screen.getByRole("status")).toHaveAttribute(
       "aria-label",
-      "AI is analyzing your meal"
+      "AI is analyzing your meal",
     );
   });
 
@@ -58,7 +58,7 @@ describe("ThinkingIndicator", () => {
 
     expect(screen.getByRole("status")).toHaveAttribute(
       "aria-label",
-      "Analysis complete"
+      "Analysis complete",
     );
   });
 
@@ -67,7 +67,7 @@ describe("ThinkingIndicator", () => {
 
     expect(screen.getByRole("status")).toHaveAttribute(
       "aria-label",
-      "An error occurred"
+      "An error occurred",
     );
   });
 
@@ -77,7 +77,7 @@ describe("ThinkingIndicator", () => {
         thoughts={[]}
         status="streaming"
         className="custom-class"
-      />
+      />,
     );
 
     expect(screen.getByRole("status")).toHaveClass("custom-class");

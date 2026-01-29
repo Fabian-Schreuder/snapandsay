@@ -81,7 +81,7 @@ function setStoredPreference(key: string, value: boolean): void {
 
 /**
  * Centralized feedback hook for haptic and sound feedback.
- * 
+ *
  * Provides semantic feedback methods that combine vibration + sound.
  * Respects user preferences stored in localStorage.
  */
@@ -91,10 +91,10 @@ export const useFeedback = (): UseFeedbackReturn => {
 
   // Preferences state
   const [soundEnabled, setSoundEnabledState] = useState<boolean>(() =>
-    getStoredPreference(STORAGE_KEYS.sound, true)
+    getStoredPreference(STORAGE_KEYS.sound, true),
   );
   const [vibrationEnabled, setVibrationEnabledState] = useState<boolean>(() =>
-    getStoredPreference(STORAGE_KEYS.vibration, true)
+    getStoredPreference(STORAGE_KEYS.vibration, true),
   );
 
   // Preload all sounds on mount
@@ -103,7 +103,7 @@ export const useFeedback = (): UseFeedbackReturn => {
 
     const entries = Object.entries(SOUNDS) as [FeedbackType, string][];
     const currentAudioRefs = audioRefs.current;
-    
+
     for (const [type, path] of entries) {
       try {
         const audio = new Audio(path);
@@ -136,7 +136,7 @@ export const useFeedback = (): UseFeedbackReturn => {
         console.warn("Vibration failed:", err);
       }
     },
-    [vibrationEnabled]
+    [vibrationEnabled],
   );
 
   /**
@@ -145,7 +145,7 @@ export const useFeedback = (): UseFeedbackReturn => {
   const playSound = useCallback(
     (type: FeedbackType) => {
       if (!soundEnabled) return;
-      
+
       const audio = audioRefs.current.get(type);
       if (!audio) return;
 
@@ -162,7 +162,7 @@ export const useFeedback = (): UseFeedbackReturn => {
         console.warn(`Sound playback error: ${type}`, err);
       }
     },
-    [soundEnabled]
+    [soundEnabled],
   );
 
   /**
@@ -173,7 +173,7 @@ export const useFeedback = (): UseFeedbackReturn => {
       vibrate(VIBRATION_PATTERNS[type]);
       playSound(type);
     },
-    [vibrate, playSound]
+    [vibrate, playSound],
   );
 
   // Preference setters with persistence
@@ -188,7 +188,10 @@ export const useFeedback = (): UseFeedbackReturn => {
   }, []);
 
   // Semantic feedback methods
-  const success = useCallback(() => triggerFeedback("success"), [triggerFeedback]);
+  const success = useCallback(
+    () => triggerFeedback("success"),
+    [triggerFeedback],
+  );
   const error = useCallback(() => triggerFeedback("error"), [triggerFeedback]);
   const start = useCallback(() => triggerFeedback("start"), [triggerFeedback]);
   const stop = useCallback(() => triggerFeedback("stop"), [triggerFeedback]);

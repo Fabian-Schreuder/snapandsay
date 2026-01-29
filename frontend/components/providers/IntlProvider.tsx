@@ -16,7 +16,8 @@ function getLocaleFromCookie(): Locale {
 
 export function IntlProvider({ children }: { children: ReactNode }) {
   const [locale, setLocale] = useState<Locale>("nl");
-  const [messages, setMessages] = useState<AbstractIntlMessages>(defaultMessages);
+  const [messages, setMessages] =
+    useState<AbstractIntlMessages>(defaultMessages);
 
   useEffect(() => {
     const currentLocale = getLocaleFromCookie();

@@ -38,7 +38,11 @@ QUESTION_PATTERNS: list[tuple[re.Pattern, QuestionType, int | None]] = [
     # Fat/oil questions - check for standalone keywords first
     (re.compile(r"\b(oil|fat|butter|margarine)\b", re.I), QuestionType.FAT_TYPE, None),
     # Quantity questions - capture the key noun (typically last significant word)
-    (re.compile(r"\bhow\s+much\s+(?:\w+\s+)*?(\w+)\s*(?:did|do|have|eat|use)?", re.I), QuestionType.QUANTITY, 1),  # noqa: E501
+    (
+        re.compile(r"\bhow\s+much\s+(?:\w+\s+)*?(\w+)\s*(?:did|do|have|eat|use)?", re.I),
+        QuestionType.QUANTITY,
+        1,
+    ),  # noqa: E501
     (re.compile(r"\bquantity\b.*?\b(\w+)\b", re.I), QuestionType.QUANTITY, 1),
     (re.compile(r"\bhow\s+many\s+(?:\w+\s+)*?(\w+)", re.I), QuestionType.QUANTITY, 1),
     # Type questions - capture the noun being asked about
@@ -49,9 +53,21 @@ QUESTION_PATTERNS: list[tuple[re.Pattern, QuestionType, int | None]] = [
     (re.compile(r"\b(dressing|sauce|gravy|condiment)\b", re.I), QuestionType.DRESSING_SAUCE, None),
     (re.compile(r"\bany\b.*\b(topping|spread)\b", re.I), QuestionType.DRESSING_SAUCE, None),
     # Cooking method - check for the verb pattern "was ... cooked" or keywords
-    (re.compile(r"\bhow\s+was\b.*\b(cook|cooked|prepare|prepared|made)\b", re.I), QuestionType.COOKING_METHOD, None),  # noqa: E501
-    (re.compile(r"\bhow\b.*\b(cook|cooked|prepare|prepared|made)\b", re.I), QuestionType.COOKING_METHOD, None),  # noqa: E501
-    (re.compile(r"\b(fried|baked|grilled|steamed|boiled|roasted)\b", re.I), QuestionType.COOKING_METHOD, None),  # noqa: E501
+    (
+        re.compile(r"\bhow\s+was\b.*\b(cook|cooked|prepare|prepared|made)\b", re.I),
+        QuestionType.COOKING_METHOD,
+        None,
+    ),  # noqa: E501
+    (
+        re.compile(r"\bhow\b.*\b(cook|cooked|prepare|prepared|made)\b", re.I),
+        QuestionType.COOKING_METHOD,
+        None,
+    ),  # noqa: E501
+    (
+        re.compile(r"\b(fried|baked|grilled|steamed|boiled|roasted)\b", re.I),
+        QuestionType.COOKING_METHOD,
+        None,
+    ),  # noqa: E501
     # Portion size
     (re.compile(r"\b(portion|serving|size)\b", re.I), QuestionType.PORTION_SIZE, None),
 ]

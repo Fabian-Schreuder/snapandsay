@@ -45,7 +45,7 @@ export function ThinkingIndicator({
         "flex flex-col items-center justify-center p-6 rounded-2xl",
         "bg-white/95 backdrop-blur-sm shadow-xl border border-zinc-100/20",
         "w-full max-w-sm mx-auto transition-all duration-300",
-        className
+        className,
       )}
       role="status"
       aria-live="polite"
@@ -57,7 +57,7 @@ export function ThinkingIndicator({
           <div
             className={cn(
               "absolute inset-0 rounded-full bg-indigo-500/10",
-              "animate-[pulse_3s_ease-in-out_infinite]"
+              "animate-[pulse_3s_ease-in-out_infinite]",
             )}
             style={{ transform: "scale(1.5)" }}
           />
@@ -65,7 +65,7 @@ export function ThinkingIndicator({
           <div
             className={cn(
               "absolute inset-0 rounded-full bg-indigo-500/20",
-              "animate-[pulse_3s_ease-in-out_infinite_1s]"
+              "animate-[pulse_3s_ease-in-out_infinite_1s]",
             )}
             style={{ transform: "scale(1.25)" }}
           />
@@ -76,7 +76,7 @@ export function ThinkingIndicator({
               "bg-gradient-to-tr from-indigo-600 to-indigo-500",
               "flex items-center justify-center",
               "shadow-lg shadow-indigo-500/20",
-              "transition-transform duration-700 ease-in-out"
+              "transition-transform duration-700 ease-in-out",
             )}
           >
             <BrainCircuit className="w-8 h-8 text-white animate-[pulse_3s_ease-in-out_infinite]" />
@@ -93,7 +93,7 @@ export function ThinkingIndicator({
               "bg-gradient-to-tr from-emerald-500 to-emerald-400",
               "flex items-center justify-center",
               "shadow-lg shadow-emerald-500/30",
-              "animate-in zoom-in duration-300"
+              "animate-in zoom-in duration-300",
             )}
           >
             <CheckCircle2 className="w-8 h-8 text-white" />
@@ -109,7 +109,7 @@ export function ThinkingIndicator({
               "w-16 h-16 rounded-full",
               "bg-gradient-to-tr from-red-500 to-red-400",
               "flex items-center justify-center",
-              "shadow-lg shadow-red-500/30"
+              "shadow-lg shadow-red-500/30",
             )}
           >
             <AlertCircle className="w-8 h-8 text-white" />
@@ -125,7 +125,7 @@ export function ThinkingIndicator({
             className={cn(
               "text-center text-lg font-medium leading-tight",
               "text-indigo-900", // High contrast/Warmth
-              "animate-in fade-in slide-in-from-bottom-1 duration-300"
+              "animate-in fade-in slide-in-from-bottom-1 duration-300",
             )}
           >
             {/* Show 'Connecting...' if no thoughts yet, else show latest thought */}
@@ -134,15 +134,15 @@ export function ThinkingIndicator({
         )}
 
         {isComplete && (
-           <p className="text-center text-lg font-medium text-emerald-800 animate-in fade-in">
-              Analysis complete
-           </p>
+          <p className="text-center text-lg font-medium text-emerald-800 animate-in fade-in">
+            Analysis complete
+          </p>
         )}
-        
+
         {isError && (
-           <p className="text-center text-lg font-medium text-red-700 animate-in fade-in">
-              Something went wrong
-           </p>
+          <p className="text-center text-lg font-medium text-red-700 animate-in fade-in">
+            Something went wrong
+          </p>
         )}
       </div>
     </div>

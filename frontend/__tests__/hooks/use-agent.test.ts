@@ -38,7 +38,7 @@ describe("useAgent", () => {
       () =>
         new Promise(() => {
           // Never resolves - simulates connecting state
-        })
+        }),
     );
 
     const { result } = renderHook(() => useAgent());
@@ -67,7 +67,9 @@ describe("useAgent", () => {
 
   it("should set error when fetch fails", async () => {
     mockFetch.mockRejectedValueOnce(new Error("Network error"));
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     const { result } = renderHook(() => useAgent());
 
@@ -77,9 +79,12 @@ describe("useAgent", () => {
 
     // Wait for the error to be logged (handling the async state update)
     await waitFor(() => {
-        expect(consoleSpy).toHaveBeenCalledWith("Streaming error:", expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "Streaming error:",
+        expect.any(Error),
+      );
     });
-    
+
     consoleSpy.mockRestore();
   });
 

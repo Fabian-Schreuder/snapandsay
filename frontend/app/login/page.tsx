@@ -12,7 +12,9 @@ export default function LoginPage() {
   useEffect(() => {
     // Check if already authenticated, redirect to app
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (session) {
         router.replace("/app");
       }
@@ -27,7 +29,7 @@ export default function LoginPage() {
         <p className="text-gray-600">{t("loginDescription")}</p>
         {/* AuthGuard in layout will handle the actual auto-sign-in logic */}
         <div className="mt-4 flex justify-center">
-             <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
         </div>
       </div>
     </div>

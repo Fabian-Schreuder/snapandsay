@@ -40,16 +40,21 @@ export function AdminLogsTable({ logs, onView }: AdminLogsTableProps) {
           ) : (
             logs.map((log) => (
               <TableRow key={log.id}>
-                <TableCell className="font-mono text-xs text-muted-foreground">{log.user_id}</TableCell>
+                <TableCell className="font-mono text-xs text-muted-foreground">
+                  {log.user_id}
+                </TableCell>
                 <TableCell className="whitespace-nowrap font-medium">
                   {new Date(log.created_at).toLocaleString()}
                 </TableCell>
-                <TableCell className="max-w-[300px] truncate" title={log.description || ""}>
+                <TableCell
+                  className="max-w-[300px] truncate"
+                  title={log.description || ""}
+                >
                   {log.description || "-"}
                 </TableCell>
                 <TableCell>{log.calories ?? "-"}</TableCell>
                 <TableCell>
-                    {/* Status badge - simplistic for now */}
+                  {/* Status badge - simplistic for now */}
                   <span className="capitalize">{log.status}</span>
                 </TableCell>
                 <TableCell className="text-right">

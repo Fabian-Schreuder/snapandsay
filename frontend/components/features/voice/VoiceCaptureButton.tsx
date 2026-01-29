@@ -4,10 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useAudio } from "../../../hooks/use-audio";
 import { useFeedback } from "../../../hooks/use-feedback";
 import { Mic } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogContent,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogContent } from "@/components/ui/alert-dialog";
 import PermissionErrorState from "../camera/PermissionErrorState";
 import { VoiceButton, VoiceButtonState } from "@/components/ui/voice-button";
 
@@ -76,7 +73,13 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
         console.error("Failed to start recording", err);
       }
     }
-  }, [isRecording, isPermissionDenied, stopRecording, startRecording, feedback]);
+  }, [
+    isRecording,
+    isPermissionDenied,
+    stopRecording,
+    startRecording,
+    feedback,
+  ]);
 
   const handleRetry = () => {
     window.location.reload();

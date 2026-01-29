@@ -53,7 +53,7 @@ export function ClarificationPrompt({
     (option: string) => {
       onSubmit(option, false);
     },
-    [onSubmit]
+    [onSubmit],
   );
 
   const handleTextSubmit = useCallback(() => {
@@ -135,14 +135,14 @@ export function ClarificationPrompt({
                 autoFocus
               />
             </div>
-             <Button
-                onClick={handleTextSubmit}
-                disabled={!textInput.trim()}
-                size="senior"
-                className="w-full"
-              >
-                Send Answer
-              </Button>
+            <Button
+              onClick={handleTextSubmit}
+              disabled={!textInput.trim()}
+              size="senior"
+              className="w-full"
+            >
+              Send Answer
+            </Button>
             <div className="text-center">
               <Button
                 variant="link"
@@ -171,7 +171,8 @@ export function ClarificationPrompt({
                 onClick={onSkip}
                 className="text-zinc-400 hover:text-white hover:bg-zinc-800/50 h-auto py-2"
               >
-                Taking too long? Tap to skip <ArrowRight className="w-4 h-4 ml-2" />
+                Taking too long? Tap to skip{" "}
+                <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
           )}

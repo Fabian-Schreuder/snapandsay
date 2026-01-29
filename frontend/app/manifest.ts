@@ -1,25 +1,25 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Snap and Say',
-    short_name: 'SnapAndSay',
-    description: 'Conversational dietary assessment tool',
-    start_url: '/',
-    display: 'standalone',
-    background_color: '#ffffff',
-    theme_color: '#ffffff',
+    name: "Snap and Say",
+    short_name: "SnapAndSay",
+    description: "Conversational dietary assessment tool",
+    start_url: "/",
+    display: "standalone",
+    background_color: "#ffffff",
+    theme_color: "#ffffff",
     icons: [
       {
-        src: '/favicon.png',
-        sizes: 'any',
-        type: 'image/png',
+        src: "/favicon.png",
+        sizes: "any",
+        type: "image/png",
       },
       {
-        src: '/icon.svg',
-        sizes: 'any',
-        type: 'image/svg+xml',
+        src: "/icon.svg",
+        sizes: "any",
+        type: "image/svg+xml",
       },
     ],
-  }
+  };
 }

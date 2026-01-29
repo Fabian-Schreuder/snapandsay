@@ -9,7 +9,11 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { LanguageToggle } from "@/components/LanguageToggle";
 
-export default function AdminGuard({ children }: { children: React.ReactNode }) {
+export default function AdminGuard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,91 +25,103 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     checkUser();
 
     // Listen for auth changes (e.g. after login)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event) => {
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-            checkUser();
-        } else if (event === 'SIGNED_OUT') {
-            setIsAdmin(false);
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event) => {
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        checkUser();
+      } else if (event === "SIGNED_OUT") {
+        setIsAdmin(false);
+      }
     });
 
     return () => {
-        subscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
 
   async function checkUser() {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session || session.user.is_anonymous) {
       setIsAdmin(false);
       return;
     }
-    
+
     // We assume if they have a non-anonymous session, they are potentially trusted.
     // The backend is the ultimate source of truth for "Admin" status.
-    setIsAdmin(true); 
+    setIsAdmin(true);
   }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    
-    try {
-        const { error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        });
 
-        if (error) {
-            setError(error.message);
-        } 
-        // onAuthStateChange will trigger checkUser -> setIsAdmin(true)
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
+      }
+      // onAuthStateChange will trigger checkUser -> setIsAdmin(true)
     } catch {
-        setError("An unexpected error occurred");
+      setError("An unexpected error occurred");
     }
   };
 
   if (isAdmin === null) {
-      return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
   if (!isAdmin) {
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-            <Card className="w-full max-w-md">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-xl">Admin Access</CardTitle>
-                    <LanguageToggle />
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleLogin} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input 
-                                id="email" 
-                                type="email" 
-                                placeholder="admin@example.com"
-                                value={email} 
-                                onChange={e => setEmail(e.target.value)} 
-                                required 
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="password">Password</Label>
-                            <Input 
-                                id="password" 
-                                type="password" 
-                                value={password} 
-                                onChange={e => setPassword(e.target.value)} 
-                                required 
-                            />
-                        </div>
-                        {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
-                        <Button type="submit" className="w-full">Sign In</Button>
-                    </form>
-                </CardContent>
-            </Card>
-        </div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-xl">Admin Access</CardTitle>
+            <LanguageToggle />
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="admin@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              {error && (
+                <p className="text-red-500 text-sm font-medium">{error}</p>
+              )}
+              <Button type="submit" className="w-full">
+                Sign In
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 

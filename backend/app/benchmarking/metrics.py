@@ -126,9 +126,7 @@ class MetricsCalculator:
     against Nutrition5k WFR (Weighed Food Record) ground truth.
     """
 
-    def calculate_dish_mae(
-        self, predicted: dict[str, Any] | None, ground_truth: NutritionDish
-    ) -> DishMAE:
+    def calculate_dish_mae(self, predicted: dict[str, Any] | None, ground_truth: NutritionDish) -> DishMAE:
         """
         Calculate MAE for a single dish.
 
@@ -252,10 +250,7 @@ class MetricsCalculator:
                 if result.carbs <= gt.total_carb * threshold_pct:
                     within["carbs"] += 1
 
-        return {
-            macro: (within[macro] / total[macro] if total[macro] > 0 else 0.0)
-            for macro in within
-        }
+        return {macro: (within[macro] / total[macro] if total[macro] > 0 else 0.0) for macro in within}
 
 
 class LatencyTracker:

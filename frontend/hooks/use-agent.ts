@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { useQueryClient } from '@tanstack/react-query';
-import { useLocale } from 'next-intl';
+import { useQueryClient } from "@tanstack/react-query";
+import { useLocale } from "next-intl";
 import { useFeedback } from "./use-feedback";
-
 
 // SSE Event Types
 type AgentEventType =
@@ -56,8 +55,15 @@ export interface UseAgentReturn {
   result: AgentResponse | null;
   error: string | null;
   clarification: AgentClarification | null;
-  startStreaming: (logId: string, imagePath?: string, audioPath?: string) => void;
-  submitClarificationResponse: (response: string, isVoice?: boolean) => Promise<void>;
+  startStreaming: (
+    logId: string,
+    imagePath?: string,
+    audioPath?: string,
+  ) => void;
+  submitClarificationResponse: (
+    response: string,
+    isVoice?: boolean,
+  ) => Promise<void>;
   skipClarification: () => void;
   reset: () => void;
 }
@@ -65,26 +71,28 @@ export interface UseAgentReturn {
 // Ding sound for completion feedback
 // (UseFeedback hook imported at top)
 
-
 const MAX_RETRIES = 3;
 const RETRY_DELAYS = [1000, 2000, 4000]; // Exponential backoff
 const CLARIFICATION_TIMEOUT_MS = 30000; // 30 seconds
 
 // Define API Base URL to match api.ts logic, but inclusive of NEXT_PUBLIC_API_URL from env
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8000";
 
 import { supabase } from "@/lib/supabase";
 
 export const useAgent = (): UseAgentReturn => {
   const queryClient = useQueryClient();
   const locale = useLocale();
-  const statusLocale = (locale === 'en' || locale === 'nl') ? locale : 'nl'; // Type guard
+  const statusLocale = locale === "en" || locale === "nl" ? locale : "nl"; // Type guard
   const [status, setStatus] = useState<AgentStatus>("idle");
   const [thoughts, setThoughts] = useState<string[]>([]);
   const [result, setResult] = useState<AgentResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [clarification, setClarification] = useState<AgentClarification | null>(
-    null
+    null,
   );
 
   const eventSourceRef = useRef<EventSource | null>(null);
@@ -124,7 +132,7 @@ export const useAgent = (): UseAgentReturn => {
         // Reset and retry after brief delay
         setTimeout(
           () => startStreamingInternal(logId, imagePath, audioPath),
-          1000
+          1000,
         );
       }
     };
@@ -193,7 +201,7 @@ export const useAgent = (): UseAgentReturn => {
         const delay = RETRY_DELAYS[retryCountRef.current - 1] ?? 4000;
         setTimeout(
           () => startStreamingInternal(logId, imagePath, audioPath),
-          delay
+          delay,
         );
       }
     }, 20000); // 15s heartbeat + 5s buffer
@@ -216,15 +224,19 @@ export const useAgent = (): UseAgentReturn => {
       setError(null);
 
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
         // We're using POST for SSE, which EventSource doesn't support natively.
         // Use fetch with ReadableStream instead.
         const response = await fetch(`${API_BASE_URL}/api/v1/analysis/stream`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            ...(session?.access_token ? { "Authorization": `Bearer ${session.access_token}` } : {})
+            ...(session?.access_token
+              ? { Authorization: `Bearer ${session.access_token}` }
+              : {}),
           },
           body: JSON.stringify({
             log_id: logId,
@@ -287,7 +299,7 @@ export const useAgent = (): UseAgentReturn => {
                   setStatus("complete");
                   triggerCompletionFeedback();
                   // Invalidate logs query to update dashboard
-                  queryClient.invalidateQueries({ queryKey: ['logs'] });
+                  queryClient.invalidateQueries({ queryKey: ["logs"] });
                   cleanup();
                   return;
                 } else if (event.type === "agent.error") {
@@ -332,7 +344,7 @@ export const useAgent = (): UseAgentReturn => {
           setError("Reconnecting...");
           setTimeout(
             () => startStreamingInternal(logId, imagePath, audioPath),
-            delay
+            delay,
           );
         } else {
           setError(err instanceof Error ? err.message : "Connection failed");
@@ -342,7 +354,13 @@ export const useAgent = (): UseAgentReturn => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [cleanup, resetHeartbeatTimer, triggerCompletionFeedback, skipClarification, statusLocale]
+    [
+      cleanup,
+      resetHeartbeatTimer,
+      triggerCompletionFeedback,
+      skipClarification,
+      statusLocale,
+    ],
   );
 
   const submitClarificationResponse = useCallback(
@@ -359,20 +377,27 @@ export const useAgent = (): UseAgentReturn => {
           clearTimeout(clarificationTimeoutRef.current);
         }
 
-        const { data: { session } } = await supabase.auth.getSession();
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
         // Submit clarification to backend
-        const res = await fetch(`${API_BASE_URL}/api/v1/analysis/clarify/${logId}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(session?.access_token ? { "Authorization": `Bearer ${session.access_token}` } : {})
+        const res = await fetch(
+          `${API_BASE_URL}/api/v1/analysis/clarify/${logId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(session?.access_token
+                ? { Authorization: `Bearer ${session.access_token}` }
+                : {}),
+            },
+            body: JSON.stringify({
+              response,
+              is_voice: isVoice,
+            }),
           },
-          body: JSON.stringify({
-            response,
-            is_voice: isVoice,
-          }),
-        });
+        );
 
         if (!res.ok) {
           throw new Error(`Failed to submit clarification: ${res.status}`);
@@ -381,26 +406,25 @@ export const useAgent = (): UseAgentReturn => {
         // Re-trigger streaming for the log to get updated analysis
         const data = await res.json();
         if (data.status === "processing") {
-           // Reuse current image/audio paths if available
-           const currentRequest = currentRequestRef.current;
-           await startStreamingInternal(
-             logId, 
-             currentRequest?.imagePath, 
-             currentRequest?.audioPath
-           );
+          // Reuse current image/audio paths if available
+          const currentRequest = currentRequestRef.current;
+          await startStreamingInternal(
+            logId,
+            currentRequest?.imagePath,
+            currentRequest?.audioPath,
+          );
         } else {
-             // Fallback if status isn't processing (unexpected)
-             setStatus("complete");
-             triggerCompletionFeedback();
+          // Fallback if status isn't processing (unexpected)
+          setStatus("complete");
+          triggerCompletionFeedback();
         }
-
       } catch (err) {
         console.error("Clarification submission error:", err);
         setError("Failed to submit clarification. Try again.");
         setStatus("error");
       }
     },
-    [clarification, triggerCompletionFeedback, startStreamingInternal]
+    [clarification, triggerCompletionFeedback, startStreamingInternal],
   );
 
   const startStreaming = useCallback(
@@ -413,7 +437,7 @@ export const useAgent = (): UseAgentReturn => {
       setClarification(null);
       startStreamingInternal(logId, imagePath, audioPath);
     },
-    [startStreamingInternal]
+    [startStreamingInternal],
   );
 
   return {

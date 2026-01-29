@@ -1,0 +1,51 @@
+{
+  "metadata": {
+    "timestamp": "2026-01-29T14:11:37.683716+00:00",
+    "seed": 42,
+    "limit": 5,
+    "complexity_filter": "simple",
+    "total_dishes": 5,
+    "simple_dishes": 5,
+    "complex_dishes": 0
+  },
+  "accuracy": {
+    "success_rate": 1.0,
+    "success_rate_simple": 1.0,
+    "success_rate_complex": 0.0,
+    "total_clarification_turns": 0,
+    "avg_clarification_turns": 0.0,
+    "clarification_trigger_rate": 0.0
+  },
+  "wfr_comparison": {
+    "mae": {
+      "calories": 54.16,
+      "protein": 4.08,
+      "fat": 3.37,
+      "carbs": 4.06
+    },
+    "std_dev": {
+      "calories": 75.04,
+      "protein": 4.55,
+      "fat": 5.95,
+      "carbs": 1.96
+    },
+    "within_10_percent": {
+      "calories": 0.2,
+      "protein": 0.0,
+      "fat": 0.4,
+      "carbs": 0.0
+    },
+    "sample_count": 5
+  },
+  "latency": {
+    "mean_seconds": 6.93,
+    "p50_seconds": 6.68,
+    "p95_seconds": 8.82,
+    "p99_seconds": 9.09,
+    "per_complexity": {
+      "simple_mean": 6.93,
+      "complex_mean": 0.0
+    },
+    "sample_count": 5
+  }
+}

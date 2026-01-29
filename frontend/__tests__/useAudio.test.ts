@@ -1,12 +1,16 @@
-import { renderHook, act } from '@testing-library/react';
-import { useAudio } from '../hooks/use-audio';
+import { renderHook, act } from "@testing-library/react";
+import { useAudio } from "../hooks/use-audio";
 
 const mockMediaRecorder = {
-  start: jest.fn().mockImplementation(function(this: any) { this.state = 'recording'; }),
-  stop: jest.fn().mockImplementation(function(this: any) { this.state = 'inactive'; }),
+  start: jest.fn().mockImplementation(function (this: any) {
+    this.state = "recording";
+  }),
+  stop: jest.fn().mockImplementation(function (this: any) {
+    this.state = "inactive";
+  }),
   ondataavailable: jest.fn(),
   onerror: jest.fn(),
-  state: 'inactive',
+  state: "inactive",
   stream: {
     getTracks: jest.fn(() => [{ stop: jest.fn() }]),
   },
@@ -19,7 +23,7 @@ const mockGetUserMedia = jest.fn(async () => {
   } as unknown as MediaStream;
 });
 
-Object.defineProperty(global, 'navigator', {
+Object.defineProperty(global, "navigator", {
   value: {
     mediaDevices: {
       getUserMedia: mockGetUserMedia,
@@ -32,13 +36,13 @@ Object.defineProperty(global, 'navigator', {
 (global as any).MediaRecorder = jest.fn(() => mockMediaRecorder);
 (global as any).MediaRecorder.isTypeSupported = jest.fn(() => true);
 
-describe('useAudio', () => {
+describe("useAudio", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockMediaRecorder.state = 'inactive';
+    mockMediaRecorder.state = "inactive";
   });
 
-  it('should initialize with default states', () => {
+  it("should initialize with default states", () => {
     const { result } = renderHook(() => useAudio());
 
     expect(result.current.isRecording).toBe(false);
@@ -46,7 +50,7 @@ describe('useAudio', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('should start recording successfully', async () => {
+  it("should start recording successfully", async () => {
     const { result } = renderHook(() => useAudio());
 
     await act(async () => {
@@ -59,9 +63,11 @@ describe('useAudio', () => {
     expect(result.current.error).toBeNull();
   });
 
-  it('should handle permission denied', async () => {
-    mockGetUserMedia.mockRejectedValueOnce(new DOMException('Permission denied', 'NotAllowedError'));
-    
+  it("should handle permission denied", async () => {
+    mockGetUserMedia.mockRejectedValueOnce(
+      new DOMException("Permission denied", "NotAllowedError"),
+    );
+
     const { result } = renderHook(() => useAudio());
 
     await act(async () => {
@@ -73,7 +79,7 @@ describe('useAudio', () => {
     expect(result.current.isRecording).toBe(false);
   });
 
-  it('should stop recording and return blob', async () => {
+  it("should stop recording and return blob", async () => {
     const { result } = renderHook(() => useAudio());
 
     // Start first
@@ -82,9 +88,9 @@ describe('useAudio', () => {
     });
 
     // Simulate data available event
-    const mockBlob = new Blob(['audio data'], { type: 'audio/webm' });
+    const mockBlob = new Blob(["audio data"], { type: "audio/webm" });
     const dataEvent = { data: mockBlob };
-    
+
     await act(async () => {
       if ((mockMediaRecorder as any).ondataavailable) {
         (mockMediaRecorder as any).ondataavailable(dataEvent);

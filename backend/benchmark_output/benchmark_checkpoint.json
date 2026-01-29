@@ -1,0 +1,166 @@
+{
+  "metadata": {
+    "seed": 42,
+    "complexity": "simple",
+    "batch_size": 50
+  },
+  "results": [
+    {
+      "dish_id": "dish_1562086595",
+      "success": true,
+      "turns": 0,
+      "final_data": {
+        "title": "Roerei en Fruitsalade",
+        "items": [
+          {
+            "name": "Roerei",
+            "quantity": "1 portie",
+            "calories": 200,
+            "protein": 14,
+            "carbs": 2,
+            "fats": 15,
+            "confidence": 0.9
+          },
+          {
+            "name": "Fruitsalade",
+            "quantity": "1 portie",
+            "calories": 100,
+            "protein": 1,
+            "carbs": 25,
+            "fats": 0,
+            "confidence": 0.9
+          },
+          {
+            "name": "Slagroom",
+            "quantity": "Kleine hoeveelheid",
+            "calories": 50,
+            "protein": 0,
+            "carbs": 1,
+            "fats": 5,
+            "confidence": 0.8
+          }
+        ],
+        "meal_type": "Lunch",
+        "synthesis_comment": "Een lichte maaltijd met een eiwitrijke portie roerei en een gezonde combinatie van verschillende fruitsoorten met slagroom.",
+        "is_food": true,
+        "non_food_reason": null
+      },
+      "error": null,
+      "log_id": "20c04945-16bb-42d4-b838-7271ade10292",
+      "latency_seconds": 16.158622335999098
+    },
+    {
+      "dish_id": "dish_1558375833",
+      "success": true,
+      "turns": 0,
+      "final_data": {
+        "title": "Gesneden Worstjes",
+        "items": [
+          {
+            "name": "Worstjes",
+            "quantity": "6 stukjes",
+            "calories": 250,
+            "protein": 18,
+            "carbs": 2,
+            "fats": 20,
+            "confidence": 0.9
+          }
+        ],
+        "meal_type": "Snack",
+        "synthesis_comment": "Een portie gesneden worstjes, waarschijnlijk als snack geserveerd.",
+        "is_food": true,
+        "non_food_reason": null
+      },
+      "error": null,
+      "log_id": "92b34b04-d55f-4cc9-bdea-9d786d699c58",
+      "latency_seconds": 6.619552737000049
+    },
+    {
+      "dish_id": "dish_1562602589",
+      "success": true,
+      "turns": 0,
+      "final_data": {
+        "title": "Worstenhapjes",
+        "items": [
+          {
+            "name": "Worstenhapje",
+            "quantity": "5 stuks",
+            "calories": 250,
+            "protein": 10,
+            "carbs": 20,
+            "fats": 15,
+            "confidence": 0.9
+          }
+        ],
+        "meal_type": "Snack",
+        "synthesis_comment": "Een kleine portie worstenhapjes, waarschijnlijk een snack gezien het tijdstip en de hoeveelheid.",
+        "is_food": true,
+        "non_food_reason": null
+      },
+      "error": null,
+      "log_id": "37a3864b-6000-48f8-85c5-a21e06ac3a28",
+      "latency_seconds": 9.509278386000005
+    },
+    {
+      "dish_id": "dish_1562945131",
+      "success": true,
+      "turns": 0,
+      "final_data": {
+        "title": "Broccoli en Bessen Schotel",
+        "items": [
+          {
+            "name": "Broccoli",
+            "quantity": "3 stukjes",
+            "calories": 10,
+            "protein": 1,
+            "carbs": 2,
+            "fats": 0,
+            "confidence": 0.9
+          },
+          {
+            "name": "Bessen en Aardbeien",
+            "quantity": "Handvol",
+            "calories": 30,
+            "protein": 0,
+            "carbs": 8,
+            "fats": 0,
+            "confidence": 0.8
+          }
+        ],
+        "meal_type": "Snack",
+        "synthesis_comment": "Een lichte snack met broccoli en gemengde bessen.",
+        "is_food": true,
+        "non_food_reason": null
+      },
+      "error": null,
+      "log_id": "0ad7eb48-7e79-4e3e-964c-e9297e48700d",
+      "latency_seconds": 8.505579439999565
+    },
+    {
+      "dish_id": "dish_1563824250",
+      "success": true,
+      "turns": 0,
+      "final_data": {
+        "title": "Gesneden Rode Ui",
+        "items": [
+          {
+            "name": "Rode Ui",
+            "quantity": "Kleine hoeveelheid",
+            "calories": 5,
+            "protein": 0,
+            "carbs": 1,
+            "fats": 0,
+            "confidence": 0.9
+          }
+        ],
+        "meal_type": "Snack",
+        "synthesis_comment": "De afbeelding toont een kleine hoeveelheid gesneden rode ui in een metalen kom.",
+        "is_food": true,
+        "non_food_reason": null
+      },
+      "error": null,
+      "log_id": "84a8e51c-eb65-44a6-9925-eacebfe2901d",
+      "latency_seconds": 5.490277401999265
+    }
+  ]
+}

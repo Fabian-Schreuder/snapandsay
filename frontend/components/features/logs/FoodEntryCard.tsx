@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { AlertTriangle } from 'lucide-react';
-import type { DietaryLog } from '@/types/log';
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { AlertTriangle } from "lucide-react";
+import type { DietaryLog } from "@/types/log";
 
 interface FoodEntryCardProps {
   log: DietaryLog;
@@ -24,8 +24,8 @@ function getImageUrl(path: string): string {
  */
 function formatTime(isoString: string): string {
   return new Date(isoString).toLocaleTimeString([], {
-    hour: 'numeric',
-    minute: '2-digit',
+    hour: "numeric",
+    minute: "2-digit",
     hour12: true,
   });
 }
@@ -33,7 +33,7 @@ function formatTime(isoString: string): string {
 /**
  * FoodEntryCard displays a single meal log entry.
  * Tapping navigates to the log detail page.
- * 
+ *
  * Layout:
  * ┌─────────────────────────────────────────┐
  * │ ┌──────┐  Description / Transcript     │
@@ -42,12 +42,13 @@ function formatTime(isoString: string): string {
  * │ └──────┘        [⚠️ if needs_review]    │
  * └─────────────────────────────────────────┘
  */
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 
 export function FoodEntryCard({ log, onClick }: FoodEntryCardProps) {
-  const t = useTranslations('logs');
+  const t = useTranslations("logs");
   const router = useRouter();
-  const displayText = log.title || log.description || log.transcript || t('defaultTitle');
+  const displayText =
+    log.title || log.description || log.transcript || t("defaultTitle");
   const imageUrl = log.image_url || getImageUrl(log.image_path);
   const timeDisplay = formatTime(log.created_at);
 
@@ -63,7 +64,9 @@ export function FoodEntryCard({ log, onClick }: FoodEntryCardProps) {
     <button
       onClick={handleClick}
       className={`flex w-full items-center gap-4 p-4 min-h-[100px] rounded-xl text-card-foreground shadow-sm hover:shadow-md transition-shadow text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-        log.status === 'invalid' ? 'bg-destructive/10 border-2 border-destructive/20' : 'bg-card'
+        log.status === "invalid"
+          ? "bg-destructive/10 border-2 border-destructive/20"
+          : "bg-card"
       }`}
       type="button"
     >
@@ -73,10 +76,10 @@ export function FoodEntryCard({ log, onClick }: FoodEntryCardProps) {
           src={imageUrl}
           alt={displayText}
           fill
-          className={`object-cover ${log.status === 'invalid' ? 'opacity-50 grayscale' : ''}`}
+          className={`object-cover ${log.status === "invalid" ? "opacity-50 grayscale" : ""}`}
           sizes="80px"
         />
-        {log.status === 'invalid' && (
+        {log.status === "invalid" && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/10">
             <AlertTriangle className="h-8 w-8 text-destructive" />
           </div>
@@ -85,16 +88,23 @@ export function FoodEntryCard({ log, onClick }: FoodEntryCardProps) {
 
       {/* Content */}
       <div className="flex flex-1 flex-col gap-1 min-w-0">
-        <p className={`text-lg font-medium leading-snug line-clamp-2 ${log.status === 'invalid' ? 'text-destructive' : ''}`}>
-          {log.status === 'invalid' ? 'Invalid Entry' : displayText}
+        <p
+          className={`text-lg font-medium leading-snug line-clamp-2 ${log.status === "invalid" ? "text-destructive" : ""}`}
+        >
+          {log.status === "invalid" ? "Invalid Entry" : displayText}
         </p>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>{timeDisplay}</span>
-          {log.needs_review && log.status !== 'invalid' && (
-            <AlertTriangle className="h-4 w-4 text-amber-500" aria-label="Needs review" />
+          {log.needs_review && log.status !== "invalid" && (
+            <AlertTriangle
+              className="h-4 w-4 text-amber-500"
+              aria-label="Needs review"
+            />
           )}
-          {log.status === 'invalid' && log.description && (
-             <span className="text-xs text-destructive/80 line-clamp-1">{log.description.replace(/^\[Invalid\]:\s*/i, '').trim()}</span>
+          {log.status === "invalid" && log.description && (
+            <span className="text-xs text-destructive/80 line-clamp-1">
+              {log.description.replace(/^\[Invalid\]:\s*/i, "").trim()}
+            </span>
           )}
         </div>
       </div>

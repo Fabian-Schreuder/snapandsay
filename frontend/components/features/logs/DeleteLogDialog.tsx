@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,8 +10,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { Loader2 } from 'lucide-react';
+} from "@/components/ui/alert-dialog";
+import { Loader2 } from "lucide-react";
 
 interface DeleteLogDialogProps {
   open: boolean;
@@ -30,16 +30,16 @@ export function DeleteLogDialog({
   onConfirm,
   isDeleting,
 }: DeleteLogDialogProps) {
-  const t = useTranslations('logs.delete');
-  const tCommon = useTranslations('common');
+  const t = useTranslations("logs.delete");
+  const tCommon = useTranslations("common");
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-xl">{t('title')}</AlertDialogTitle>
+          <AlertDialogTitle className="text-xl">{t("title")}</AlertDialogTitle>
           <AlertDialogDescription className="text-base">
-            {t('description')}
+            {t("description")}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex-col gap-3 sm:flex-row">
@@ -47,7 +47,7 @@ export function DeleteLogDialog({
             className="h-14 w-full text-lg sm:w-auto"
             disabled={isDeleting}
           >
-            {tCommon('cancel')}
+            {tCommon("cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
@@ -60,10 +60,10 @@ export function DeleteLogDialog({
             {isDeleting ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                {t('deleting')}
+                {t("deleting")}
               </>
             ) : (
-              t('confirm')
+              t("confirm")
             )}
           </AlertDialogAction>
         </AlertDialogFooter>

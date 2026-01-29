@@ -1,30 +1,30 @@
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
-import { useLogs } from '@/hooks/use-logs';
-import { DailySummary } from '@/components/features/logs/DailySummary';
-import { FoodEntryCard } from '@/components/features/logs/FoodEntryCard';
-import { FoodEntryCardSkeleton } from '@/components/features/logs/FoodEntryCardSkeleton';
-import { EmptyLogState } from '@/components/features/logs/EmptyLogState';
+import { useTranslations } from "next-intl";
+import { useLogs } from "@/hooks/use-logs";
+import { DailySummary } from "@/components/features/logs/DailySummary";
+import { FoodEntryCard } from "@/components/features/logs/FoodEntryCard";
+import { FoodEntryCardSkeleton } from "@/components/features/logs/FoodEntryCardSkeleton";
+import { EmptyLogState } from "@/components/features/logs/EmptyLogState";
 
-import { LogListError } from '@/components/features/logs/LogListError';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { Plus } from 'lucide-react';
-import { SettingsSheet } from '@/components/SettingsSheet';
+import { LogListError } from "@/components/features/logs/LogListError";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { SettingsSheet } from "@/components/SettingsSheet";
 
 /**
  * Dashboard page showing today's meal logs.
  * Handles loading, empty, error, and success states.
  */
 export default function DashboardPage() {
-  const t = useTranslations('dashboard');
+  const t = useTranslations("dashboard");
   const { data, isLoading, isError, refetch } = useLogs();
 
   return (
     <div className="flex flex-col min-h-[100dvh] p-4 pb-24">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">{t('title')}</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <SettingsSheet />
       </div>
 
@@ -53,24 +53,25 @@ export default function DashboardPage() {
         {isError && <LogListError onRetry={refetch} />}
 
         {/* Empty State */}
-        {!isLoading && !isError && data?.data.length === 0 && (
-          <EmptyLogState />
-        )}
+        {!isLoading && !isError && data?.data.length === 0 && <EmptyLogState />}
 
         {/* Success State - Log Cards */}
-        {!isLoading && !isError && data?.data && data.data.length > 0 && (
-          data.data.map((log) => (
-            <FoodEntryCard key={log.id} log={log} />
-          ))
-        )}
-
+        {!isLoading &&
+          !isError &&
+          data?.data &&
+          data.data.length > 0 &&
+          data.data.map((log) => <FoodEntryCard key={log.id} log={log} />)}
 
         {/* Log Another Meal Button - Only show when we have logs */}
         {!isLoading && !isError && data?.data && data.data.length > 0 && (
-          <Button asChild size="lg" className="w-full mt-4 text-lg py-6 sticky bottom-4 shadow-lg">
+          <Button
+            asChild
+            size="lg"
+            className="w-full mt-4 text-lg py-6 sticky bottom-4 shadow-lg"
+          >
             <Link href="/snap">
               <Plus className="mr-2 h-5 w-5" />
-              {t('snapMeal')}
+              {t("snapMeal")}
             </Link>
           </Button>
         )}

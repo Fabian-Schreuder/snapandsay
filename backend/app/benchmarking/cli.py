@@ -89,14 +89,42 @@ def generate_report(
     clarification_triggered = sum(1 for r in results if r.get("turns", 0) > 0)
 
     # Per-complexity breakdown
-    simple_results = [r for r in results if ground_truth_map.get(r["dish_id"], NutritionDish(
-        dish_id="", total_calories=0, total_mass=0, total_fat=0, total_carb=0, total_protein=0,
-        ingredients=[], complexity="unknown"
-    )).complexity == "simple"]
-    complex_results = [r for r in results if ground_truth_map.get(r["dish_id"], NutritionDish(
-        dish_id="", total_calories=0, total_mass=0, total_fat=0, total_carb=0, total_protein=0,
-        ingredients=[], complexity="unknown"
-    )).complexity == "complex"]
+    simple_results = [
+        r
+        for r in results
+        if ground_truth_map.get(
+            r["dish_id"],
+            NutritionDish(
+                dish_id="",
+                total_calories=0,
+                total_mass=0,
+                total_fat=0,
+                total_carb=0,
+                total_protein=0,
+                ingredients=[],
+                complexity="unknown",
+            ),
+        ).complexity
+        == "simple"
+    ]
+    complex_results = [
+        r
+        for r in results
+        if ground_truth_map.get(
+            r["dish_id"],
+            NutritionDish(
+                dish_id="",
+                total_calories=0,
+                total_mass=0,
+                total_fat=0,
+                total_carb=0,
+                total_protein=0,
+                ingredients=[],
+                complexity="unknown",
+            ),
+        ).complexity
+        == "complex"
+    ]
 
     simple_success = sum(1 for r in simple_results if r.get("success"))
     complex_success = sum(1 for r in complex_results if r.get("success"))

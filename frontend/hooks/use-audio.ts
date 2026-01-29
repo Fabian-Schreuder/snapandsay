@@ -74,7 +74,8 @@ export const useAudio = (): UseAudioReturn => {
       setError(error);
       if (
         error instanceof DOMException &&
-        (error.name === "NotAllowedError" || error.name === "PermissionDeniedError")
+        (error.name === "NotAllowedError" ||
+          error.name === "PermissionDeniedError")
       ) {
         setIsPermissionDenied(true);
       }
@@ -83,14 +84,20 @@ export const useAudio = (): UseAudioReturn => {
   }, [cleanup]);
 
   const stopRecording = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
     }
   }, []);
 
   const cancelRecording = useCallback(() => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+    if (
+      mediaRecorderRef.current &&
+      mediaRecorderRef.current.state !== "inactive"
+    ) {
       // Prevent onstop from firing and saving the blob
       mediaRecorderRef.current.onstop = null;
       mediaRecorderRef.current.stop();

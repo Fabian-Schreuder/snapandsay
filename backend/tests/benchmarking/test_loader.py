@@ -56,4 +56,3 @@ def test_loader_filtering(loader):
     for d in complex_:
         assert d.complexity == "complex"
         # Multi-factor stratification means ingredient count is just one factor
-

@@ -128,9 +128,7 @@ class TestAggregateMAE:
 
     def test_aggregate_single_result(self, metrics_calculator):
         """Single result should aggregate to itself."""
-        results = [
-            DishMAE(dish_id="1", calories=10, protein=2, fat=1, carbs=3, success=True)
-        ]
+        results = [DishMAE(dish_id="1", calories=10, protein=2, fat=1, carbs=3, success=True)]
         agg = metrics_calculator.aggregate_mae(results)
 
         assert agg.mean_calories == 10

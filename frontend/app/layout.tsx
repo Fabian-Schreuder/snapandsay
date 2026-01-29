@@ -36,7 +36,12 @@ export default async function RootLayout({
         <QueryProvider>
           <IntlProvider>
             <AuthGuard>{children}</AuthGuard>
-            <Toaster position="top-center" duration={6000} richColors closeButton />
+            <Toaster
+              position="top-center"
+              duration={6000}
+              richColors
+              closeButton
+            />
           </IntlProvider>
         </QueryProvider>
       </body>

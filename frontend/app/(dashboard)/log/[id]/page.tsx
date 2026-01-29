@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter, useParams } from 'next/navigation';
-import Image from 'next/image';
-import { ArrowLeft, Pencil, Trash2, Loader2 } from 'lucide-react';
-import { useTranslations, useLocale } from 'next-intl';
-import { Button } from '@/components/ui/button';
-import { useLog, useDeleteLog } from '@/hooks/use-logs';
-import { EditLogSheet } from '@/components/features/logs/EditLogSheet';
-import { DeleteLogDialog } from '@/components/features/logs/DeleteLogDialog';
+import { useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Image from "next/image";
+import { ArrowLeft, Pencil, Trash2, Loader2 } from "lucide-react";
+import { useTranslations, useLocale } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { useLog, useDeleteLog } from "@/hooks/use-logs";
+import { EditLogSheet } from "@/components/features/logs/EditLogSheet";
+import { DeleteLogDialog } from "@/components/features/logs/DeleteLogDialog";
 
 /**
  * Get public URL for an image stored in Supabase Storage.
@@ -24,22 +24,22 @@ function getImageUrl(path: string): string {
 export default function LogDetailPage() {
   const router = useRouter();
   const params = useParams();
-  const t = useTranslations('logDetail');
-  const tCommon = useTranslations('common');
-  const tLogs = useTranslations('logs');
+  const t = useTranslations("logDetail");
+  const tCommon = useTranslations("common");
+  const tLogs = useTranslations("logs");
   const locale = useLocale();
   const logId = params.id as string;
-  
+
   const { data: log, isLoading, error } = useLog(logId);
   const deleteLog = useDeleteLog();
-  
+
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const handleDelete = () => {
     deleteLog.mutate(logId, {
       onSuccess: () => {
-        router.push('/');
+        router.push("/");
       },
     });
   };
@@ -55,23 +55,28 @@ export default function LogDetailPage() {
   if (error || !log) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 p-4">
-        <p className="text-lg text-destructive">{t('failed')}</p>
-        <Button onClick={() => router.back()} variant="outline" className="h-14">
-          {t('goBack')}
+        <p className="text-lg text-destructive">{t("failed")}</p>
+        <Button
+          onClick={() => router.back()}
+          variant="outline"
+          className="h-14"
+        >
+          {t("goBack")}
         </Button>
       </div>
     );
   }
 
-  const displayText = log.description || log.transcript || tLogs('defaultTitle');
+  const displayText =
+    log.description || log.transcript || tLogs("defaultTitle");
   const imageUrl = log.image_url || getImageUrl(log.image_path);
 
   const formattedDate = new Date(log.created_at).toLocaleString(locale, {
-    weekday: 'long',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
     hour12: false, // Explicit preference or locale default
   });
 
@@ -84,11 +89,11 @@ export default function LogDetailPage() {
           size="icon"
           onClick={() => router.back()}
           className="h-12 w-12"
-          aria-label={t('goBack')}
+          aria-label={t("goBack")}
         >
           <ArrowLeft className="h-6 w-6" />
         </Button>
-        <h1 className="text-xl font-semibold">{t('title')}</h1>
+        <h1 className="text-xl font-semibold">{t("title")}</h1>
       </header>
 
       {/* Content */}
@@ -108,10 +113,14 @@ export default function LogDetailPage() {
         {/* Meal Info */}
         <div className="mt-6 space-y-4">
           <div>
-            <h2 className="text-2xl font-semibold leading-snug">{log.title || displayText}</h2>
-             {/* Show Description if we have a specific title to disambiguate */}
+            <h2 className="text-2xl font-semibold leading-snug">
+              {log.title || displayText}
+            </h2>
+            {/* Show Description if we have a specific title to disambiguate */}
             {log.title && (log.description || log.transcript) && (
-              <p className="mt-2 text-base text-muted-foreground">{log.description || log.transcript}</p>
+              <p className="mt-2 text-base text-muted-foreground">
+                {log.description || log.transcript}
+              </p>
             )}
             <p className="mt-1 text-lg text-muted-foreground">
               {formattedDate}
@@ -120,10 +129,23 @@ export default function LogDetailPage() {
 
           {/* Nutritional Breakdown */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <NutritionCard label={t('macros.calories')} value={log.calories} unit="cal" primary />
-            <NutritionCard label={t('macros.protein')} value={log.protein} unit="g" />
-            <NutritionCard label={t('macros.carbs')} value={log.carbs} unit="g" />
-            <NutritionCard label={t('macros.fats')} value={log.fats} unit="g" />
+            <NutritionCard
+              label={t("macros.calories")}
+              value={log.calories}
+              unit="cal"
+              primary
+            />
+            <NutritionCard
+              label={t("macros.protein")}
+              value={log.protein}
+              unit="g"
+            />
+            <NutritionCard
+              label={t("macros.carbs")}
+              value={log.carbs}
+              unit="g"
+            />
+            <NutritionCard label={t("macros.fats")} value={log.fats} unit="g" />
           </div>
         </div>
       </main>
@@ -136,7 +158,7 @@ export default function LogDetailPage() {
           variant="outline"
         >
           <Pencil className="h-5 w-5" />
-          {tCommon('edit')}
+          {tCommon("edit")}
         </Button>
         <Button
           onClick={() => setIsDeleteOpen(true)}
@@ -144,16 +166,12 @@ export default function LogDetailPage() {
           variant="destructive"
         >
           <Trash2 className="h-5 w-5" />
-          {tCommon('delete')}
+          {tCommon("delete")}
         </Button>
       </div>
 
       {/* Edit Sheet */}
-      <EditLogSheet
-        log={log}
-        open={isEditOpen}
-        onOpenChange={setIsEditOpen}
-      />
+      <EditLogSheet log={log} open={isEditOpen} onOpenChange={setIsEditOpen} />
 
       {/* Delete Dialog */}
       <DeleteLogDialog
@@ -184,13 +202,13 @@ function NutritionCard({
     <div
       className={`rounded-xl p-4 ${
         primary
-          ? 'bg-primary text-primary-foreground'
-          : 'bg-muted text-foreground'
+          ? "bg-primary text-primary-foreground"
+          : "bg-muted text-foreground"
       }`}
     >
       <p className="text-sm font-medium opacity-80">{label}</p>
       <p className="text-2xl font-bold">
-        {value != null ? value : '—'}
+        {value != null ? value : "—"}
         <span className="text-lg font-normal opacity-70"> {unit}</span>
       </p>
     </div>

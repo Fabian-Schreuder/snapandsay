@@ -44,7 +44,9 @@ export function LanguageToggle() {
   return (
     <div className="space-y-2">
       <Label htmlFor="language-select">{t("language")}</Label>
-      <p className="text-sm text-muted-foreground">{t("languageDescription")}</p>
+      <p className="text-sm text-muted-foreground">
+        {t("languageDescription")}
+      </p>
       <Select value={locale} onValueChange={handleLanguageChange}>
         <SelectTrigger id="language-select" className="w-48">
           <SelectValue />

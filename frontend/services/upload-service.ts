@@ -1,9 +1,9 @@
-import { supabase } from '@/lib/supabase';
+import { supabase } from "@/lib/supabase";
 
 export const uploadFile = async (
-  bucket: string, 
-  path: string, 
-  file: Blob
+  bucket: string,
+  path: string,
+  file: Blob,
 ): Promise<string> => {
   const { data, error } = await supabase.storage
     .from(bucket)
@@ -17,19 +17,20 @@ export const uploadFile = async (
   return data.path;
 };
 
-export const generateUploadPath = (userId: string, type: 'image' | 'audio'): string => {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const ext = type === 'image' ? 'jpg' : 'webm';
+export const generateUploadPath = (
+  userId: string,
+  type: "image" | "audio",
+): string => {
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const ext = type === "image" ? "jpg" : "webm";
   return `${userId}/${timestamp}_${type}.${ext}`;
 };
 
 export const deleteFile = async (
   bucket: string,
-  path: string
+  path: string,
 ): Promise<void> => {
-  const { error } = await supabase.storage
-    .from(bucket)
-    .remove([path]);
+  const { error } = await supabase.storage.from(bucket).remove([path]);
 
   if (error) {
     console.error(`Delete failed for ${path}:`, error);
