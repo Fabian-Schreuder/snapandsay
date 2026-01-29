@@ -13,7 +13,6 @@ import os
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 from app.benchmarking.experiment_log import ExperimentLog
 from app.benchmarking.metrics import LatencyTracker, MetricsCalculator
@@ -21,7 +20,6 @@ from app.benchmarking.nutrition5k_loader import Nutrition5kLoader
 from app.benchmarking.oracle_runner import OracleRunner
 from app.benchmarking.prompt_optimizer import PromptOptimizer
 from app.benchmarking.prompts import PromptRegistry
-from app.benchmarking.schemas import NutritionDish
 from app.config import settings
 
 # Setup logging
@@ -51,160 +49,6 @@ def save_checkpoint(checkpoint_file: Path, results: list[dict], metadata: dict):
     logger.info(f"Checkpoint saved: {len(results)} results")
 
 
-def generate_report(
-    results: list[dict],
-    dishes: list[NutritionDish],
-    args: argparse.Namespace,
-    latency_tracker: LatencyTracker,
-) -> dict[str, Any]:
-    """
-    Generate comprehensive benchmark report with MAE and latency statistics.
-    """
-    # Build ground truth lookup
-    ground_truth_map = {d.dish_id: d for d in dishes}
-
-    # Calculate MAE metrics
-    metrics_calc = MetricsCalculator()
-    mae_results = []
-
-    for result in results:
-        dish_id = result["dish_id"]
-        if dish_id in ground_truth_map and result.get("success"):
-            gt = ground_truth_map[dish_id]
-            dish_mae = metrics_calc.calculate_dish_mae(result.get("final_data"), gt)
-            mae_results.append(dish_mae)
-
-    aggregate_mae = metrics_calc.aggregate_mae(mae_results)
-    within_threshold = metrics_calc.calculate_within_threshold(mae_results, ground_truth_map, 0.10)
-
-    # Update aggregate with threshold percentages
-    aggregate_mae.within_10_pct_calories = within_threshold.get("calories", 0.0)
-    aggregate_mae.within_10_pct_protein = within_threshold.get("protein", 0.0)
-    aggregate_mae.within_10_pct_fat = within_threshold.get("fat", 0.0)
-    aggregate_mae.within_10_pct_carbs = within_threshold.get("carbs", 0.0)
-
-    # Calculate latency statistics
-    aggregate_latency = latency_tracker.aggregate()
-
-    # Calculate accuracy metrics
-    total = len(results)
-    success_count = sum(1 for r in results if r.get("success"))
-    total_turns = sum(r.get("turns", 0) for r in results)
-    clarification_triggered = sum(1 for r in results if r.get("turns", 0) > 0)
-
-    # Per-complexity breakdown
-    simple_results = [
-        r
-        for r in results
-        if ground_truth_map.get(
-            r["dish_id"],
-            NutritionDish(
-                dish_id="",
-                total_calories=0,
-                total_mass=0,
-                total_fat=0,
-                total_carb=0,
-                total_protein=0,
-                ingredients=[],
-                complexity="unknown",
-            ),
-        ).complexity
-        == "simple"
-    ]
-    complex_results = [
-        r
-        for r in results
-        if ground_truth_map.get(
-            r["dish_id"],
-            NutritionDish(
-                dish_id="",
-                total_calories=0,
-                total_mass=0,
-                total_fat=0,
-                total_carb=0,
-                total_protein=0,
-                ingredients=[],
-                complexity="unknown",
-            ),
-        ).complexity
-        == "complex"
-    ]
-
-    simple_success = sum(1 for r in simple_results if r.get("success"))
-    complex_success = sum(1 for r in complex_results if r.get("success"))
-
-    report = {
-        "metadata": {
-            "timestamp": datetime.now(UTC).isoformat(),
-            "seed": args.seed,
-            "limit": args.limit,
-            "complexity_filter": args.complexity,
-            "total_dishes": total,
-            "simple_dishes": len(simple_results),
-            "complex_dishes": len(complex_results),
-        },
-        "accuracy": {
-            "success_rate": success_count / total if total > 0 else 0.0,
-            "success_rate_simple": simple_success / len(simple_results) if simple_results else 0.0,
-            "success_rate_complex": complex_success / len(complex_results) if complex_results else 0.0,
-            "total_clarification_turns": total_turns,
-            "avg_clarification_turns": total_turns / total if total > 0 else 0.0,
-            "clarification_trigger_rate": clarification_triggered / total if total > 0 else 0.0,
-        },
-        "wfr_comparison": aggregate_mae.to_dict(),
-        "latency": aggregate_latency.to_dict(),
-        "results": [],
-    }
-
-    # Add per-dish details
-    for result in results:
-        dish_id = result["dish_id"]
-        gt = ground_truth_map.get(dish_id)
-
-        dish_detail = {
-            "dish_id": dish_id,
-            "success": result.get("success"),
-            "turns": result.get("turns", 0),
-            "latency_seconds": round(result.get("latency_seconds", 0), 2),
-            "log_id": result.get("log_id"),
-            "error": result.get("error"),
-        }
-
-        if gt and result.get("success"):
-            dish_detail["ground_truth"] = {
-                "calories": gt.total_calories,
-                "protein": gt.total_protein,
-                "fat": gt.total_fat,
-                "carbs": gt.total_carb,
-            }
-
-            # Extract predicted totals
-            final_data = result.get("final_data", {})
-            items = final_data.get("items", [])
-            pred_calories = sum(item.get("calories", 0) or 0 for item in items)
-            pred_protein = sum(item.get("protein", 0) or 0 for item in items)
-            pred_fat = sum(item.get("fats", 0) or 0 for item in items)
-            pred_carbs = sum(item.get("carbs", 0) or 0 for item in items)
-
-            dish_detail["predicted"] = {
-                "calories": pred_calories,
-                "protein": pred_protein,
-                "fat": pred_fat,
-                "carbs": pred_carbs,
-            }
-
-            dish_detail["mae"] = {
-                "calories": abs(pred_calories - gt.total_calories),
-                "protein": abs(pred_protein - gt.total_protein),
-                "fat": abs(pred_fat - gt.total_fat),
-                "carbs": abs(pred_carbs - gt.total_carb),
-            }
-
-        report["results"].append(dish_detail)
-
-    return report
-
-
 async def main_async(args):
     """Main async benchmark execution."""
     output_dir = Path(args.output_dir)
@@ -213,7 +57,7 @@ async def main_async(args):
     # Initialize components
     prompts_dir = Path(__file__).parent / "prompts"
     prompt_registry = PromptRegistry(prompts_dir)
-    experiment_log = ExperimentLog(output_dir / "experiments")
+    experiment_log = ExperimentLog(output_dir)
     optimizer = PromptOptimizer(
         prompt_registry=prompt_registry,
         experiment_log=experiment_log,
@@ -250,7 +94,7 @@ async def main_async(args):
             return
 
         experiment_id = args.experiment_id or history[-1]["experiment_id"]
-        detail_file = output_dir / "experiments" / f"experiment_{experiment_id}.json"
+        detail_file = output_dir / f"experiment_{experiment_id}.json"
 
         if not detail_file.exists():
             print(f"Experiment detail not found: {experiment_id}")
@@ -377,71 +221,81 @@ async def main_async(args):
                 {"seed": args.seed, "complexity": args.complexity, "batch_size": args.batch_size},
             )
 
-    # 6. Generate Comprehensive Report
-    # Recreate latency tracker from results if resuming
+    # 6. Generate Report/Result
+    # Calculate MAE metrics
+    metrics_calc = MetricsCalculator()
+    mae_results = []
+
+    # Recreate latency tracker and calculate MAE
     latency_tracker = LatencyTracker()
     dishes_map = {d.dish_id: d for d in all_dishes}
-    for r in results:
-        dish = dishes_map.get(r["dish_id"])
-        complexity = dish.complexity if dish else "unknown"
-        latency_tracker.record(r["dish_id"], r.get("latency_seconds", 0), complexity)
 
-    report = generate_report(results, all_dishes, args, latency_tracker)
+    per_dish_results = []
+
+    for result in results:
+        dish_id = result["dish_id"]
+        dish = dishes_map.get(dish_id)
+
+        # Latency
+        complexity = dish.complexity if dish else "unknown"
+        latency_tracker.record(dish_id, result.get("latency_seconds", 0), complexity)
+
+        # MAE
+        if dish and result.get("success"):
+            dish_mae = metrics_calc.calculate_dish_mae(result.get("final_data"), dish)
+            mae_results.append(dish_mae)
+
+            # Add detailed result
+            per_dish_results.append(
+                {
+                    "dish_id": dish_id,
+                    "success": True,
+                    "mae": dish_mae.to_dict(),
+                    "latency": result.get("latency_seconds", 0),
+                }
+            )
+        else:
+            per_dish_results.append(
+                {
+                    "dish_id": dish_id,
+                    "success": False,
+                    "error": result.get("error"),
+                    "latency": result.get("latency_seconds", 0),
+                }
+            )
+
+    aggregate_mae = metrics_calc.aggregate_mae(mae_results)
+    aggregate_latency = latency_tracker.aggregate()
+
+    # Create ExperimentResult
+    from app.benchmarking.experiment_log import ExperimentResult
+
+    experiment_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    final_result = ExperimentResult(
+        experiment_id=f"run_{experiment_id}",
+        prompt_version="baseline_run",
+        timestamp=datetime.now(UTC).isoformat(),
+        metrics=aggregate_mae.to_dict()["mae"],
+        latency_stats=aggregate_latency.to_dict(),
+        per_dish_results=per_dish_results,
+        config=vars(args),
+    )
+
+    experiment_log.log_experiment(final_result)
 
     # 7. Print Summary
     print("\n" + "=" * 60)
     print("ORACLE BENCHMARKING REPORT")
     print("=" * 60)
-    print(f"\nTimestamp: {report['metadata']['timestamp']}")
-    print(f"Seed: {report['metadata']['seed']}")
-    print(f"Total Dishes: {report['metadata']['total_dishes']}")
-    print(f"  Simple: {report['metadata']['simple_dishes']}")
-    print(f"  Complex: {report['metadata']['complex_dishes']}")
-
-    print("\n--- Accuracy ---")
-    acc = report["accuracy"]
-    print(f"Success Rate: {acc['success_rate']:.1%}")
-    print(f"  Simple: {acc['success_rate_simple']:.1%}")
-    print(f"  Complex: {acc['success_rate_complex']:.1%}")
-    print(f"Avg Clarification Turns: {acc['avg_clarification_turns']:.2f}")
-    print(f"Clarification Trigger Rate: {acc['clarification_trigger_rate']:.1%}")
+    print(f"\nTimestamp: {final_result.timestamp}")
+    print(f"Total Dishes: {len(results)}")
 
     print("\n--- WFR Ground Truth Comparison (MAE) ---")
-    wfr = report["wfr_comparison"]
-    mae = wfr["mae"]
+    mae = final_result.metrics
     print(f"Calories MAE: {mae['calories']:.1f} kcal")
     print(f"Protein MAE: {mae['protein']:.1f} g")
-    print(f"Fat MAE: {mae['fat']:.1f} g")
-    print(f"Carbs MAE: {mae['carbs']:.1f} g")
-    within = wfr["within_10_percent"]
-    print("\nWithin ±10% of Ground Truth:")
-    print(f"  Calories: {within['calories']:.1%}")
-    print(f"  Protein: {within['protein']:.1%}")
-    print(f"  Fat: {within['fat']:.1%}")
-    print(f"  Carbs: {within['carbs']:.1%}")
 
-    print("\n--- Latency ---")
-    lat = report["latency"]
-    print(f"Mean: {lat['mean_seconds']:.1f}s")
-    print(f"p50: {lat['p50_seconds']:.1f}s")
-    print(f"p95: {lat['p95_seconds']:.1f}s")
-    print(f"p99: {lat['p99_seconds']:.1f}s")
-    print(f"  Simple Mean: {lat['per_complexity']['simple_mean']:.1f}s")
-    print(f"  Complex Mean: {lat['per_complexity']['complex_mean']:.1f}s")
-
-    # 8. Save Full Report
-    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    report_file = output_dir / f"benchmark_report_{ts}.json"
-    with open(report_file, "w") as f:
-        json.dump(report, f, indent=2, default=str)
-    print(f"\n✓ Full report saved to: {report_file.absolute()}")
-
-    # Also save summary separately for easy access
-    summary_file = output_dir / f"benchmark_summary_{ts}.json"
-    summary = {k: v for k, v in report.items() if k != "results"}
-    with open(summary_file, "w") as f:
-        json.dump(summary, f, indent=2, default=str)
-    print(f"✓ Summary saved to: {summary_file.absolute()}")
+    print(f"\n✓ Result saved to: {output_dir / f'experiment_run_{experiment_id}.json'}")
 
 
 def main():

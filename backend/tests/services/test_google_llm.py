@@ -56,8 +56,11 @@ async def test_analyze_multimodal_google_streaming_success():
         yield mock_chunk1
         yield mock_chunk2
 
+    async def mock_stream_coro(*args, **kwargs):
+        return mock_stream()
+
     mock_client = MagicMock()
-    mock_client.aio.models.generate_content_stream = MagicMock(return_value=mock_stream())
+    mock_client.aio.models.generate_content_stream = mock_stream_coro
 
     with patch("app.services.llm_service._get_google_client", return_value=mock_client):
         tokens = []

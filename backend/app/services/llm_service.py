@@ -468,7 +468,7 @@ async def _analyze_google_streaming(
 
     accumulated_content = ""
     try:
-        response_stream = client.aio.models.generate_content_stream(
+        response_stream = await client.aio.models.generate_content_stream(
             model=model_id,
             contents=contents,
             config={
