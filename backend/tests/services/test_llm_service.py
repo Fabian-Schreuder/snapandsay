@@ -12,6 +12,7 @@ from app.services.llm_service import LLMGenerationError, analyze_multimodal
 async def test_analyze_multimodal_success():
     """Test successful multimodal analysis."""
     mock_result = AnalysisResult(
+        title="Apple",
         items=[
             FoodItem(name="Apple", quantity="1", calories=95, confidence=0.99),
         ],
@@ -21,6 +22,7 @@ async def test_analyze_multimodal_success():
     mock_response = MagicMock()
     mock_response.choices = [MagicMock()]
     mock_response.choices[0].message.parsed = mock_result
+    mock_response.choices[0].message.refusal = None
 
     mock_client = MagicMock()
     mock_client.beta.chat.completions.parse = AsyncMock(return_value=mock_response)

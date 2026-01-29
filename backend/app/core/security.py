@@ -68,8 +68,6 @@ def verify_token(token: str) -> UserContext:
             email=payload.get("email"),
             app_metadata=payload.get("app_metadata"),
         )
-    except jwt.PyJWTError as e:
-        print(
-            f"DEBUG: JWT Validation Failed. Error: {e}, " f"Token Header: {jwt.get_unverified_header(token)}"
-        )
+    except (jwt.PyJWTError, jwt.exceptions.DecodeError) as e:
+        print(f"DEBUG: JWT Validation Failed. Error: {e}")
         raise ValueError(f"Invalid token: {e}") from e

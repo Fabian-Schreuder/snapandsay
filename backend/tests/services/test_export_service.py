@@ -25,7 +25,7 @@ async def test_export_logs_as_csv():
     )
     # Mock user relationship
     user_mock = MagicMock()
-    user_mock.email = "test@example.com"
+    user_mock.anonymous_id = "anon_test123"
     log.user = user_mock
 
     # Act
@@ -33,10 +33,10 @@ async def test_export_logs_as_csv():
     content = "".join([str(chunk) for chunk in csv_gen])
 
     # Assert
-    expected_header = "Log ID,User Email,Meal Type,Food Items,Calories,Created At,Transcription"
+    expected_header = "Log ID,Anonymous ID,Meal Type,Food Items,Calories,Created At,Transcription"
     assert expected_header in content
     assert str(log.id) in content
-    assert "test@example.com" in content
+    assert "anon_test123" in content
     assert "A tasty burger" in content
     assert "Burger with cheese" in content  # Food Items
     assert "2023-01-01T12:00:00+00:00" in content
@@ -58,9 +58,7 @@ async def test_export_logs_as_json():
     )
     # Mock user relationship
     user_mock = MagicMock()
-    user_mock.email = "test@example.com"
-    # Provide .dict() method if service uses it, or just attributes
-    # The service will likely use Pydantic model serialization or dict conversion
+    user_mock.anonymous_id = "anon_test123"
     log.user = user_mock
 
     # Act
@@ -73,5 +71,5 @@ async def test_export_logs_as_json():
     assert len(data) == 1
     item = data[0]
     assert item["id"] == str(log.id)
-    assert item["user_email"] == "test@example.com"
+    assert item["anonymous_id"] == "anon_test123"
     assert item["transcript"] == "A tasty burger"

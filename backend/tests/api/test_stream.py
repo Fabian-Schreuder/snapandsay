@@ -7,7 +7,22 @@ import pytest
 from httpx import AsyncClient
 
 from app.agent.constants import EVENT_ERROR, EVENT_THOUGHT
+from app.api.deps import get_current_user
+from app.core.security import UserContext
+from app.main import app
 from app.schemas.sse import AgentError, AgentThought, SSEEvent
+
+
+@pytest.fixture(autouse=True)
+def override_auth():
+    async def mock_get_current_user():
+        return UserContext(
+            id=uuid4(), aud="authenticated", role="authenticated", email="test@example.com", app_metadata={}
+        )
+
+    app.dependency_overrides[get_current_user] = mock_get_current_user
+    yield
+    app.dependency_overrides.pop(get_current_user, None)
 
 
 @pytest.mark.asyncio

@@ -24,7 +24,7 @@ async def test_transcribe_audio_success():
         # Mock the executor to run synchronously
         mock_loop.return_value.run_in_executor = AsyncMock(return_value=b"fake audio data")
 
-        result = await transcribe_audio("test_audio.mp3")
+        result = await transcribe_audio("test_audio.mp3", language="en")
 
         assert result == mock_transcript
         mock_client.audio.transcriptions.create.assert_called_once()
@@ -35,7 +35,7 @@ async def test_transcribe_audio_file_not_found():
     """Test that FileNotFoundError is raised for missing files."""
     with patch("os.path.exists", return_value=False):
         with pytest.raises(FileNotFoundError, match="Audio file not found"):
-            await transcribe_audio("missing_audio.mp3")
+            await transcribe_audio("missing_audio.mp3", language="en")
 
 
 @pytest.mark.asyncio
@@ -52,4 +52,4 @@ async def test_transcribe_audio_api_error():
         mock_loop.return_value.run_in_executor = AsyncMock(return_value=b"fake audio data")
 
         with pytest.raises(Exception, match="API Error"):
-            await transcribe_audio("test_audio.mp3")
+            await transcribe_audio("test_audio.mp3", language="en")

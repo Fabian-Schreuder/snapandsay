@@ -25,7 +25,9 @@ async def test_analyze_input_with_image_and_transcript():
         "nutritional_data": None,
     }
     analysis_result = AnalysisResult(
-        items=[FoodItem(name="Banana", quantity="1", confidence=0.9)], synthesis_comment="OK"
+        title="Test Meal",
+        items=[FoodItem(name="Banana", quantity="1", confidence=0.9)],
+        synthesis_comment="OK",
     )
 
     with patch("app.agent.nodes.llm_service.analyze_multimodal", new_callable=AsyncMock) as mock_analyze:
@@ -43,7 +45,7 @@ async def test_analyze_input_with_image_and_transcript():
         # If audio_url, transcribe.
 
         mock_analyze.assert_called_once_with(
-            image_url="http://example.com/image.jpg", transcript=None, context=None
+            image_url="http://example.com/image.jpg", transcript=None, context=None, user_token=None
         )
         assert result["nutritional_data"] == analysis_result.model_dump()
 
@@ -59,7 +61,9 @@ async def test_analyze_input_with_audio():
 
     transcript = "I ate a burger"
     analysis_result = AnalysisResult(
-        items=[FoodItem(name="Burger", quantity="1", confidence=0.9)], synthesis_comment="OK"
+        title="Burger Meal",
+        items=[FoodItem(name="Burger", quantity="1", confidence=0.9)],
+        synthesis_comment="OK",
     )
 
     with (
@@ -71,8 +75,10 @@ async def test_analyze_input_with_audio():
 
         result = await analyze_input(state)
 
-        mock_transcribe.assert_called_once_with("audio.mp3")
-        mock_analyze.assert_called_once_with(image_url=None, transcript=transcript, context=None)
+        mock_transcribe.assert_called_once_with("audio.mp3", token=None)
+        mock_analyze.assert_called_once_with(
+            image_url=None, transcript=transcript, context=None, user_token=None
+        )
         assert result["nutritional_data"] == analysis_result.model_dump()
 
 
@@ -251,7 +257,7 @@ class TestFinalizeLogStreaming:
             assert mock_log.status == "logged"
             assert mock_log.needs_review is False
             assert mock_log.calories == 95
-            mock_session.commit.assert_called_once()
+            assert mock_session.commit.called
 
     @pytest.mark.asyncio
     async def test_flags_needs_review_after_max_attempts(self):

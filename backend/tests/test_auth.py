@@ -1,3 +1,4 @@
+from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
 import jwt
@@ -52,7 +53,14 @@ def test_verify_token_invalid_signature():
 @pytest.mark.asyncio
 async def test_get_current_user_valid():
     token = create_token()
-    user = await get_current_user(token)
+    mock_db = AsyncMock()
+    mock_result = MagicMock()
+    # Simulate user existing in DB to avoid insert logic or missing to test insert
+    # Let's return a fake user to keep it simple and avoid commit logic causing issues if not mocked
+    mock_result.scalar_one_or_none.return_value = MagicMock()
+    mock_db.execute.return_value = mock_result
+
+    user = await get_current_user(token, db=mock_db)
     assert isinstance(user, UserContext)
 
 
