@@ -39,6 +39,8 @@ def _get_openai_client() -> AsyncOpenAI:
 @lru_cache(maxsize=1)
 def _get_google_client() -> genai.Client:
     """Lazily instantiate and cache the Google GenAI client."""
+    if not settings.GOOGLE_API_KEY:
+        raise ValueError("GOOGLE_API_KEY is not set in configuration")
     return genai.Client(api_key=settings.GOOGLE_API_KEY)
 
 
