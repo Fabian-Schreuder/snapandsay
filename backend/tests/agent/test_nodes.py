@@ -45,7 +45,13 @@ async def test_analyze_input_with_image_and_transcript():
         # If audio_url, transcribe.
 
         mock_analyze.assert_called_once_with(
-            image_url="http://example.com/image.jpg", transcript=None, context=None, user_token=None
+            image_url="http://example.com/image.jpg",
+            transcript=None,
+            context=None,
+            user_token=None,
+            system_prompt_override=None,
+            provider=None,
+            model=None,
         )
         assert result["nutritional_data"] == analysis_result.model_dump()
 
@@ -77,7 +83,13 @@ async def test_analyze_input_with_audio():
 
         mock_transcribe.assert_called_once_with("audio.mp3", token=None)
         mock_analyze.assert_called_once_with(
-            image_url=None, transcript=transcript, context=None, user_token=None
+            image_url=None,
+            transcript=transcript,
+            context=None,
+            user_token=None,
+            system_prompt_override=None,
+            provider=None,
+            model=None,
         )
         assert result["nutritional_data"] == analysis_result.model_dump()
 
@@ -169,6 +181,7 @@ class TestGenerateClarificationStreaming:
             mock_result.scalar_one_or_none.return_value = mock_log
             mock_session.execute = AsyncMock(return_value=mock_result)
             mock_session.commit = AsyncMock()
+            mock_session.add = MagicMock()
             mock_session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
             mock_session_maker.return_value.__aexit__ = AsyncMock()
 
@@ -246,6 +259,7 @@ class TestFinalizeLogStreaming:
             mock_result.scalar_one_or_none.return_value = mock_log
             mock_session.execute = AsyncMock(return_value=mock_result)
             mock_session.commit = AsyncMock()
+            mock_session.add = MagicMock()
             mock_session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
             mock_session_maker.return_value.__aexit__ = AsyncMock()
 
@@ -281,6 +295,7 @@ class TestFinalizeLogStreaming:
             mock_result.scalar_one_or_none.return_value = mock_log
             mock_session.execute = AsyncMock(return_value=mock_result)
             mock_session.commit = AsyncMock()
+            mock_session.add = MagicMock()
             mock_session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
             mock_session_maker.return_value.__aexit__ = AsyncMock()
 
@@ -312,6 +327,7 @@ class TestFinalizeLogStreaming:
             mock_result.scalar_one_or_none.return_value = mock_log
             mock_session.execute = AsyncMock(return_value=mock_result)
             mock_session.commit = AsyncMock()
+            mock_session.add = MagicMock()
             mock_session_maker.return_value.__aenter__ = AsyncMock(return_value=mock_session)
             mock_session_maker.return_value.__aexit__ = AsyncMock()
 

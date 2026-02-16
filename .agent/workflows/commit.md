@@ -8,19 +8,23 @@ This workflow automatically stages all changes, generates a descriptive commit m
 
 ### Steps:
 
-1. **Stage All Changes**: Automatically stage all modified and new files.
+1. **Lint Codebase**: Ensure code quality by running linting for both backend and frontend.
+   ```bash
+   (cd backend && uv run ruff check .) && (cd frontend && pnpm lint)
+   ```
+2. **Stage All Changes**: Automatically stage all modified and new files.
    ```bash
    git add .
    ```
-2. **Analyze Changes**: Get the diff of staged changes to understand the context.
+3. **Analyze Changes**: Get the diff of staged changes to understand the context.
    ```bash
    git diff --cached
    ```
-3. **Generate & Commit**: Generate a professional message following [Conventional Commits](https://www.conventionalcommits.org/) and execute the commit.
+4. **Generate & Commit**: Generate a professional message following [Conventional Commits](https://www.conventionalcommits.org/) and execute the commit.
    ```bash
    git commit -m "<ai_generated_message>"
    ```
-4. **Push**: Optionally push the changes.
+5. **Push**: Optionally push the changes.
    ```bash
    git push
    ```
