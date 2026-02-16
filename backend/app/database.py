@@ -46,9 +46,11 @@ engine = create_async_engine(
     connect_args={
         "statement_cache_size": 0,
     },
-    # Ensure unique names for prepared statements to avoid collisions in transaction pool
-    prepared_statement_name_func=_generate_uuid_name,
 )
+
+# Ensure unique names for prepared statements to avoid collisions in transaction pool
+# We set this on the dialect directly because create_async_engine validation might reject it as a kwarg
+engine.sync_engine.dialect.prepared_statement_name_func = _generate_uuid_name
 
 async_session_maker = async_sessionmaker(engine, expire_on_commit=settings.EXPIRE_ON_COMMIT)
 
