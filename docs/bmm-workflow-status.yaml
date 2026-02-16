@@ -90,5 +90,5 @@ workflow_status:
     name: "Implementation"
     workflows:
       - id: "sprint-planning"
-        status: "pending"
+        status: "completed"
         agent: "sm"
