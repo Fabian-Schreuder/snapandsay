@@ -195,6 +195,24 @@ The core experience of Snap and Say is **"The 30-Second Handoff"**. The user's r
 3.  **Feedback**: "Thinking" animation (e.g., a playful food icon bouncing).
 4.  **Completion**: Card slides in: "Chicken Salad logged." + Satisfying "Ding".
 
+### 1a. The "Text Entry" Flow (Alternative)
+
+**Goal:** Log a meal silenty using the keyboard.
+
+```mermaid
+graph TD
+    A[Open App] --> B[Tap Keyboard Icon]
+    B --> C[Text Input Field Slides Up]
+    C --> D[Type Description]
+    D --> E[Tap Send]
+    E --> F[Processing Animation]
+    F --> G[Success Card]
+```
+
+- **Trigger**: Small, discrete "Keyboard" icon next to the main Mic button.
+- **Micro-Copy**: "Type what you ate..." placeholder.
+- **Feedback**: Transitions to the same "Thinking" animation as voice.
+
 ## Visual Design Foundation
 
 ### Color System
@@ -253,6 +271,18 @@ We explored variations ranging from "Dense Dashboard" (too complex) to "Immersiv
 -   **Layout**: Single column layout.
 -   **Container**: `bg-white` cards with `rounded-xl` and `shadow-sm` on a `bg-zinc-50` background.
 -   **Navigation**: Fixed bottom bar with `h-16` (64px) height to accommodate large labels.
+-   **Disclaimer**: Banner at the top of the Home/Login screen: "Research Prototype. Not a medical device." (Amber background, black text).
+
+### 2a. Nutritional Detail View
+
+**Goal:** Allow users to see the full breakdown if they want it, without cluttering the main view.
+
+- **Trigger**: Tap on any `FoodEntryCard`.
+- **View**: A "Flip Card" animation or simple Modal/Drawer.
+- **Content**:
+    - **Big Numbers**: Calories, Protein, Carbs, Fat.
+    - **Visuals**: Simple colored bars for macros (e.g., Blue for Protein, Green for Carbs).
+    - **Close**: Large "Close" button at the bottom.
 
 ## User Journey Flows
 
@@ -321,6 +351,17 @@ These components are unique to Snap & Say and will be built custom using Tailwin
     -   *Optimistic*: Shows photo immediately with "Analyzing..." text.
     -   *Confirmed*: Shows final data.
     -   *Edit Mode*: Text becomes an input field (or voice active).
+
+#### 2a. `ClarificationPrompt`
+- **Purpose**: Ask the user for missing details.
+- **Anatomy**:
+    - **Question**: Large, clear text (e.g., "What kind of sandwich?").
+    - **Context**: "I saw the bread, but..."
+    - **Visual Cue**: Icon changes based on the *type* of question (Architecture D8):
+        - **Ingredient**: 🥕 Icon (Orange).
+        - **Prep**: 🍳 Icon (Red).
+        - **Portion**: 📏 Icon (Blue).
+- **Interaction**: Voice response or quick-tap chips (e.g., "Turkey", "Ham").
 
 #### 3. `SeniorBottomNav`
 -   **Purpose**: Primary navigation.
