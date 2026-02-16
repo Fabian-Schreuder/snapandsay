@@ -84,4 +84,3 @@ class TestRouteByConfidence:
             "overall_confidence": 0.50,
         }
         assert route_by_confidence(state) == AMPM_ENTRY
-

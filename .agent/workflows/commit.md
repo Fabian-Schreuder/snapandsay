@@ -8,9 +8,9 @@ This workflow automatically stages all changes, generates a descriptive commit m
 
 ### Steps:
 
-1. **Lint Codebase**: Ensure code quality by running linting for both backend and frontend.
+1. **Lint & Format Codebase**: Ensure code quality by running formatting and linting for both backend and frontend.
    ```bash
-   (cd backend && uv run ruff check .) && (cd frontend && pnpm lint)
+   (cd backend && uv run ruff format . && uv run ruff check .) && (cd frontend && pnpm lint)
    ```
 2. **Stage All Changes**: Automatically stage all modified and new files.
    ```bash

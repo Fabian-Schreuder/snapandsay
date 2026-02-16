@@ -57,9 +57,7 @@ class SSEEvent(BaseModel):
         "agent.clarification",
         "agent.detail_cycle",
         "agent.final_probe",
-    ] = Field(
-        ..., description="Event type for frontend routing"
-    )
+    ] = Field(..., description="Event type for frontend routing")
     payload: AgentThought | AgentResponse | AgentError | AgentClarification = Field(
         ..., description="Event payload data"
     )

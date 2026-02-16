@@ -97,9 +97,7 @@ class TestDetailCycle:
     @pytest.mark.asyncio
     async def test_no_low_confidence_items_returns_no_clarification(self):
         """When all items are high confidence, no clarification needed."""
-        state = _make_state(
-            items=[{"name": "Apple", "quantity": "1", "calories": 80, "confidence": 0.95}]
-        )
+        state = _make_state(items=[{"name": "Apple", "quantity": "1", "calories": 80, "confidence": 0.95}])
         result = await detail_cycle(state)
         assert result["needs_clarification"] is False
 
@@ -194,9 +192,7 @@ class TestDetailCycleStreaming:
     @pytest.mark.asyncio
     async def test_emits_thought_event(self):
         """Should emit a thought event at the start."""
-        mock_question = ClarificationQuestion(
-            question="How was it prepared?", options=["Fried", "Baked"]
-        )
+        mock_question = ClarificationQuestion(question="How was it prepared?", options=["Fried", "Baked"])
         state = _make_state()
 
         events = []
