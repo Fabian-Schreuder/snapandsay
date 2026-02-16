@@ -139,7 +139,7 @@ def _build_messages(
         user_content.append({"type": "text", "text": f"Context/Clarification: {context}"})
 
     if transcript:
-        user_content.append({"type": "text", "text": f"Audio Transcript: {transcript}"})
+        user_content.append({"type": "text", "text": f"User Input: {transcript}"})
 
     if image_url:
         user_content.append({"type": "image_url", "image_url": {"url": image_url}})

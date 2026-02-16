@@ -64,6 +64,7 @@ export interface UseAgentReturn {
     response: string,
     isVoice?: boolean,
   ) => Promise<void>;
+  submitText: (text: string) => Promise<void>;
   skipClarification: () => void;
   reset: () => void;
 }
@@ -82,6 +83,7 @@ const API_BASE_URL =
   "http://localhost:8000";
 
 import { supabase } from "@/lib/supabase";
+import { analysisApi } from "@/lib/api";
 
 export const useAgent = (): UseAgentReturn => {
   const queryClient = useQueryClient();
@@ -440,6 +442,32 @@ export const useAgent = (): UseAgentReturn => {
     [startStreamingInternal],
   );
 
+  const submitText = useCallback(async (text: string) => {
+    try {
+      cleanup();
+      setStatus("connecting");
+      setError(null);
+
+      // 1. Upload/Create Log
+      const response = await analysisApi.upload({
+        text_input: text,
+        client_timestamp: new Date().toISOString(),
+        language: statusLocale,
+      });
+
+      const newLogId = response.log_id;
+
+      // 2. Start Streaming
+      // We pass undefined for image/audio paths as this is text-only
+      startStreaming(newLogId, undefined, undefined);
+    } catch (err) {
+      console.error("Text submission failed:", err);
+      // Use feedback hook for error sound if available or just set error state
+      setError("Failed to submit text. Please try again.");
+      setStatus("error");
+    }
+  }, [cleanup, statusLocale, startStreaming]);
+
   return {
     status,
     thoughts,
@@ -448,6 +476,7 @@ export const useAgent = (): UseAgentReturn => {
     clarification,
     startStreaming,
     submitClarificationResponse,
+    submitText,
     skipClarification,
     reset,
   };

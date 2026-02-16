@@ -90,11 +90,15 @@ Antigravity (Gemini 2.0 Flash)
 - Confirmed ACs 1-6 are met.
 - Unit tests passed.
 - Marked as done via Code Review.
+- [Review] Added missing files (log.py, analysis endpoint) to File List.
+- [Review] Updated test mock in test_llm_service.py for better coverage.
 
 ### File List
 - backend/app/schemas/analysis.py
 - backend/app/services/llm_service.py
 - backend/app/agent/state.py
 - backend/app/agent/nodes.py
+- backend/app/api/v1/endpoints/analysis.py
+- backend/app/models/log.py
 - backend/tests/services/test_ambiguity_analysis.py
 - backend/tests/services/test_llm_service.py

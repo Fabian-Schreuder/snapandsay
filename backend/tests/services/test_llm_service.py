@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from app.schemas.analysis import AnalysisResult, FoodItem
+from app.schemas.analysis import AmbiguityLevels, AnalysisResult, ComplexityBreakdown, FoodItem
 from app.services.llm_service import LLMGenerationError, analyze_multimodal
 
 
@@ -17,6 +17,12 @@ async def test_analyze_multimodal_success():
             FoodItem(name="Apple", quantity="1", calories=95, confidence=0.99),
         ],
         synthesis_comment="Healthy snack.",
+        complexity_score=0.1,
+        complexity_breakdown=ComplexityBreakdown(
+            levels=AmbiguityLevels(hidden_ingredients=0, invisible_prep=0, portion_ambiguity=0),
+            score=0.1,
+            dominant_factor="none",
+        ),
     )
 
     mock_response = MagicMock()

@@ -8,6 +8,7 @@ import ImagePreview from "@/components/features/camera/ImagePreview";
 import ThinkingIndicator from "@/components/features/analysis/ThinkingIndicator";
 import { ClarificationPrompt } from "@/components/features/analysis/ClarificationPrompt";
 import { VoiceCaptureButton } from "@/components/features/voice/VoiceCaptureButton";
+import { TextEntryModal } from "@/components/features/input/TextEntryModal";
 import {
   uploadFile,
   generateUploadPath,
@@ -26,7 +27,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Keyboard } from "lucide-react";
 
 export default function SnapPage() {
   const router = useRouter();
@@ -40,6 +42,7 @@ export default function SnapPage() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isTextEntryOpen, setIsTextEntryOpen] = useState(false);
 
   // Debug Logging
   React.useEffect(() => {
@@ -215,11 +218,11 @@ export default function SnapPage() {
               status === "clarifying"
                 ? "streaming"
                 : (status as
-                    | "idle"
-                    | "connecting"
-                    | "streaming"
-                    | "complete"
-                    | "error")
+                  | "idle"
+                  | "connecting"
+                  | "streaming"
+                  | "complete"
+                  | "error")
             }
             thoughts={thoughts}
           />
@@ -236,7 +239,21 @@ export default function SnapPage() {
         />
       )}
 
-      {step === "capture" && <CameraCapture onCapture={handleCapture} />}
+      {step === "capture" && (
+        <>
+          <CameraCapture onCapture={handleCapture} />
+          {/* Text Entry Trigger (Top Right Overlay) */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute bottom-8 right-8 z-50 rounded-full bg-black/40 text-white backdrop-blur-md hover:bg-black/60 h-12 w-12"
+            onClick={() => setIsTextEntryOpen(true)}
+            aria-label={t("snap.openTextEntry")}
+          >
+            <Keyboard className="h-6 w-6" />
+          </Button>
+        </>
+      )}
 
       {step === "preview" && capturedImage && (
         <ImagePreview
@@ -275,9 +292,26 @@ export default function SnapPage() {
             <p id="tap-to-toggle-text" className="text-zinc-400 text-sm">
               {t("snap.tapToToggle")}
             </p>
+            <p id="tap-to-toggle-text" className="text-zinc-400 text-sm">
+              {t("snap.tapToToggle")}
+            </p>
+            {/* Secondary Text Trigger */}
+            <Button
+              variant="link"
+              className="text-white/60 hover:text-white"
+              onClick={() => setIsTextEntryOpen(true)}
+            >
+              <Keyboard className="mr-2 h-4 w-4" />
+              {t("snap.typeInstead")}
+            </Button>
           </div>
         </div>
       )}
+
+      <TextEntryModal
+        isOpen={isTextEntryOpen}
+        onClose={() => setIsTextEntryOpen(false)}
+      />
     </div>
   );
 }

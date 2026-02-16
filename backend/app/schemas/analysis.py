@@ -1,12 +1,20 @@
+from typing import Self
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class AnalysisUploadRequest(BaseModel):
-    image_path: str
+    image_path: str | None = None
     audio_path: str | None = None
+    text_input: str | None = None
     client_timestamp: str
+
+    @model_validator(mode="after")
+    def check_input_exists(self) -> Self:
+        if not self.image_path and not self.text_input:
+            raise ValueError("Either image_path or text_input must be provided")
+        return self
 
 
 class AnalysisUploadResponse(BaseModel):

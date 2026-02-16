@@ -44,6 +44,50 @@ jest.mock("../components/features/voice/VoiceCaptureButton", () => ({
   ),
 }));
 
+jest.mock("@/components/features/input/TextEntryModal", () => ({
+  TextEntryModal: ({
+    isOpen,
+    onClose,
+  }: {
+    isOpen: boolean;
+    onClose: () => void;
+  }) => (isOpen ? <div role="dialog">Text Entry Modal <button onClick={onClose}>Close</button></div> : null),
+}));
+
+// Mock useAgent
+jest.mock("@/hooks/use-agent", () => ({
+  useAgent: () => ({
+    status: "idle",
+    thoughts: [],
+    startStreaming: jest.fn(),
+    submitText: jest.fn(),
+  }),
+}));
+
+// Mock services/upload-service
+jest.mock("@/services/upload-service", () => ({
+  uploadFile: jest.fn(),
+  generateUploadPath: jest.fn(() => "mock-path"),
+  deleteFile: jest.fn(),
+}));
+
+// Mock lib/api
+jest.mock("@/lib/api", () => ({
+  analysisApi: {
+    upload: jest.fn(),
+  },
+}));
+
+// Mock lib/supabase
+jest.mock("@/lib/supabase", () => ({
+  supabase: {
+    auth: {
+      getUser: jest.fn(() => Promise.resolve({ data: { user: { id: "test-user" } } })),
+      getSession: jest.fn(() => Promise.resolve({ data: { session: { access_token: "token" } } })),
+    },
+  },
+}));
+
 describe("SnapPage Integration", () => {
   it("navigates through the capture flow", () => {
     const queryClient = new QueryClient();
@@ -94,5 +138,28 @@ describe("SnapPage Integration", () => {
     fireEvent.click(screen.getByText("Retake"));
     expect(screen.getByText("Capture")).toBeInTheDocument();
     expect(screen.queryByText("Image Preview")).not.toBeInTheDocument();
+    expect(screen.getByText("Capture")).toBeInTheDocument();
+    expect(screen.queryByText("Image Preview")).not.toBeInTheDocument();
+  });
+
+  it("opens text entry modal when keyboard icon is clicked", () => {
+    const queryClient = new QueryClient();
+    render(
+      <QueryClientProvider client={queryClient}>
+        <SnapPage />
+      </QueryClientProvider>,
+    );
+
+    // Initial state (Capture)
+    const keyboardBtn = screen.getByLabelText("Open text entry");
+    expect(keyboardBtn).toBeInTheDocument();
+
+    // Open Modal
+    fireEvent.click(keyboardBtn);
+    expect(screen.getByRole("dialog")).toHaveTextContent("Text Entry Modal");
+
+    // Close Modal
+    fireEvent.click(screen.getByText("Close"));
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });

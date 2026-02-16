@@ -28,7 +28,7 @@ class DietaryLog(Base):
     user = relationship("User", backref="logs")
 
     # Media
-    image_path = Column(String, nullable=False)
+    image_path = Column(String, nullable=True)
     audio_path = Column(String, nullable=True)
 
     # Analysis

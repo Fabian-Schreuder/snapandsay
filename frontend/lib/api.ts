@@ -10,8 +10,9 @@ const API_BASE_URL =
 
 export const analysisApi = {
   upload: async (payload: {
-    image_path: string;
+    image_path?: string | null;
     audio_path?: string | null;
+    text_input?: string | null;
     client_timestamp: string;
     language: "en" | "nl";
   }) => {

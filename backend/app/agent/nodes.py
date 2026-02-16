@@ -60,6 +60,18 @@ async def analyze_input(state: AgentState) -> dict:
         except Exception as e:
             logger.warning(f"Failed to fetch log context: {e}")
 
+    # Fetch transcript from DB if not in state (e.g. text-only entry)
+    if log_id and not transcript:
+        try:
+            async with async_session_maker() as session:
+                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
+                log_entry = result.scalar_one_or_none()
+                if log_entry and log_entry.transcript:
+                    transcript = log_entry.transcript
+                    logger.info(f"Using persisted transcript for log {log_id}")
+        except Exception as e:
+            logger.warning(f"Failed to fetch log transcript: {e}")
+
     if audio_url:
         logger.info(f"Transcribing audio from {audio_url}")
         try:
@@ -132,6 +144,18 @@ async def analyze_input_streaming(
                     logger.info(f"Using context from log {log_id}: {context[:50]}...")
         except Exception as e:
             logger.warning(f"Failed to fetch log context: {e}")
+
+    # Fetch transcript from DB if not in state
+    if log_id and not transcript:
+        try:
+            async with async_session_maker() as session:
+                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
+                log_entry = result.scalar_one_or_none()
+                if log_entry and log_entry.transcript:
+                    transcript = log_entry.transcript
+                    logger.info(f"Using persisted transcript for log {log_id}")
+        except Exception as e:
+            logger.warning(f"Failed to fetch log transcript: {e}")
 
     # Get language from state, default to Dutch
     language = state.get("language", "nl") or "nl"
