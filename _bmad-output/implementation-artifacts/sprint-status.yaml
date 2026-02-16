@@ -1,4 +1,4 @@
-generated: 2025-12-06
+generated: 2026-02-16
 project: snapandsay
 project_key: snapandsay
 tracking_system: file-system
@@ -40,6 +40,7 @@ development_status:
   2-1-camera-capture-component: done
   2-2-voice-recorder-component: done
   2-3-combined-capture-upload-service: done
+  2-4-text-only-meal-entry: backlog
   epic-2-retrospective: done
 
   epic-3: done
@@ -48,14 +49,11 @@ development_status:
   3-3-streaming-response-implementation-sse: done
   3-4-clarification-logic-probabilistic-silence: done
   3-5-snap-page-streaming-ui-integration: done
-  3-6-refine-probability-logic: backlog
-  3-7-multilingual-voice-support: ready-for-dev
   epic-3-retrospective: done
 
   epic-4: done
   4-1-daily-log-list-ui: done
   4-2-edit-delete-log: done
-  4-3-refine-daily-meal-view: backlog
   epic-4-retrospective: done
 
   epic-5: done
@@ -65,3 +63,13 @@ development_status:
 
   epic-6: done
   6-1-production-deployment-pipeline: done
+
+  epic-7: in-progress
+  7-1-structured-ambiguity-analysis-phase-1: done
+  7-2-specialized-food-class-registry: backlog
+  7-3-semantic-gatekeeper: backlog
+  7-4-deterministic-complexity-scoring: backlog
+  7-5-clinical-threshold-routing: backlog
+  7-6-targeted-question-generation: backlog
+  7-7-verification-auditing-benchmarking: backlog
+  epic-7-retrospective: optional

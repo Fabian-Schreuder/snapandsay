@@ -4,6 +4,8 @@ from uuid import UUID
 from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
 
+from app.schemas.analysis import ComplexityBreakdown
+
 
 class AMPMPassData(TypedDict):
     """Tracks data specific to the AMPM multi-pass detail cycle."""
@@ -54,6 +56,7 @@ class AgentState(TypedDict):
     ampm_data: AMPMPassData | None
     current_pass: str | None
     complexity_score: float
+    complexity_breakdown: ComplexityBreakdown | None
 
     # Research Metrics
     start_time: float | None  # Timestamp when analysis started

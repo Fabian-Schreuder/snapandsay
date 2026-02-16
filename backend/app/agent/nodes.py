@@ -91,6 +91,7 @@ async def analyze_input(state: AgentState) -> dict:
             "nutritional_data": result.model_dump(),
             "overall_confidence": result.overall_confidence,
             "complexity_score": result.complexity_score,
+            "complexity_breakdown": result.complexity_breakdown,
             "start_time": start_time,
             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
         }
@@ -232,6 +233,7 @@ async def analyze_input_streaming(
             "nutritional_data": result.model_dump(),
             "overall_confidence": result.overall_confidence,
             "complexity_score": result.complexity_score,
+            "complexity_breakdown": result.complexity_breakdown,
             "start_time": start_time,
             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
         }

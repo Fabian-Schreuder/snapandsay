@@ -28,7 +28,9 @@ async def test_analyze_multimodal_success():
     mock_client.beta.chat.completions.parse = AsyncMock(return_value=mock_response)
 
     with patch("app.services.llm_service._get_openai_client", return_value=mock_client):
-        result = await analyze_multimodal(image_url="http://test.com/image.jpg", transcript="A red apple")
+        result = await analyze_multimodal(
+            image_url="http://test.com/image.jpg", transcript="A red apple", provider="openai"
+        )
 
         assert result == mock_result
         mock_client.beta.chat.completions.parse.assert_called_once()
@@ -49,4 +51,4 @@ async def test_analyze_multimodal_api_error():
 
     with patch("app.services.llm_service._get_openai_client", return_value=mock_client):
         with pytest.raises(LLMGenerationError, match="Failed to analyze input"):
-            await analyze_multimodal(image_url="http://test.com/image.jpg")
+            await analyze_multimodal(image_url="http://test.com/image.jpg", provider="openai")

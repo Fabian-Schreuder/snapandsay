@@ -24,6 +24,22 @@ class FoodItem(BaseModel):
     confidence: float = Field(..., description="Confidence score between 0 and 1")
 
 
+class AmbiguityLevels(BaseModel):
+    hidden_ingredients: int = Field(ge=0, le=3, description="0 (Visible) to 3 (Black Box)")
+    invisible_prep: int = Field(ge=0, le=3, description="0 (None) to 3 (Extensive)")
+    portion_ambiguity: int = Field(ge=0, le=3, description="0 (Known) to 3 (Unknown)")
+
+
+class ComplexityBreakdown(BaseModel):
+    levels: AmbiguityLevels
+    weights: dict[str, float] | None = Field(
+        None, description="Weights used for calculation (populated by Gatekeeper)"
+    )
+    semantic_penalty: float = Field(0.0, description="Penalty for ambiguity (0.0 to 1.0)")
+    dominant_factor: str | None = Field(None, description="Factor driving the complexity score")
+    score: float = Field(..., description="Calculated complexity score (0.0 to 1.0)")
+
+
 class AnalysisResult(BaseModel):
     """Result of analyzing food image/audio input."""
 
@@ -43,6 +59,11 @@ class AnalysisResult(BaseModel):
             "Meal complexity from 0.0 (simple, single item) to 1.0 (complex, multi-component). "
             "Consider: number of distinct items, composite dishes, ambiguous portions, mixed preparations."
         ),
+    )
+
+    # Structured Ambiguity Analysis (Phase 1)
+    complexity_breakdown: ComplexityBreakdown | None = Field(
+        None, description="Structured breakdown of complexity factors"
     )
 
     @property

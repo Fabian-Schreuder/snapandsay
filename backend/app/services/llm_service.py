@@ -24,6 +24,28 @@ class LLMGenerationError(Exception):
     pass
 
 
+def _clean_schema_for_google(schema: dict) -> dict:
+    """
+    Recursively remove 'additionalProperties' and 'title' from schema for Gemini compatibility.
+    Gemini API is strict about supported JSON schema keywords.
+    """
+    if isinstance(schema, dict):
+        new_schema = {}
+        for k, v in schema.items():
+            if k == "additionalProperties":
+                continue
+            # Remove 'title' (schema metadata), but NOT if it's a property definition named 'title'
+            if k == "title" and isinstance(v, str):
+                continue
+
+            new_schema[k] = _clean_schema_for_google(v)
+        return new_schema
+    elif isinstance(schema, list):
+        return [_clean_schema_for_google(item) for item in schema]
+    else:
+        return schema
+
+
 class ClarificationQuestion(BaseModel):
     """Schema for generated clarification question."""
 
@@ -93,6 +115,12 @@ def _build_messages(
             "Rate the meal complexity from 0.0 (simple, single item) to 1.0 (complex, multi-component) "
             "considering: number of distinct items, presence of composite dishes, ambiguous portions, "
             "and mixed preparations. Store this in the 'complexity_score' field.\n\n"
+            "AMBIGUITY SCORING (Structured Analysis):\n"
+            "Assess ambiguity on three specific 0-3 scales:\n"
+            "1. Hidden Ingredients (0=Visible, 3=Black Box/Curry/Stew)\n"
+            "2. Invisible Prep (0=Raw/Simple, 3=Deep Fried/Extensive)\n"
+            "3. Portion Ambiguity (0=Known Quantity, 3=Unknown/Pile)\n"
+            "Populate these in 'complexity_breakdown.levels'.\n\n"
             "VALIDATION RULES:\n"
             "- If the input contains food, drink, or supplements (vitamins, etc), set 'is_food' to true.\n"
             "- If the input is CLEARLY NOT food (e.g. shoes, car, furniture, pets), "
@@ -280,7 +308,7 @@ async def _analyze_google(
     lang_name = "Dutch" if language == "nl" else "English"
     lang_instruction = f"IMPORTANT: Respond entirely in {lang_name}." if language != "en" else ""
 
-    schema_json = json.dumps(AnalysisResult.model_json_schema(), ensure_ascii=False)
+    schema_json = json.dumps(_clean_schema_for_google(AnalysisResult.model_json_schema()), ensure_ascii=False)
 
     if system_prompt_override:
         try:
@@ -298,6 +326,7 @@ async def _analyze_google(
             "Rate meal complexity from 0.0 (simple, single item) to 1.0 "
             "(complex, multi-component) considering: number of distinct items, "
             "composite dishes, ambiguous portions, mixed preparations.\n"
+            "Assess ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity.\n"
             "Respond ONLY with valid JSON matching this schema: " + schema_json
         )
 
@@ -329,7 +358,7 @@ async def _analyze_google(
             contents=contents,
             config={
                 "response_mime_type": "application/json",
-                "response_schema": AnalysisResult,
+                "response_schema": _clean_schema_for_google(AnalysisResult.model_json_schema()),
             },
         )
         return AnalysisResult.model_validate_json(response.text)
@@ -443,7 +472,7 @@ async def _analyze_google_streaming(
     current_time = datetime.now().strftime("%H:%M")
     lang_name = "Dutch" if language == "nl" else "English"
     lang_instruction = f"IMPORTANT: Respond entirely in {lang_name}." if language != "en" else ""
-    schema_json = json.dumps(AnalysisResult.model_json_schema(), ensure_ascii=False)
+    schema_json = json.dumps(_clean_schema_for_google(AnalysisResult.model_json_schema()), ensure_ascii=False)
 
     if system_prompt_override:
         try:
@@ -460,6 +489,7 @@ async def _analyze_google_streaming(
             "Rate meal complexity from 0.0 (simple, single item) to 1.0 "
             "(complex, multi-component) considering: number of distinct items, "
             "composite dishes, ambiguous portions, mixed preparations.\n"
+            "Assess ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity.\n"
             "Respond ONLY with valid JSON matching this schema: " + schema_json
         )
 
@@ -487,6 +517,7 @@ async def _analyze_google_streaming(
             contents=contents,
             config={
                 "response_mime_type": "application/json",
+                "response_schema": _clean_schema_for_google(AnalysisResult.model_json_schema()),
             },
         )
 
@@ -604,7 +635,7 @@ async def _generate_google_clarification(
             contents=[system_prompt, user_prompt],
             config={
                 "response_mime_type": "application/json",
-                "response_schema": ClarificationQuestion,
+                "response_schema": _clean_schema_for_google(ClarificationQuestion.model_json_schema()),
             },
         )
         return ClarificationQuestion.model_validate_json(response.text)
