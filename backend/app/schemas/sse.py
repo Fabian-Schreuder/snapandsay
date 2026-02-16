@@ -50,7 +50,14 @@ class AgentClarification(BaseModel):
 class SSEEvent(BaseModel):
     """Base SSE event wrapper with type discrimination."""
 
-    type: Literal["agent.thought", "agent.response", "agent.error", "agent.clarification"] = Field(
+    type: Literal[
+        "agent.thought",
+        "agent.response",
+        "agent.error",
+        "agent.clarification",
+        "agent.detail_cycle",
+        "agent.final_probe",
+    ] = Field(
         ..., description="Event type for frontend routing"
     )
     payload: AgentThought | AgentResponse | AgentError | AgentClarification = Field(

@@ -1,9 +1,9 @@
 """Confidence-based routing logic for the agent graph."""
 
 from app.agent.constants import (
+    AMPM_ENTRY,
     CONFIDENCE_THRESHOLD,
     FINALIZE_LOG,
-    GENERATE_CLARIFICATION,
     MAX_CLARIFICATIONS,
 )
 from app.agent.state import AgentState
@@ -15,14 +15,14 @@ def route_by_confidence(state: AgentState) -> str:
 
     This function implements the probabilistic silence pattern:
     - High confidence (>= 0.85) -> Skip clarification, go to finalize
-    - Low confidence (< 0.85) -> Ask clarification question
+    - Low confidence (< 0.85) -> Enter AMPM subgraph for detail cycle
     - Max attempts reached (>= 2) -> Force finalize with review flag
 
     Args:
         state: Current agent state with overall_confidence and clarification_count
 
     Returns:
-        Node name to route to: FINALIZE_LOG or GENERATE_CLARIFICATION
+        Node name to route to: FINALIZE_LOG or AMPM_ENTRY
     """
     clarification_count = state.get("clarification_count", 0)
     overall_confidence = state.get("overall_confidence", 0.0)
@@ -35,4 +35,4 @@ def route_by_confidence(state: AgentState) -> str:
     if overall_confidence >= CONFIDENCE_THRESHOLD:
         return FINALIZE_LOG
 
-    return GENERATE_CLARIFICATION
+    return AMPM_ENTRY

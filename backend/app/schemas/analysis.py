@@ -36,6 +36,15 @@ class AnalysisResult(BaseModel):
     is_food: bool = Field(False, description="Whether the input is a valid food/drink item")
     non_food_reason: str | None = Field(None, description="Reason why input is not food (if is_food=False)")
 
+    # AMPM complexity rating
+    complexity_score: float = Field(
+        0.0,
+        description=(
+            "Meal complexity from 0.0 (simple, single item) to 1.0 (complex, multi-component). "
+            "Consider: number of distinct items, composite dishes, ambiguous portions, mixed preparations."
+        ),
+    )
+
     @property
     def overall_confidence(self) -> float:
         """Compute overall confidence as simple average of item confidences."""

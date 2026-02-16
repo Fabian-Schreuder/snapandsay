@@ -5,6 +5,15 @@ from langchain_core.messages import BaseMessage
 from langgraph.graph.message import add_messages
 
 
+class AMPMPassData(TypedDict):
+    """Tracks data specific to the AMPM multi-pass detail cycle."""
+
+    low_confidence_items: list[str]
+    questions_asked: list[str]
+    responses: list[str]
+    pass_count: int
+
+
 class AgentState(TypedDict):
     """
     The state of the agent.
@@ -23,6 +32,11 @@ class AgentState(TypedDict):
         clarification_count: Number of clarification questions asked so far
         needs_clarification: Whether the agent needs to ask a follow-up question
         needs_review: Whether the log should be flagged for human review
+
+    AMPM fields:
+        ampm_data: Tracking data for the AMPM detail cycle subgraph
+        current_pass: Current AMPM pass identifier
+        complexity_score: LLM-derived meal complexity (0.0–1.0)
     """
 
     messages: Annotated[list[BaseMessage], add_messages]
@@ -35,6 +49,11 @@ class AgentState(TypedDict):
     needs_clarification: bool
     needs_review: bool
     user_token: str | None
+
+    # AMPM (Automated Multi-Pass Method)
+    ampm_data: AMPMPassData | None
+    current_pass: str | None
+    complexity_score: float
 
     # Research Metrics
     start_time: float | None  # Timestamp when analysis started

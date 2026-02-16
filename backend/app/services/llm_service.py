@@ -89,6 +89,10 @@ def _build_messages(
             "3. When uncertain, estimate HIGHER rather than lower.\n\n"
             "Generate a short, descriptive title for the meal (e.g. 'Roasted Cashews', 'Chicken Salad'). "
             "Infer the meal type (Breakfast, Lunch, Dinner, Snack) based on time and content.\n\n"
+            "COMPLEXITY RATING:\n"
+            "Rate the meal complexity from 0.0 (simple, single item) to 1.0 (complex, multi-component) "
+            "considering: number of distinct items, presence of composite dishes, ambiguous portions, "
+            "and mixed preparations. Store this in the 'complexity_score' field.\n\n"
             "VALIDATION RULES:\n"
             "- If the input contains food, drink, or supplements (vitamins, etc), set 'is_food' to true.\n"
             "- If the input is CLEARLY NOT food (e.g. shoes, car, furniture, pets), "
@@ -291,6 +295,9 @@ async def _analyze_google(
             f"{lang_instruction}\n"
             f"You are a dietary expert. Current time is {current_time}. "
             "Analyze the input to identify food items, estimate quantities, calories, and confidence.\n"
+            "Rate meal complexity from 0.0 (simple, single item) to 1.0 "
+            "(complex, multi-component) considering: number of distinct items, "
+            "composite dishes, ambiguous portions, mixed preparations.\n"
             "Respond ONLY with valid JSON matching this schema: " + schema_json
         )
 
@@ -450,6 +457,9 @@ async def _analyze_google_streaming(
             f"{lang_instruction}\n"
             f"You are a dietary expert. Current time is {current_time}. "
             "Analyze the input to identify food items, estimate quantities, calories, and confidence.\n"
+            "Rate meal complexity from 0.0 (simple, single item) to 1.0 "
+            "(complex, multi-component) considering: number of distinct items, "
+            "composite dishes, ambiguous portions, mixed preparations.\n"
             "Respond ONLY with valid JSON matching this schema: " + schema_json
         )
 
