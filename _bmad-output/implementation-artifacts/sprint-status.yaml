@@ -40,7 +40,7 @@ development_status:
   2-1-camera-capture-component: done
   2-2-voice-recorder-component: done
   2-3-combined-capture-upload-service: done
-  2-4-text-only-meal-entry: in-progress
+  2-4-text-only-meal-entry: done
   epic-2-retrospective: done
 
   epic-3: done
@@ -66,8 +66,8 @@ development_status:
 
   epic-7: in-progress
   7-1-structured-ambiguity-analysis-phase-1: done
-  7-2-specialized-food-class-registry: backlog
-  7-3-semantic-gatekeeper: backlog
+  7-2-specialized-food-class-registry: done
+  7-3-semantic-gatekeeper: done
   7-4-deterministic-complexity-scoring: backlog
   7-5-clinical-threshold-routing: backlog
   7-6-targeted-question-generation: backlog

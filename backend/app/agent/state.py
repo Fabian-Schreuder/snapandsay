@@ -58,6 +58,10 @@ class AgentState(TypedDict):
     complexity_score: float
     complexity_breakdown: ComplexityBreakdown | None
 
+    # Semantic Gatekeeper
+    unbounded_items: list[str] | None
+    semantic_interruption_needed: bool
+
     # Research Metrics
     start_time: float | None  # Timestamp when analysis started
     agent_turn_count: int  # Total agent responses generated

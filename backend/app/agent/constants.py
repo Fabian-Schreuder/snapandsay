@@ -1,6 +1,8 @@
 # Node Names
 ANALYZE_INPUT = "analyze_input"
+SEMANTIC_GATEKEEPER = "semantic_gatekeeper"
 GENERATE_CLARIFICATION = "generate_clarification"
+GENERATE_SEMANTIC_CLARIFICATION = "generate_semantic_clarification"
 FINALIZE_LOG = "finalize_log"
 
 # AMPM Node Names
@@ -19,6 +21,7 @@ EVENT_FINAL_PROBE = "agent.final_probe"
 # Thought Step Constants
 STEP_ANALYZING = "analyzing"
 STEP_CLARIFYING = "clarifying"
+STEP_SEMANTIC_CHECK = "semantic_check"
 STEP_FINALIZING = "finalizing"
 STEP_DETAIL_CYCLE = "detail_cycle"
 STEP_FINAL_PROBE = "final_probe"
