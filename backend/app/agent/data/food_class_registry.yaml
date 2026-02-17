@@ -1,0 +1,78 @@
+# Biomimicry Risk Registry
+# Foods where visual appearance diverges from nutritional reality
+
+default:
+  weights: { ingredients: 0.5, prep: 0.5, volume: 0.5 }
+  semantic_penalty: 0.0
+  mandatory_clarification: false
+  is_umbrella_term: false
+
+classes:
+  # 1. Meat Analogues ("The Impossible Factor")
+  # Visual Triggers: Burger patties, sausages, meatballs, chicken nuggets, mince
+  # Risk: High carbs vs zero carbs (pea/soy/starch binders), high sodium, coconut oil/sat fat.
+  meat_analogue:
+    weights: { ingredients: 0.9, prep: 0.7, volume: 0.3 }
+    semantic_penalty: 4.0
+    mandatory_clarification: true
+    is_umbrella_term: true
+    aliases:
+      - "burger"
+      - "hamburger"
+      - "cheeseburger"
+      - "patty"
+      - "sausage"
+      - "meatball"
+      - "nugget"
+      - "chicken nugget"
+      - "mince"
+      - "ground meat"
+      - "meatloaf"
+      - "bratwurst"
+      - "hot dog"
+
+  # 2. Dairy Analogues ("The White Liquid Paradox")
+  # Visual Triggers: Milk, cheese slices, yogurt, ice cream, coffee drinks
+  # Risk: Protein (Cow 8g) vs Carb (Oat) vs Zero (Almond).
+  dairy_analogue:
+    weights: { ingredients: 0.8, prep: 0.2, volume: 0.2 }
+    semantic_penalty: 3.5
+    mandatory_clarification: true
+    is_umbrella_term: true
+    aliases:
+      - "milk"
+      - "cheese"
+      - "yogurt"
+      - "yoghurt"
+      - "ice cream"
+      - "latte"
+      - "cappuccino"
+      - "macchiato"
+      - "cream"
+      - "butter"
+
+  # 3. Stealth Carb Substitutes ("The Keto Effect")
+  # Visual Triggers: Bread, pizza, pasta, buns, wraps
+  # Risk: Wheat (High Carb) vs Almond/Cauliflower (Low Carb/High Fat).
+  stealth_carb:
+    weights: { ingredients: 0.8, prep: 0.6, volume: 0.4 }
+    semantic_penalty: 3.0
+    mandatory_clarification: true
+    is_umbrella_term: true
+    aliases:
+      - "bread"
+      - "pizza"
+      - "crust"
+      - "pasta"
+      - "spaghetti"
+      - "macaroni"
+      - "noodle"
+      - "noodles"
+      - "bun"
+      - "bagel"
+      - "wrap"
+      - "tortilla"
+      - "rice"
+      - "cauliflower rice"
+      - "pancake"
+      - "waffle"

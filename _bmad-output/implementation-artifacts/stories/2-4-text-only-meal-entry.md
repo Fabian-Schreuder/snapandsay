@@ -3,7 +3,7 @@
 
 **Story ID:** 2.4
 **Epic:** 2 - Multimodal Ingestion & Capture
-**Status:** in-progress
+**Status:** done
 **Author:** SM Agent (Fabian)
 **Date:** 2026-02-16
 

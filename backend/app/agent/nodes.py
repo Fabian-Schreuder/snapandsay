@@ -423,23 +423,17 @@ async def check_semantic_ambiguity(state: AgentState) -> dict:
     """
     nutritional_data = state.get("nutritional_data", {})
     items = nutritional_data.get("items", [])
-    
+
     # Convert dict items to FoodItem objects for the service
     food_items = [FoodItem(**item) for item in items]
-    
+
     unbounded_items = semantic_gatekeeper.semantic_gatekeeper.assess_lexical_boundedness(food_items)
-    
+
     if unbounded_items:
         logger.info(f"Semantic Gatekeeper Interruption: Unbounded items found: {unbounded_items}")
-        return {
-            "unbounded_items": unbounded_items,
-            "semantic_interruption_needed": True
-        }
-    
-    return {
-        "unbounded_items": [],
-        "semantic_interruption_needed": False
-    }
+        return {"unbounded_items": unbounded_items, "semantic_interruption_needed": True}
+
+    return {"unbounded_items": [], "semantic_interruption_needed": False}
 
 
 async def generate_semantic_clarification(state: AgentState) -> dict:
@@ -449,7 +443,7 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
     unbounded_items = state.get("unbounded_items", [])
     language = state.get("language", "nl") or "nl"
     log_id = state.get("log_id")
-    
+
     if not unbounded_items:
         return {"semantic_interruption_needed": False}
 
@@ -457,9 +451,9 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
     nutritional_data = state.get("nutritional_data", {})
     all_items = [FoodItem(**item) for item in nutritional_data.get("items", [])]
     target_food_items = [item for item in all_items if item.name in unbounded_items]
-    
+
     try:
-        question = await llm_service.generate_clarification_question(
+        await llm_service.generate_clarification_question(
             target_food_items, language, provider=state.get("provider"), model=state.get("model")
         )
 
@@ -473,13 +467,13 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
                         await session.commit()
                         logger.info(f"Updated log {log_id} status to 'clarification'")
             except Exception as db_err:
-                 logger.error(f"Failed to update log status: {db_err}")
+                logger.error(f"Failed to update log status: {db_err}")
 
         # Return state update
         return {
-             "semantic_interruption_needed": True,
-             "needs_clarification": True,
-             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
+            "semantic_interruption_needed": True,
+            "needs_clarification": True,
+            "agent_turn_count": state.get("agent_turn_count", 0) + 1,
         }
 
     except Exception as e:
@@ -496,7 +490,7 @@ async def generate_semantic_clarification_streaming(
     language = state.get("language", "nl") or "nl"
     unbounded_items = state.get("unbounded_items", [])
     log_id = state.get("log_id")
-    
+
     if not unbounded_items:
         yield {"semantic_interruption_needed": False}
         return
@@ -506,34 +500,33 @@ async def generate_semantic_clarification_streaming(
         type=EVENT_THOUGHT,
         payload=AgentThought(
             step=STEP_SEMANTIC_CHECK,
-            message=get_message("clarifying", language), # Reuse clarifying message or add new one
+            message=get_message("clarifying", language),  # Reuse clarifying message or add new one
             timestamp=datetime.now(UTC),
         ),
     )
-    
+
     # Generate question logic
     # TODO: Refactor llm_service to support specific semantic clarification or use rule-based
     # For now, let's just ask about the first unbounded item to keep it simple and focused
-    target_item = unbounded_items[0]
-    
+
     # Simple template fallback if LLM service isn't specialized yet
     # But ideally we use LLM to be natural
-    
-    # Let's create a temporary mock or use the existing clarification generator 
+
+    # Let's create a temporary mock or use the existing clarification generator
     # but forced on these items.
-    
+
     try:
         # We need to construct FoodItems from the names for the service
         # But wait, we just have names here.
         # Let's assume we can pass a dummy FoodItem or modify the service.
         # Actually, let's just use a simple prompt for now via LLM service if possible
         # OR just reuse generate_clarification_question but ONLY for these items.
-        
+
         # Re-fetch items from nutritional data to get full objects
         nutritional_data = state.get("nutritional_data", {})
         all_items = [FoodItem(**item) for item in nutritional_data.get("items", [])]
         target_food_items = [item for item in all_items if item.name in unbounded_items]
-        
+
         question = await llm_service.generate_clarification_question(
             target_food_items, language, provider=state.get("provider"), model=state.get("model")
         )
@@ -545,10 +538,10 @@ async def generate_semantic_clarification_streaming(
                 if log_entry:
                     log_entry.status = "clarification"
                     await session.commit()
-        
+
         context = {
             "items": [{"name": item.name, "confidence": item.confidence} for item in target_food_items],
-            "type": "semantic" # context marker
+            "type": "semantic",  # context marker
         }
 
         yield SSEEvent(
@@ -560,11 +553,11 @@ async def generate_semantic_clarification_streaming(
                 log_id=log_id,
             ),
         )
-        
+
         yield {
-             "semantic_interruption_needed": True,
-             "needs_clarification": True,
-             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
+            "semantic_interruption_needed": True,
+            "needs_clarification": True,
+            "agent_turn_count": state.get("agent_turn_count", 0) + 1,
         }
 
     except Exception as e:

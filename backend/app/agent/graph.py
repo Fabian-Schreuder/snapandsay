@@ -52,7 +52,7 @@ def get_agent_graph():
 
     # Entry point
     workflow.add_edge(START, ANALYZE_INPUT)
-    
+
     # 1. Analyze -> Gatekeeper
     workflow.add_edge(ANALYZE_INPUT, SEMANTIC_GATEKEEPER)
 
@@ -60,7 +60,7 @@ def get_agent_graph():
     def route_after_gatekeeper(state: AgentState):
         if state.get("semantic_interruption_needed"):
             return GENERATE_SEMANTIC_CLARIFICATION
-        
+
         # If no semantic interruption, use the normal confidence routing logic
         return route_by_confidence(state)
 
@@ -71,7 +71,7 @@ def get_agent_graph():
             GENERATE_SEMANTIC_CLARIFICATION: GENERATE_SEMANTIC_CLARIFICATION,
             AMPM_ENTRY: AMPM_ENTRY,
             FINALIZE_LOG: FINALIZE_LOG,
-        }
+        },
     )
 
     # 3. Interrupt if Semantic Clarification needed
@@ -119,21 +119,21 @@ async def run_streaming_agent(
     # Run check_semantic_ambiguity
     item = await check_semantic_ambiguity(state)
     state.update(item)
-    
+
     # Check for semantic interruption
     if state.get("semantic_interruption_needed"):
         # Generate semantic clarification streaming
         async for item in generate_semantic_clarification_streaming(state):
-             if isinstance(item, SSEEvent):
-                 yield item
-             else:
-                 state.update(item)
-        
+            if isinstance(item, SSEEvent):
+                yield item
+            else:
+                state.update(item)
+
         # Determine if we should stop here
         # If we asked a question, we yield final state and stop to wait for user input
-        if state.get("needs_clarification"): # This should be set by generate_semantic...
-             yield state
-             return
+        if state.get("needs_clarification"):  # This should be set by generate_semantic...
+            yield state
+            return
 
     # Determine routing based on confidence
     overall_confidence = state.get("overall_confidence", 0.0)
