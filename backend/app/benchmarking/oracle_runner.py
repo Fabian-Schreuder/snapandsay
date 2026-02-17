@@ -59,7 +59,7 @@ class OracleRunner:
     ) -> dict[str, Any]:
         """
         Orchestrates the benchmarking loop for a single dish.
-        Returns result dict including latency_seconds for timing.
+        Returns result dict including latency_seconds for timing and complexity metrics.
         """
         start_time = time.perf_counter()
 
@@ -203,6 +203,10 @@ class OracleRunner:
 
                             # Extract complexity data from response payload
                             complexity_breakdown = data.get("complexity_breakdown")
+                            if complexity_breakdown and not isinstance(complexity_breakdown, dict):
+                                logger.warning(f"[{dish.dish_id}] Invalid complexity_breakdown format: {type(complexity_breakdown)}")
+                                complexity_breakdown = None
+
                             complexity_score = data.get("complexity_score")
 
                             logger.info(f"[{dish.dish_id}] Final Result: {status}")

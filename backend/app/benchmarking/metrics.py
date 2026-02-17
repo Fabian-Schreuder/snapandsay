@@ -271,7 +271,7 @@ class MetricsCalculator:
 
         for result in per_dish_results:
             breakdown = result.get("complexity_breakdown")
-            if breakdown is None:
+            if breakdown is None or not isinstance(breakdown, dict):
                 continue
 
             total_scored += 1

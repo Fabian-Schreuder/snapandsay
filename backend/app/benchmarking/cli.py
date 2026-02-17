@@ -225,6 +225,8 @@ async def main_async(args):
     mae_results = []
 
     # Recreate latency tracker and calculate MAE
+    # We re-instantiate and re-populate from 'results' to ensure we capture
+    # metrics for ALL dishes (including those loaded from checkpoints)
     latency_tracker = LatencyTracker()
     dishes_map = {d.dish_id: d for d in all_dishes}
 
