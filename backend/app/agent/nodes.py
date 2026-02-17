@@ -19,7 +19,7 @@ from app.agent.constants import (
 from app.agent.state import AgentState
 from app.database import async_session_maker
 from app.models.log import DietaryLog
-from app.schemas.analysis import FoodItem
+from app.schemas.analysis import AnalysisResult, FoodItem
 from app.schemas.sse import (
     AgentClarification,
     AgentError,
@@ -28,8 +28,54 @@ from app.schemas.sse import (
     SSEEvent,
 )
 from app.services import llm_service, semantic_gatekeeper, voice_service
+from app.services.complexity_calculator import calculate_complexity
+from app.services.food_class_registry import RiskProfile
+from app.services.food_class_registry import registry as food_registry
 
 logger = logging.getLogger(__name__)
+
+
+def _enrich_with_complexity(result: AnalysisResult) -> None:
+    """
+    Enrich the AnalysisResult with deterministic complexity score.
+    Refines the LLM-provided breakdown with calculated values.
+    """
+    if not result.complexity_breakdown or not result.complexity_breakdown.levels:
+        logger.warning("No ambiguity levels found in analysis result, skipping deterministic scoring")
+        return
+
+    levels = result.complexity_breakdown.levels
+
+    # Collect risk profiles from registry matches (title + items).
+    # Use cached lookup key to avoid redundant substring search in get_risk_profile.
+    profiles: list[RiskProfile] = []
+
+    if result.title:
+        class_key = food_registry.lookup(result.title)
+        if class_key:
+            profiles.append(food_registry.get_risk_profile(result.title))
+
+    for item in result.items:
+        class_key = food_registry.lookup(item.name)
+        if class_key:
+            profiles.append(food_registry.get_risk_profile(item.name))
+
+    # Pick most conservative profile (highest semantic_penalty), else default
+    if profiles:
+        profiles.sort(key=lambda p: p.semantic_penalty, reverse=True)
+        selected_profile = profiles[0]
+    else:
+        selected_profile = food_registry.get_risk_profile("")
+
+    full_breakdown = calculate_complexity(levels, selected_profile)
+
+    result.complexity_breakdown = full_breakdown
+    result.complexity_score = full_breakdown.score
+    logger.info(
+        "Calculated deterministic complexity: %s (Dominant: %s)",
+        result.complexity_score,
+        full_breakdown.dominant_factor,
+    )
 
 
 async def analyze_input(state: AgentState) -> dict:
@@ -100,6 +146,10 @@ async def analyze_input(state: AgentState) -> dict:
             provider=state.get("provider"),
             model=state.get("model"),
         )
+
+        # Calculate deterministic complexity score
+        _enrich_with_complexity(result)
+
         return {
             "nutritional_data": result.model_dump(),
             "overall_confidence": result.overall_confidence,
@@ -243,6 +293,9 @@ async def analyze_input_streaming(
             provider=state.get("provider"),
             model=state.get("model"),
         )
+
+        # Calculate deterministic complexity score
+        _enrich_with_complexity(result)
 
         # Emit complete thought
         yield SSEEvent(

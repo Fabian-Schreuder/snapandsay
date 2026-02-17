@@ -68,7 +68,7 @@ development_status:
   7-1-structured-ambiguity-analysis-phase-1: done
   7-2-specialized-food-class-registry: done
   7-3-semantic-gatekeeper: done
-  7-4-deterministic-complexity-scoring: backlog
+  7-4-deterministic-complexity-scoring: done
   7-5-clinical-threshold-routing: backlog
   7-6-targeted-question-generation: backlog
   7-7-verification-auditing-benchmarking: backlog
