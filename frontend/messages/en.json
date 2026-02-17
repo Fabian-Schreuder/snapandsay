@@ -47,7 +47,8 @@
       "saving": "Saving your meal log..."
     },
     "whatsInThisMeal": "What's in this meal?",
-    "tapToToggle": "Tap to toggle"
+    "tapToToggle": "Tap to toggle",
+    "openTextEntry": "Describe with text"
   },
   "logs": {
     "title": "Meal Log",

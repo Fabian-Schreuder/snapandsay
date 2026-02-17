@@ -47,7 +47,8 @@
       "saving": "Je maaltijd wordt opgeslagen..."
     },
     "whatsInThisMeal": "Wat zit er in deze maaltijd?",
-    "tapToToggle": "Tik om op te nemen of te stoppen met opnemen"
+    "tapToToggle": "Tik om op te nemen of te stoppen met opnemen",
+    "openTextEntry": "Beschrijf met tekst"
   },
   "logs": {
     "title": "Maaltijd logboek",
