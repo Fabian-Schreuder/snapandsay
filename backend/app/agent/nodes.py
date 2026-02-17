@@ -729,13 +729,22 @@ async def finalize_log_streaming(
                         elif audio_url:
                             modality = "voice"
 
+                        # Get complexity data from state/result
+                        complexity_score = state.get("complexity_score")
+                        complexity_breakdown = state.get("complexity_breakdown")
+                        dominant_factor = (
+                            complexity_breakdown.dominant_factor if complexity_breakdown else None
+                        )
+
                         research_log = ResearchLog(
                             log_id=log_id,
                             input_modality=modality,
                             processing_time_ms=processing_time_ms,
                             agent_turns_count=state.get("agent_turn_count", 1),
-                            was_corrected=clarification_count > 0,  # Simple heuristic for now
+                            was_corrected=clarification_count > 0,
                             confidence_score=overall_confidence,
+                            complexity_score=complexity_score,
+                            dominant_factor=dominant_factor,
                         )
                         session.add(research_log)
                         await session.commit()

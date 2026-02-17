@@ -27,6 +27,8 @@ class ResearchLog(Base):
     agent_turns_count = Column(Integer, nullable=False)
     was_corrected = Column(Boolean, default=False, nullable=False)
     confidence_score = Column(Float, nullable=False)
+    complexity_score = Column(Float, nullable=True)
+    dominant_factor = Column(String, nullable=True)
 
     # Metadata
     created_at = Column(DateTime(timezone=True), server_default=func.now())

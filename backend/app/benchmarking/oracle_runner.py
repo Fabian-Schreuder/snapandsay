@@ -204,7 +204,10 @@ class OracleRunner:
                             # Extract complexity data from response payload
                             complexity_breakdown = data.get("complexity_breakdown")
                             if complexity_breakdown and not isinstance(complexity_breakdown, dict):
-                                logger.warning(f"[{dish.dish_id}] Invalid complexity_breakdown format: {type(complexity_breakdown)}")
+                                logger.warning(
+                                    f"[{dish.dish_id}] Invalid complexity_breakdown format: "
+                                    f"{type(complexity_breakdown)}"
+                                )
                                 complexity_breakdown = None
 
                             complexity_score = data.get("complexity_score")
