@@ -1,6 +1,7 @@
 import json
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from typing import Any
 
 
 @dataclass
@@ -8,7 +9,7 @@ class ExperimentResult:
     experiment_id: str
     prompt_version: str
     timestamp: str
-    metrics: dict[str, float]
+    metrics: dict[str, Any]
     latency_stats: dict[str, float]
     per_dish_results: list[dict]
     config: dict
@@ -75,19 +76,73 @@ class ExperimentLog:
         for h in history:
             m = h["metrics"]
             ts = h["timestamp"][:16]
-            cal = m.get("calories", "N/A")
-            prot = m.get("protein", "N/A")
+            cal = m.get("calories")
+            prot = m.get("protein")
+            cal_str = f"{cal:.1f}" if isinstance(cal, int | float) else "N/A"
+            prot_str = f"{prot:.1f}" if isinstance(prot, int | float) else "N/A"
             lat = h.get("latency_mean", 0)
             cnt = h["sample_count"]
             row = [
                 h["experiment_id"],
                 h["prompt_version"],
                 ts,
-                f"{cal:.1f}",
-                f"{prot:.1f}",
+                cal_str,
+                prot_str,
                 f"{lat:.1f}s",
                 str(cnt),
             ]
             lines.append(f"| {' | '.join(row)} |")
 
+        # Score Comparison section — render if any experiment has per-dish complexity data
+        lines.extend(self._build_score_comparison_section())
+
         return "\n".join(lines)
+
+    def _build_score_comparison_section(self) -> list[str]:
+        """Build a score comparison table from the latest experiment's per-dish results."""
+        history = self.get_history()
+        if not history:
+            return []
+
+        # Use the latest experiment
+        latest = history[-1]
+        latest_id = latest["experiment_id"]
+        detail_file = self.log_dir / f"experiment_{latest_id}.json"
+        if not detail_file.exists():
+            return []
+
+        with open(detail_file) as f:
+            data = json.load(f)
+
+        per_dish = data.get("per_dish_results", [])
+        rows = []
+        for dish in per_dish:
+            old_score = dish.get("complexity_score")
+            breakdown = dish.get("complexity_breakdown")
+            new_score = breakdown.get("score") if breakdown else None
+            if old_score is not None or new_score is not None:
+                rows.append(
+                    {
+                        "dish_id": dish.get("dish_id", "?"),
+                        "old": f"{old_score:.3f}" if old_score is not None else "N/A",
+                        "new": f"{new_score:.3f}" if new_score is not None else "N/A",
+                        "factor": breakdown.get("dominant_factor", "N/A") if breakdown else "N/A",
+                    }
+                )
+
+        if not rows:
+            return []
+
+        section = [
+            "",
+            "## Score Comparison (Old vs New)",
+            "",
+            f"_Experiment: {latest_id}_",
+            "",
+            "| Dish ID | Old Score | New Score | Dominant Factor |",
+            "| --- | --- | --- | --- |",
+        ]
+        for r in rows:
+            section.append(f"| {r['dish_id']} | {r['old']} | {r['new']} | {r['factor']} |")
+
+        return section

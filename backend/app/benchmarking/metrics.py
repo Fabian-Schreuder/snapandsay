@@ -252,6 +252,71 @@ class MetricsCalculator:
 
         return {macro: (within[macro] / total[macro] if total[macro] > 0 else 0.0) for macro in within}
 
+    def aggregate_complexity(self, per_dish_results: list[dict]) -> "ComplexityMetrics":
+        """
+        Aggregate complexity metrics from per-dish benchmark results.
+
+        Args:
+            per_dish_results: List of per-dish result dicts, each potentially
+                              containing 'complexity_breakdown' and 'complexity_score'.
+
+        Returns:
+            ComplexityMetrics with distribution of dominant factors and counts.
+        """
+        total_scored = 0
+        score_sum = 0.0
+        clarification_triggered_count = 0
+        total_questions_asked = 0
+        dominant_factor_distribution: dict[str, int] = {}
+
+        for result in per_dish_results:
+            breakdown = result.get("complexity_breakdown")
+            if breakdown is None:
+                continue
+
+            total_scored += 1
+            score_sum += breakdown.get("score", 0.0)
+
+            factor = breakdown.get("dominant_factor") or "none"
+            dominant_factor_distribution[factor] = dominant_factor_distribution.get(factor, 0) + 1
+
+            # A clarification was triggered if there were turns > 0
+            turns = result.get("turns", 0)
+            if turns > 0:
+                clarification_triggered_count += 1
+
+            total_questions_asked += turns
+
+        mean_score = score_sum / total_scored if total_scored > 0 else 0.0
+
+        return ComplexityMetrics(
+            total_scored=total_scored,
+            mean_score=round(mean_score, 4),
+            clarification_triggered_count=clarification_triggered_count,
+            total_questions_asked=total_questions_asked,
+            dominant_factor_distribution=dominant_factor_distribution,
+        )
+
+
+@dataclass
+class ComplexityMetrics:
+    """Aggregate complexity metrics across benchmark dishes."""
+
+    total_scored: int = 0
+    mean_score: float = 0.0
+    clarification_triggered_count: int = 0
+    total_questions_asked: int = 0
+    dominant_factor_distribution: dict[str, int] | None = None
+
+    def to_dict(self) -> dict:
+        return {
+            "total_scored": self.total_scored,
+            "mean_score": round(self.mean_score, 4),
+            "clarification_triggered_count": self.clarification_triggered_count,
+            "total_questions_asked": self.total_questions_asked,
+            "dominant_factor_distribution": self.dominant_factor_distribution or {},
+        }
+
 
 class LatencyTracker:
     """
