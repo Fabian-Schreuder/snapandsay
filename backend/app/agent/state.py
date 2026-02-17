@@ -75,3 +75,7 @@ class AgentState(TypedDict):
     model: str | None
     is_food: bool | None
     non_food_reason: str | None
+
+    # Clinical Routing
+    clinical_threshold: float
+    mandatory_clarification: bool

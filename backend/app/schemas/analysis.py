@@ -59,6 +59,9 @@ class AnalysisResult(BaseModel):
     # Validation
     is_food: bool = Field(False, description="Whether the input is a valid food/drink item")
     non_food_reason: str | None = Field(None, description="Reason why input is not food (if is_food=False)")
+    mandatory_clarification: bool = Field(
+        False, description="Whether the food class requires mandatory clarification (from Registry)"
+    )
 
     # AMPM complexity rating
     complexity_score: float = Field(

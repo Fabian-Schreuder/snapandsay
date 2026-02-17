@@ -71,6 +71,10 @@ def _enrich_with_complexity(result: AnalysisResult) -> None:
 
     result.complexity_breakdown = full_breakdown
     result.complexity_score = full_breakdown.score
+    if selected_profile.mandatory_clarification:
+        result.mandatory_clarification = True
+        logger.info("Mandatory clarification triggered by risk profile: %s", selected_profile.name)
+
     logger.info(
         "Calculated deterministic complexity: %s (Dominant: %s)",
         result.complexity_score,
@@ -155,6 +159,7 @@ async def analyze_input(state: AgentState) -> dict:
             "overall_confidence": result.overall_confidence,
             "complexity_score": result.complexity_score,
             "complexity_breakdown": result.complexity_breakdown,
+            "mandatory_clarification": result.mandatory_clarification,
             "start_time": start_time,
             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
         }
@@ -312,6 +317,7 @@ async def analyze_input_streaming(
             "overall_confidence": result.overall_confidence,
             "complexity_score": result.complexity_score,
             "complexity_breakdown": result.complexity_breakdown,
+            "mandatory_clarification": result.mandatory_clarification,
             "start_time": start_time,
             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
         }
