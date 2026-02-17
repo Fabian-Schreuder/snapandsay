@@ -97,11 +97,16 @@ async def detail_cycle(state: AgentState) -> dict:
         return {"needs_clarification": False}
 
     try:
+        # Extract dominant factor for targeted questioning
+        complexity_breakdown = state.get("complexity_breakdown")
+        dominant_factor = complexity_breakdown.dominant_factor if complexity_breakdown else None
+
         question = await llm_service.generate_clarification_question(
             askable_items,
             language=state.get("language", "nl") or "nl",
             provider=state.get("provider"),
             model=state.get("model"),
+            dominant_factor=dominant_factor,
         )
 
         # Update AMPM tracking data
@@ -164,11 +169,16 @@ async def detail_cycle_streaming(
         return
 
     try:
+        # Extract dominant factor for targeted questioning
+        complexity_breakdown = state.get("complexity_breakdown")
+        dominant_factor = complexity_breakdown.dominant_factor if complexity_breakdown else None
+
         question = await llm_service.generate_clarification_question(
             askable_items,
             language=language,
             provider=state.get("provider"),
             model=state.get("model"),
+            dominant_factor=dominant_factor,
         )
 
         # Update AMPM tracking data

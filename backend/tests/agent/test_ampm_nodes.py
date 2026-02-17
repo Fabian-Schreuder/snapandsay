@@ -23,6 +23,7 @@ def _make_state(
     items=None,
     ampm_data=None,
     complexity_score=0.0,
+    complexity_breakdown=None,
     language="en",
     log_id=None,
 ):
@@ -45,6 +46,7 @@ def _make_state(
         "ampm_data": ampm_data,
         "current_pass": None,
         "complexity_score": complexity_score,
+        "complexity_breakdown": complexity_breakdown,
         "start_time": None,
         "agent_turn_count": 0,
         "language": language,
@@ -151,6 +153,34 @@ class TestDetailCycle:
         assert result["needs_review"] is True
         assert result["needs_clarification"] is False
 
+    @pytest.mark.asyncio
+    async def test_passes_dominant_factor_from_state(self):
+        """Should pass dominant_factor from state to LLM service."""
+        from app.schemas.analysis import AmbiguityLevels, ComplexityBreakdown
+
+        complexity_breakdown = ComplexityBreakdown(
+            score=0.8,
+            dominant_factor="prep",
+            levels=AmbiguityLevels(hidden_ingredients=0, invisible_prep=3, portion_ambiguity=0),
+            weights={},
+            semantic_penalty=0.0,
+        )
+        state = _make_state()
+        state["complexity_breakdown"] = complexity_breakdown
+
+        mock_question = ClarificationQuestion(question="How was it prepared?", options=["Fried", "Grilled"])
+
+        with patch(
+            "app.agent.ampm_nodes.llm_service.generate_clarification_question",
+            new_callable=AsyncMock,
+            return_value=mock_question,
+        ) as mock_generate:
+            await detail_cycle(state)
+
+            # Verify dominant_factor was passed
+            call_kwargs = mock_generate.call_args.kwargs
+            assert call_kwargs["dominant_factor"] == "prep"
+
 
 # --- final_probe (non-streaming) ---
 
@@ -238,6 +268,36 @@ class TestDetailCycleStreaming:
         sse_events = [e for e in events if isinstance(e, SSEEvent)]
         error_events = [e for e in sse_events if e.type == "agent.error"]
         assert len(error_events) == 1
+
+    @pytest.mark.asyncio
+    async def test_passes_dominant_factor_from_state_streaming(self):
+        """Should pass dominant_factor from state to LLM service (streaming variant)."""
+        from uuid import uuid4
+
+        from app.schemas.analysis import AmbiguityLevels, ComplexityBreakdown
+
+        complexity_breakdown = ComplexityBreakdown(
+            score=0.8,
+            dominant_factor="volume",
+            levels=AmbiguityLevels(hidden_ingredients=0, invisible_prep=0, portion_ambiguity=3),
+            weights={},
+            semantic_penalty=0.0,
+        )
+        state = _make_state(log_id=uuid4(), complexity_breakdown=complexity_breakdown)
+
+        mock_question = ClarificationQuestion(question="How much did you have?", options=["A cup", "A bowl"])
+
+        with patch(
+            "app.agent.ampm_nodes.llm_service.generate_clarification_question",
+            new_callable=AsyncMock,
+            return_value=mock_question,
+        ) as mock_generate:
+            events = []
+            async for item in detail_cycle_streaming(state):
+                events.append(item)
+
+            call_kwargs = mock_generate.call_args.kwargs
+            assert call_kwargs["dominant_factor"] == "volume"
 
 
 # --- final_probe_streaming ---

@@ -11,6 +11,7 @@ from google.genai import types
 from openai import AsyncOpenAI
 from pydantic import BaseModel
 
+from app.agent.constants import CLARIFICATION_TEMPLATES
 from app.config import settings
 from app.schemas.analysis import AnalysisResult, FoodItem
 
@@ -538,6 +539,7 @@ async def generate_clarification_question(
     language: str = "nl",
     provider: str | None = None,
     model: str | None = None,
+    dominant_factor: str | None = None,  # [NEW]
 ) -> ClarificationQuestion:
     """
     Generate a clarification question for low-confidence food items.
@@ -577,6 +579,9 @@ async def generate_clarification_question(
     lang_name = "Dutch" if language == "nl" else "English"
     lang_instruction = f"IMPORTANT: Respond entirely in {lang_name}. " if language != "en" else ""
 
+    # Select the appropriate template instruction
+    template_instruction = CLARIFICATION_TEMPLATES.get(dominant_factor, CLARIFICATION_TEMPLATES["default"])
+
     system_prompt = (
         f"{lang_instruction}"
         "You are a friendly dietary assistant helping seniors log their meals. "
@@ -586,7 +591,7 @@ async def generate_clarification_question(
         "- Keep the question under 15 words\n"
         "- Provide 2-3 common answer options\n"
         "- Be friendly and patient\n"
-        "- Focus on the most uncertain item"
+        f"- {template_instruction}"
     )
 
     user_prompt = (
