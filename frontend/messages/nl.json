@@ -48,7 +48,8 @@
     },
     "whatsInThisMeal": "Wat zit er in deze maaltijd?",
     "tapToToggle": "Tik om op te nemen of te stoppen met opnemen",
-    "openTextEntry": "Beschrijf met tekst"
+    "openTextEntry": "Beschrijf met tekst",
+    "typeInstead": "Typen in plaats van praten"
   },
   "logs": {
     "title": "Maaltijd logboek",
