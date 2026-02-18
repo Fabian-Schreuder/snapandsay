@@ -1,3 +1,5 @@
+from typing import Any
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -72,6 +74,15 @@ class Settings(BaseSettings):
         "https://snapandsay.vercel.app",
         "https://snapandsay-production.up.railway.app",
     ]
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v: Any) -> list[str]:
+        if isinstance(v, str) and not v.startswith("["):
+            return [origin.strip() for origin in v.split(",")]
+        elif isinstance(v, (list, str)):
+            return v
+        raise ValueError(v)
 
     model_config = SettingsConfigDict(
         env_file=(".env", ".env.local"), env_file_encoding="utf-8", extra="ignore"
