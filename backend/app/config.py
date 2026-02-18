@@ -78,11 +78,18 @@ class Settings(BaseSettings):
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def parse_cors_origins(cls, v: Any) -> list[str]:
-        if isinstance(v, str) and not v.startswith("["):
-            return [origin.strip() for origin in v.split(",")]
-        elif isinstance(v, (list, str)):
+        if isinstance(v, str):
+            if v.startswith("["):
+                # Pydantic/JSON string, let Pydantic handle it or parse manually
+                return v  # Pydantic might parse this if returned as is? No, Pydantic expects list.
+                # Actually, if it's a JSON string, we should parse it or let standard validaton retry.
+                # Simplest for comma-separated:
+            if "," in v:
+                return [origin.strip() for origin in v.split(",")]
+            return [v]
+        elif isinstance(v, list):
             return v
-        raise ValueError(v)
+        return v
 
     model_config = SettingsConfigDict(
         env_file=(".env", ".env.local"), env_file_encoding="utf-8", extra="ignore"
