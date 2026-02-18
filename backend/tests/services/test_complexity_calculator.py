@@ -9,6 +9,7 @@ def test_calculate_complexity_zero_ambiguity():
     """Test baseline case with zero ambiguity."""
     levels = AmbiguityLevels(hidden_ingredients=0, invisible_prep=0, portion_ambiguity=0)
     profile = RiskProfile(
+        name="test",
         weights={"ingredients": 0.5, "prep": 0.5, "volume": 0.5},
         semantic_penalty=0.0,
         mandatory_clarification=False,
@@ -41,6 +42,7 @@ def test_calculate_complexity_high_ambiguity_single_dimension():
 
     levels = AmbiguityLevels(hidden_ingredients=3, invisible_prep=0, portion_ambiguity=0)
     profile = RiskProfile(
+        name="test",
         weights={"ingredients": 0.1, "prep": 0.1, "volume": 0.1},
         semantic_penalty=0.0,
         mandatory_clarification=False,
@@ -63,6 +65,7 @@ def test_calculate_complexity_mixed_ambiguity_with_penalty():
 
     levels = AmbiguityLevels(hidden_ingredients=1, invisible_prep=2, portion_ambiguity=0)
     profile = RiskProfile(
+        name="test",
         weights={"ingredients": 0.1, "prep": 0.1, "volume": 0.1},
         semantic_penalty=0.2,
         mandatory_clarification=False,
@@ -78,6 +81,7 @@ def test_calculate_complexity_cap_at_one():
     """Test that complexity score is capped at 1.0."""
     levels = AmbiguityLevels(hidden_ingredients=3, invisible_prep=3, portion_ambiguity=3)
     profile = RiskProfile(
+        name="test",
         weights={"ingredients": 0.5, "prep": 0.5, "volume": 0.5},
         semantic_penalty=0.5,
         mandatory_clarification=False,
@@ -94,6 +98,7 @@ def test_calculate_complexity_dominant_factor_tie():
     # L_i=2, L_p=2. w_i=0.1, w_p=0.1. Equal contribution 0.4.
     levels = AmbiguityLevels(hidden_ingredients=2, invisible_prep=2, portion_ambiguity=0)
     profile = RiskProfile(
+        name="test",
         weights={"ingredients": 0.1, "prep": 0.1, "volume": 0.1},
         semantic_penalty=0.0,
         mandatory_clarification=False,

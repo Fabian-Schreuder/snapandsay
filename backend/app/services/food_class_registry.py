@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class RiskProfile(BaseModel):
+    name: str
     weights: dict[str, float]
     semantic_penalty: float
     mandatory_clarification: bool
@@ -48,7 +49,7 @@ class FoodClassRegistry:
 
             # Load default profile
             default_data = data.get("default", {})
-            self._default_profile = RiskProfile(**default_data)
+            self._default_profile = RiskProfile(name="default", **default_data)
 
             # Load classes and build alias map
             classes = data.get("classes", {})
@@ -113,13 +114,14 @@ class FoodClassRegistry:
             # Exclude 'aliases' from the model dump passed to RiskProfile
             # (RiskProfile definition above doesn't have aliases field for lightweight passing)
             profile_data = {k: v for k, v in data.items() if k != "aliases"}
-            return RiskProfile(**profile_data)
+            return RiskProfile(name=class_key, **profile_data)
 
         if self._default_profile:
             return self._default_profile
 
         # Hard fallback if file load failed completely
         return RiskProfile(
+            name="fallback",
             weights={"ingredients": 0.5, "prep": 0.5, "volume": 0.5},
             semantic_penalty=0.0,
             mandatory_clarification=False,
