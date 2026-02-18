@@ -319,16 +319,13 @@ async def _analyze_google(
         except (KeyError, ValueError):
             prompt = system_prompt_override
     else:
-        # Simplified version of the OpenAI prompt for Gemini
+        # Simplified and optimized version for Gemini
         prompt = (
             f"{lang_instruction}\n"
-            f"You are a dietary expert. Current time is {current_time}. "
-            "Analyze the input to identify food items, estimate quantities, calories, and confidence.\n"
-            "Rate meal complexity from 0.0 (simple, single item) to 1.0 "
-            "(complex, multi-component) considering: number of distinct items, "
-            "composite dishes, ambiguous portions, mixed preparations.\n"
-            "Assess ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity.\n"
-            "Respond ONLY with valid JSON matching this schema: " + schema_json
+            f"You are a dietary expert. Time: {current_time}.\n"
+            "Analyze input to: Identify foods, Estimate quantities/calories, Rate complexity (0.0-1.0).\n"
+            "Assess Ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity.\n"
+            "Output VALID JSON ONLY matching this schema: " + schema_json
         )
 
     contents = []
@@ -360,6 +357,7 @@ async def _analyze_google(
             config={
                 "response_mime_type": "application/json",
                 "response_schema": _clean_schema_for_google(AnalysisResult.model_json_schema()),
+                "max_output_tokens": 2048,
             },
         )
         return AnalysisResult.model_validate_json(response.text)
@@ -485,13 +483,10 @@ async def _analyze_google_streaming(
     else:
         prompt = (
             f"{lang_instruction}\n"
-            f"You are a dietary expert. Current time is {current_time}. "
-            "Analyze the input to identify food items, estimate quantities, calories, and confidence.\n"
-            "Rate meal complexity from 0.0 (simple, single item) to 1.0 "
-            "(complex, multi-component) considering: number of distinct items, "
-            "composite dishes, ambiguous portions, mixed preparations.\n"
-            "Assess ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity.\n"
-            "Respond ONLY with valid JSON matching this schema: " + schema_json
+            f"You are a dietary expert. Time: {current_time}.\n"
+            "Analyze input to: Identify foods, Estimate quantities/calories, Rate complexity (0.0-1.0).\n"
+            "Assess Ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity.\n"
+            "Output VALID JSON ONLY matching this schema: " + schema_json
         )
 
     contents = []
@@ -519,12 +514,14 @@ async def _analyze_google_streaming(
             config={
                 "response_mime_type": "application/json",
                 "response_schema": _clean_schema_for_google(AnalysisResult.model_json_schema()),
+                "max_output_tokens": 2048,
             },
         )
 
         async for chunk in response_stream:
             text = chunk.text
             accumulated_content += text
+            logger.info(f"Received Google stream chunk: {len(text)} chars")
             if on_token:
                 await on_token(text)
 
