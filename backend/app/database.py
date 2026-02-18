@@ -1,5 +1,4 @@
 import logging
-import uuid
 from collections.abc import AsyncGenerator
 
 logger = logging.getLogger(__name__)
@@ -29,16 +28,6 @@ if "@" in safe_url:
 logger.info(f"Connecting to Database: {safe_url}")
 
 
-# Workaround for DuplicatePreparedStatementError with asyncpg + pgbouncer transaction mode:
-# Use UUIDs for prepared statement names to avoid collisions.
-# This requires SQLAlchemy >= 1.4.24
-
-
-def _generate_uuid_name(obj):
-    # SQLAlchemy calls this function to generate a unique name for a prepared statement.
-    return f"stmt_{uuid.uuid4().hex}"
-
-
 engine = create_async_engine(
     async_db_connection_url,
     echo=settings.ECHO_SQL,
@@ -47,10 +36,6 @@ engine = create_async_engine(
         "statement_cache_size": 0,
     },
 )
-
-# Ensure unique names for prepared statements to avoid collisions in transaction pool
-# We set this on the dialect directly because create_async_engine validation might reject it as a kwarg
-engine.sync_engine.dialect.prepared_statement_name_func = _generate_uuid_name
 
 async_session_maker = async_sessionmaker(engine, expire_on_commit=settings.EXPIRE_ON_COMMIT)
 
