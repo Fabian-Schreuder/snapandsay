@@ -44,6 +44,7 @@ async def event_generator(
     logger.info(f"Stream Request Provider: {request.provider}")
     logger.info(f"Config LLM_PROVIDER: {settings.LLM_PROVIDER}")
     logger.info(f"Using Google Key: {settings.GOOGLE_API_KEY[:5] if settings.GOOGLE_API_KEY else 'None'}")
+    logger.info(f"Force Clarify: {request.force_clarify}, Force Finalize: {request.force_finalize}")
 
     initial_state: AgentState = {
         "messages": [],

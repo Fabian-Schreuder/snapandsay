@@ -144,11 +144,15 @@ export default function SnapPage() {
       // 5. Success - invalidate logs query so dashboard refreshes
       await queryClient.invalidateQueries({ queryKey: ["logs"] });
 
-      // Detect test flags from query params
+      // Detect test flags from query params or pathname
       const testParam = searchParams.get("test");
+      const pathname = window.location.pathname;
       const options = {
-        force_clarify: testParam === "always-clarify",
-        force_finalize: testParam === "never-clarify",
+        force_clarify:
+          testParam === "always-clarify" ||
+          pathname.includes("always-clarify"),
+        force_finalize:
+          testParam === "never-clarify" || pathname.includes("never-clarify"),
       };
 
       // Transition to Streaming
