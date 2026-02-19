@@ -71,3 +71,7 @@ class AgentState(TypedDict):
     model: str | None
     is_food: bool | None
     non_food_reason: str | None
+
+    # Test/Forced modes
+    force_clarify: bool | None
+    force_finalize: bool | None

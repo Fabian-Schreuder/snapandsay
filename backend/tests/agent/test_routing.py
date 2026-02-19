@@ -84,3 +84,30 @@ class TestRouteByConfidence:
             "overall_confidence": 0.50,
         }
         assert route_by_confidence(state) == AMPM_ENTRY
+
+    def test_force_clarify_overrides_high_confidence(self):
+        """force_clarify should route to AMPM even if confidence is high."""
+        state = {
+            "overall_confidence": 0.95,
+            "clarification_count": 0,
+            "force_clarify": True,
+        }
+        assert route_by_confidence(state) == AMPM_ENTRY
+
+    def test_force_finalize_overrides_low_confidence(self):
+        """force_finalize should route to finalize even if confidence is low."""
+        state = {
+            "overall_confidence": 0.10,
+            "clarification_count": 0,
+            "force_finalize": True,
+        }
+        assert route_by_confidence(state) == FINALIZE_LOG
+
+    def test_forced_modes_respect_max_clarifications(self):
+        """Forced modes should still finalize if MAX_CLARIFICATIONS is reached."""
+        state = {
+            "overall_confidence": 0.95,
+            "clarification_count": 2,
+            "force_clarify": True,
+        }
+        assert route_by_confidence(state) == FINALIZE_LOG

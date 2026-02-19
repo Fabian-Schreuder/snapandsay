@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations, useLocale } from "next-intl";
 import CameraCapture from "@/components/features/camera/CameraCapture";
@@ -33,6 +33,7 @@ import { Loader2, Keyboard } from "lucide-react";
 export default function SnapPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
   const t = useTranslations();
   const locale = useLocale();
   const uploadLocale = locale === "en" || locale === "nl" ? locale : "nl"; // Type safe
@@ -143,10 +144,17 @@ export default function SnapPage() {
       // 5. Success - invalidate logs query so dashboard refreshes
       await queryClient.invalidateQueries({ queryKey: ["logs"] });
 
+      // Detect test flags from query params
+      const testParam = searchParams.get("test");
+      const options = {
+        force_clarify: testParam === "always-clarify",
+        force_finalize: testParam === "never-clarify",
+      };
+
       // Transition to Streaming
       setStep("streaming");
       // Force non-null assertion since we just created them
-      startStreaming(newLogId, imagePath!, audioPath!);
+      startStreaming(newLogId, imagePath!, audioPath!, options);
     } catch (error) {
       console.error("Upload sequence failed:", error);
       // Only set error message if agent didn't already capture it

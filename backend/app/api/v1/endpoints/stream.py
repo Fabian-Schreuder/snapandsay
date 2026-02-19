@@ -56,6 +56,8 @@ async def event_generator(
         "system_prompt_override": request.system_prompt_override,
         "provider": request.provider,
         "model": request.model,
+        "force_clarify": request.force_clarify,
+        "force_finalize": request.force_finalize,
     }
 
     last_heartbeat = asyncio.get_event_loop().time()

@@ -26,6 +26,14 @@ def route_by_confidence(state: AgentState) -> str:
     """
     clarification_count = state.get("clarification_count", 0)
     overall_confidence = state.get("overall_confidence", 0.0)
+    force_clarify = state.get("force_clarify", False)
+    force_finalize = state.get("force_finalize", False)
+
+    # Forced outcomes take precedence (except for safety budget)
+    if force_finalize and clarification_count < MAX_CLARIFICATIONS:
+        return FINALIZE_LOG
+    if force_clarify and clarification_count < MAX_CLARIFICATIONS:
+        return AMPM_ENTRY
 
     # Guard: Max clarification attempts reached
     if clarification_count >= MAX_CLARIFICATIONS:

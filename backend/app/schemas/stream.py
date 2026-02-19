@@ -17,3 +17,5 @@ class StreamAnalysisRequest(BaseModel):
     )
     provider: str | None = Field(None, description="LLM provider (openai, google)")
     model: str | None = Field(None, description="Specific model name to use")
+    force_clarify: bool = Field(False, description="Internal test flag: always force clarification")
+    force_finalize: bool = Field(False, description="Internal test flag: always skip clarification")
