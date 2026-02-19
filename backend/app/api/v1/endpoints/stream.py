@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # Processing timeout in seconds
-PROCESSING_TIMEOUT = 60
+PROCESSING_TIMEOUT = 120
 # Heartbeat interval in seconds
 HEARTBEAT_INTERVAL = 15
 

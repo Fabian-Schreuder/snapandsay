@@ -57,6 +57,11 @@ def _get_low_confidence_items(state: AgentState) -> list[FoodItem]:
     """Extract low-confidence FoodItems from the current nutritional data."""
     nutritional_data = state.get("nutritional_data", {}) or {}
     items = nutritional_data.get("items", [])
+    force_clarify = state.get("force_clarify", False)
+
+    if force_clarify:
+        return [FoodItem(**item) for item in items]
+
     return [FoodItem(**item) for item in items if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD]
 
 
