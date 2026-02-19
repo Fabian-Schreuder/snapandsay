@@ -10,9 +10,7 @@ from app.agent.ampm_nodes import (
 from app.agent.constants import (
     AMPM_ENTRY,
     ANALYZE_INPUT,
-    CONFIDENCE_THRESHOLD,
     FINALIZE_LOG,
-    MAX_CLARIFICATIONS,
 )
 from app.agent.nodes import (
     analyze_input,
