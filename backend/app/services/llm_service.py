@@ -24,26 +24,60 @@ class LLMGenerationError(Exception):
     pass
 
 
-def _clean_schema_for_google(schema: dict) -> dict:
+def _resolve_json_refs(schema: dict, root_schema: dict) -> dict:
     """
-    Recursively remove 'additionalProperties' and 'title' from schema for Gemini compatibility.
-    Gemini API is strict about supported JSON schema keywords.
+    Recursively resolve $ref pointers in a JSON schema using the root schema's $defs.
+    Gemini doesn't support $ref in response_schema.
     """
     if isinstance(schema, dict):
-        new_schema = {}
-        for k, v in schema.items():
-            if k == "additionalProperties":
-                continue
-            # Remove 'title' (schema metadata), but NOT if it's a property definition named 'title'
-            if k == "title" and isinstance(v, str):
-                continue
+        if "$ref" in schema:
+            ref_path = schema["$ref"]
+            if ref_path.startswith("#/$defs/"):
+                def_name = ref_path.split("/")[-1]
+                ref_schema = root_schema.get("$defs", {}).get(def_name)
+                if ref_schema:
+                    # Recursively resolve the referenced schema
+                    return _resolve_json_refs(ref_schema, root_schema)
+            elif ref_path.startswith("#/definitions/"):
+                def_name = ref_path.split("/")[-1]
+                ref_schema = root_schema.get("definitions", {}).get(def_name)
+                if ref_schema:
+                    return _resolve_json_refs(ref_schema, root_schema)
 
-            new_schema[k] = _clean_schema_for_google(v)
-        return new_schema
+        return {k: _resolve_json_refs(v, root_schema) for k, v in schema.items()}
     elif isinstance(schema, list):
-        return [_clean_schema_for_google(item) for item in schema]
+        return [_resolve_json_refs(item, root_schema) for item in schema]
     else:
         return schema
+
+
+def _clean_schema_for_google(schema: dict) -> dict:
+    """
+    1. Resolve all $ref / $defs pointers (inline them).
+    2. Recursively remove 'additionalProperties', 'title', '$defs' etc. for Gemini compatibility.
+    Gemini API is strict about supported JSON schema keywords.
+    """
+
+    def _clean_node(node, is_properties_dict: bool = False):
+        if isinstance(node, dict):
+            new_schema = {}
+            for k, v in node.items():
+                if k in ("additionalProperties", "$defs", "definitions"):
+                    continue
+                # Remove 'title' metadata, but keep it if it's a property name (key in a 'properties' dict)
+                if k == "title" and not is_properties_dict:
+                    continue
+                new_schema[k] = _clean_node(v, is_properties_dict=(k == "properties"))
+            return new_schema
+        elif isinstance(node, list):
+            return [_clean_node(item) for item in node]
+        else:
+            return node
+
+    # First resolve all references so the schema is standalone
+    resolved_schema = _resolve_json_refs(schema, schema)
+    # Then clean out unsupported keywords
+    return _clean_node(resolved_schema)
 
 
 class ClarificationQuestion(BaseModel):
