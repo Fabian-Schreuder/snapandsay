@@ -24,29 +24,41 @@ class LLMGenerationError(Exception):
     pass
 
 
-def _resolve_json_refs(schema: dict, root_schema: dict) -> dict:
+def _resolve_json_refs(schema: dict, root_schema: dict, seen_refs: set | None = None) -> dict:
     """
     Recursively resolve $ref pointers in a JSON schema using the root schema's $defs.
     Gemini doesn't support $ref in response_schema.
+    Ensures absolute path resolution and prevents infinite recursion.
     """
+    if seen_refs is None:
+        seen_refs = set()
+
     if isinstance(schema, dict):
         if "$ref" in schema:
             ref_path = schema["$ref"]
+            if ref_path in seen_refs:
+                # Infinite recursion detected
+                return {"type": "object"}
+
+            # Create a NEW set for this branch to allow same-level siblings to resolve same refs
+            new_seen = seen_refs | {ref_path}
+
+            ref_schema = None
             if ref_path.startswith("#/$defs/"):
                 def_name = ref_path.split("/")[-1]
                 ref_schema = root_schema.get("$defs", {}).get(def_name)
-                if ref_schema:
-                    # Recursively resolve the referenced schema
-                    return _resolve_json_refs(ref_schema, root_schema)
             elif ref_path.startswith("#/definitions/"):
                 def_name = ref_path.split("/")[-1]
                 ref_schema = root_schema.get("definitions", {}).get(def_name)
-                if ref_schema:
-                    return _resolve_json_refs(ref_schema, root_schema)
 
-        return {k: _resolve_json_refs(v, root_schema) for k, v in schema.items()}
+            if ref_schema:
+                # Recursively resolve the referenced schema
+                return _resolve_json_refs(ref_schema, root_schema, new_seen)
+
+        # Process all keys
+        return {k: _resolve_json_refs(v, root_schema, seen_refs) for k, v in schema.items()}
     elif isinstance(schema, list):
-        return [_resolve_json_refs(item, root_schema) for item in schema]
+        return [_resolve_json_refs(item, root_schema, seen_refs) for item in schema]
     else:
         return schema
 
@@ -54,20 +66,38 @@ def _resolve_json_refs(schema: dict, root_schema: dict) -> dict:
 def _clean_schema_for_google(schema: dict) -> dict:
     """
     1. Resolve all $ref / $defs pointers (inline them).
-    2. Recursively remove 'additionalProperties', 'title', '$defs' etc. for Gemini compatibility.
-    Gemini API is strict about supported JSON schema keywords.
+    2. Recursively remove unsupported keywords for Gemini compatibility.
+    3. Flatten anyOf with null for better stability.
     """
 
     def _clean_node(node, is_properties_dict: bool = False):
         if isinstance(node, dict):
+            # 1. Flatten anyOf with null
+            if "anyOf" in node:
+                variants = node["anyOf"]
+                non_null_variants = [v for v in variants if isinstance(v, dict) and v.get("type") != "null"]
+                if non_null_variants:
+                    primary = _clean_node(non_null_variants[0], is_properties_dict=is_properties_dict)
+                    if "default" in node:
+                        primary["default"] = node["default"]
+                    return primary
+
             new_schema = {}
             for k, v in node.items():
                 if k in ("additionalProperties", "$defs", "definitions"):
                     continue
-                # Remove 'title' metadata, but keep it if it's a property name (key in a 'properties' dict)
+                # Keep 'title' if it's a property key, but strip if it's metadata
                 if k == "title" and not is_properties_dict:
                     continue
+
+                # Recursively clean
                 new_schema[k] = _clean_node(v, is_properties_dict=(k == "properties"))
+
+            # Ensure 'required' ONLY contains keys present in 'properties'
+            if "required" in new_schema and "properties" in new_schema:
+                props = new_schema["properties"]
+                new_schema["required"] = [r for r in new_schema["required"] if r in props]
+
             return new_schema
         elif isinstance(node, list):
             return [_clean_node(item) for item in node]
@@ -76,7 +106,7 @@ def _clean_schema_for_google(schema: dict) -> dict:
 
     # First resolve all references so the schema is standalone
     resolved_schema = _resolve_json_refs(schema, schema)
-    # Then clean out unsupported keywords
+    # Then clean out unsupported keywords and flatten nullable types
     return _clean_node(resolved_schema)
 
 
@@ -361,7 +391,7 @@ async def _analyze_google(
             "(complex, multi-component) considering: number of distinct items, "
             "composite dishes, ambiguous portions, mixed preparations.\n"
             "Assess ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity.\n"
-            "Respond ONLY with valid JSON matching this schema: " + schema_json
+            "Respond ONLY with valid JSON matching the configured response schema."
         )
 
     contents = []
@@ -524,7 +554,7 @@ async def _analyze_google_streaming(
             "(complex, multi-component) considering: number of distinct items, "
             "composite dishes, ambiguous portions, mixed preparations.\n"
             "Assess ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity.\n"
-            "Respond ONLY with valid JSON matching this schema: " + schema_json
+            "Respond ONLY with valid JSON matching the configured response schema."
         )
 
     contents = []
