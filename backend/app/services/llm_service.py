@@ -529,7 +529,7 @@ async def _analyze_google_streaming(
             text = chunk.text
             accumulated_content += text
             if len(accumulated_content) % 100 < len(text):
-                 logger.info(f"Received {len(accumulated_content)} chars from Gemini...")
+                logger.info(f"Received {len(accumulated_content)} chars from Gemini...")
             if on_token:
                 await on_token(text)
 

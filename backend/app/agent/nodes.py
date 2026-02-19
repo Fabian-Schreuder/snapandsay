@@ -4,6 +4,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import select
 
+from app import database
 from app.agent.constants import (
     CONFIDENCE_THRESHOLD,
     EVENT_CLARIFICATION,
@@ -16,7 +17,6 @@ from app.agent.constants import (
     get_message,
 )
 from app.agent.state import AgentState
-from app.database import async_session_maker
 from app.models.log import DietaryLog
 from app.schemas.analysis import FoodItem
 from app.schemas.sse import (
@@ -48,29 +48,33 @@ async def analyze_input(state: AgentState) -> dict:
     if not start_time:
         start_time = datetime.now(UTC).timestamp()
 
-    # Fetch context from DB if this is a re-run
+    # Fetch context and state from DB if this is a re-run
     if log_id:
         try:
-            async with async_session_maker() as session:
+            async with database.async_session_maker() as session:
                 result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
-                if log_entry and log_entry.description:
-                    context = log_entry.description
-                    logger.info(f"Using context from log {log_id}: {context[:50]}...")
-        except Exception as e:
-            logger.warning(f"Failed to fetch log context: {e}")
+                if log_entry:
+                    if log_entry.description:
+                        context = log_entry.description
+                        logger.info(f"Using context from log {log_id}: {context[:50]}...")
 
-    # Fetch transcript from DB if not in state (e.g. text-only entry)
-    if log_id and not transcript:
-        try:
-            async with async_session_maker() as session:
-                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
-                log_entry = result.scalar_one_or_none()
-                if log_entry and log_entry.transcript:
-                    transcript = log_entry.transcript
-                    logger.info(f"Using persisted transcript for log {log_id}")
+                    if log_entry.transcript and not transcript:
+                        transcript = log_entry.transcript
+                        logger.info(f"Using persisted transcript for log {log_id}")
+
+                    # Load persisted AMPM state
+                    if log_entry.clarification_count > 0:
+                        state["clarification_count"] = log_entry.clarification_count
+                        logger.info(
+                            f"Loaded clarification_count={log_entry.clarification_count} for log {log_id}"
+                        )
+
+                    if log_entry.ampm_data:
+                        state["ampm_data"] = log_entry.ampm_data
+                        logger.info(f"Loaded ampm_data for log {log_id}")
         except Exception as e:
-            logger.warning(f"Failed to fetch log transcript: {e}")
+            logger.warning(f"Failed to fetch log data from DB: {e}")
 
     if audio_url:
         logger.info(f"Transcribing audio from {audio_url}")
@@ -133,29 +137,33 @@ async def analyze_input_streaming(
     if not start_time:
         start_time = datetime.now(UTC).timestamp()
 
-    # Fetch context from DB if this is a re-run
+    # Fetch context and state from DB if this is a re-run
     if log_id:
         try:
-            async with async_session_maker() as session:
+            async with database.async_session_maker() as session:
                 result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
-                if log_entry and log_entry.description:
-                    context = log_entry.description
-                    logger.info(f"Using context from log {log_id}: {context[:50]}...")
-        except Exception as e:
-            logger.warning(f"Failed to fetch log context: {e}")
+                if log_entry:
+                    if log_entry.description:
+                        context = log_entry.description
+                        logger.info(f"Using context from log {log_id}: {context[:50]}...")
 
-    # Fetch transcript from DB if not in state
-    if log_id and not transcript:
-        try:
-            async with async_session_maker() as session:
-                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
-                log_entry = result.scalar_one_or_none()
-                if log_entry and log_entry.transcript:
-                    transcript = log_entry.transcript
-                    logger.info(f"Using persisted transcript for log {log_id}")
+                    if log_entry.transcript and not transcript:
+                        transcript = log_entry.transcript
+                        logger.info(f"Using persisted transcript for log {log_id}")
+
+                    # Load persisted AMPM state
+                    if log_entry.clarification_count > 0:
+                        state["clarification_count"] = log_entry.clarification_count
+                        logger.info(
+                            f"Loaded clarification_count={log_entry.clarification_count} for log {log_id}"
+                        )
+
+                    if log_entry.ampm_data:
+                        state["ampm_data"] = log_entry.ampm_data
+                        logger.info(f"Loaded ampm_data for log {log_id}")
         except Exception as e:
-            logger.warning(f"Failed to fetch log transcript: {e}")
+            logger.warning(f"Failed to fetch log data from DB: {e}")
 
     # Get language from state, default to Dutch
     language = state.get("language", "nl") or "nl"
@@ -181,7 +189,7 @@ async def analyze_input_streaming(
             # Persist transcript
             if log_id:
                 try:
-                    async with async_session_maker() as session:
+                    async with database.async_session_maker() as session:
                         result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                         log_entry = result.scalar_one_or_none()
                         if log_entry:
@@ -267,7 +275,7 @@ async def analyze_input_streaming(
             logger.info(f"Input identified as non-food: {result.non_food_reason}")
             if log_id:
                 try:
-                    async with async_session_maker() as session:
+                    async with database.async_session_maker() as session:
                         res = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                         log_entry = res.scalar_one_or_none()
                         if log_entry:
@@ -300,7 +308,7 @@ async def analyze_input_streaming(
         # Update log status to failed
         if log_id:
             try:
-                async with async_session_maker() as session:
+                async with database.async_session_maker() as session:
                     result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                     log_entry = result.scalar_one_or_none()
                     if log_entry:
@@ -380,7 +388,7 @@ async def generate_clarification_streaming(
             )
 
             # Update log status to clarification in database
-            async with async_session_maker() as session:
+            async with database.async_session_maker() as session:
                 result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
                 if log_entry:
@@ -463,7 +471,7 @@ async def finalize_log_streaming(
     # Persist to database
     if log_id:
         try:
-            async with async_session_maker() as session:
+            async with database.async_session_maker() as session:
                 result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
 

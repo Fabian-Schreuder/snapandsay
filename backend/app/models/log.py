@@ -10,7 +10,7 @@ from sqlalchemy import (
     String,
     func,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 
 from . import Base
@@ -53,5 +53,9 @@ class DietaryLog(Base):
 
     # Metadata
     client_timestamp = Column(DateTime(timezone=True), nullable=True)
+
+    # AMPM State Persistence
+    clarification_count = Column(Integer, default=0, nullable=False)
+    ampm_data = Column(JSONB, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)

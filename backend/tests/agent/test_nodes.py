@@ -173,7 +173,7 @@ class TestGenerateClarificationStreaming:
                 new_callable=AsyncMock,
                 return_value=mock_question,
             ),
-            patch("app.agent.nodes.async_session_maker") as mock_session_maker,
+            patch("app.agent.nodes.database.async_session_maker") as mock_session_maker,
         ):
             # Setup mock session context manager
             mock_session = AsyncMock()
@@ -253,7 +253,7 @@ class TestFinalizeLogStreaming:
         mock_log.status = "processing"
         mock_log.description = None
 
-        with patch("app.agent.nodes.async_session_maker") as mock_session_maker:
+        with patch("app.agent.nodes.database.async_session_maker") as mock_session_maker:
             mock_session = AsyncMock()
             mock_result = MagicMock()
             mock_result.scalar_one_or_none.return_value = mock_log
@@ -289,7 +289,7 @@ class TestFinalizeLogStreaming:
         mock_log.status = "processing"
         mock_log.description = None
 
-        with patch("app.agent.nodes.async_session_maker") as mock_session_maker:
+        with patch("app.agent.nodes.database.async_session_maker") as mock_session_maker:
             mock_session = AsyncMock()
             mock_result = MagicMock()
             mock_result.scalar_one_or_none.return_value = mock_log
@@ -321,7 +321,7 @@ class TestFinalizeLogStreaming:
         mock_log.status = "processing"
         mock_log.description = None
 
-        with patch("app.agent.nodes.async_session_maker") as mock_session_maker:
+        with patch("app.agent.nodes.database.async_session_maker") as mock_session_maker:
             mock_session = AsyncMock()
             mock_result = MagicMock()
             mock_result.scalar_one_or_none.return_value = mock_log

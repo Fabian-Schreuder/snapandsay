@@ -13,6 +13,7 @@ from datetime import UTC, datetime
 
 from sqlalchemy import select
 
+from app import database
 from app.agent.constants import (
     CONFIDENCE_THRESHOLD,
     EVENT_CLARIFICATION,
@@ -24,7 +25,6 @@ from app.agent.constants import (
     get_message,
 )
 from app.agent.state import AgentState
-from app.database import async_session_maker
 from app.models.log import DietaryLog
 from app.schemas.analysis import FoodItem
 from app.schemas.sse import (
@@ -113,16 +113,9 @@ async def detail_cycle(state: AgentState) -> dict:
             model=state.get("model"),
         )
 
-        # Update log status to clarification in database
+        # Update log status and AMPM state in database
         log_id = state.get("log_id")
-        if log_id:
-            async with async_session_maker() as session:
-                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
-                log_entry = result.scalar_one_or_none()
-                if log_entry:
-                    log_entry.status = "clarification"
-                    await session.commit()
-                    logger.info(f"AMPM: Updated log {log_id} status to 'clarification'")
+        new_clarification_count = clarification_count + 1
 
         # Update AMPM tracking data
         ampm_data = state.get("ampm_data") or {
@@ -136,9 +129,20 @@ async def detail_cycle(state: AgentState) -> dict:
         ampm_data["questions_asked"].append(question.question)
         ampm_data["pass_count"] += 1
 
+        if log_id:
+            async with database.async_session_maker() as session:
+                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
+                log_entry = result.scalar_one_or_none()
+                if log_entry:
+                    log_entry.status = "clarification"
+                    log_entry.clarification_count = new_clarification_count
+                    log_entry.ampm_data = ampm_data
+                    await session.commit()
+                    logger.info(f"AMPM: Updated log {log_id} (count={new_clarification_count})")
+
         return {
             "needs_clarification": True,
-            "clarification_count": clarification_count + 1,
+            "clarification_count": new_clarification_count,
             "ampm_data": ampm_data,
             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
         }
@@ -191,15 +195,8 @@ async def detail_cycle_streaming(
             model=state.get("model"),
         )
 
-        # Update log status to clarification in database
-        if log_id:
-            async with async_session_maker() as session:
-                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
-                log_entry = result.scalar_one_or_none()
-                if log_entry:
-                    log_entry.status = "clarification"
-                    await session.commit()
-                    logger.info(f"AMPM Streaming: Updated log {log_id} status to 'clarification'")
+        # Update log status and AMPM state in database
+        new_clarification_count = clarification_count + 1
 
         # Update AMPM tracking data
         ampm_data = state.get("ampm_data") or {
@@ -212,6 +209,17 @@ async def detail_cycle_streaming(
         ampm_data["low_confidence_items"] = [item.name for item in low_items]
         ampm_data["questions_asked"].append(question.question)
         ampm_data["pass_count"] += 1
+
+        if log_id:
+            async with database.async_session_maker() as session:
+                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
+                log_entry = result.scalar_one_or_none()
+                if log_entry:
+                    log_entry.status = "clarification"
+                    log_entry.clarification_count = new_clarification_count
+                    log_entry.ampm_data = ampm_data
+                    await session.commit()
+                    logger.info(f"AMPM Streaming: Updated log {log_id} (count={new_clarification_count})")
 
         # Emit clarification event (reuses existing SSE schema)
         if log_id:
@@ -230,7 +238,7 @@ async def detail_cycle_streaming(
 
         yield {
             "needs_clarification": True,
-            "clarification_count": clarification_count + 1,
+            "clarification_count": new_clarification_count,
             "ampm_data": ampm_data,
             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
         }
@@ -290,12 +298,17 @@ async def final_probe_streaming(
             )
 
             if log_id:
-                # Update log status to clarification in database
-                async with async_session_maker() as session:
+                # Update log status and AMPM state in database
+                # Note: final_probe doesn't increment clarification_count yet,
+                # but we should save the fact that we've reached this state.
+                async with database.async_session_maker() as session:
                     result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                     log_entry = result.scalar_one_or_none()
                     if log_entry:
                         log_entry.status = "clarification"
+                        # Save current state just in case
+                        log_entry.clarification_count = state.get("clarification_count", 0)
+                        log_entry.ampm_data = state.get("ampm_data")
                         await session.commit()
                         logger.info(f"AMPM Final Probe: Updated log {log_id} status to 'clarification'")
 
