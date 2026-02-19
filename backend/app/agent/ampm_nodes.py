@@ -11,6 +11,8 @@ import logging
 from collections.abc import AsyncGenerator
 from datetime import UTC, datetime
 
+from sqlalchemy import select
+
 from app.agent.constants import (
     CONFIDENCE_THRESHOLD,
     EVENT_CLARIFICATION,
@@ -22,6 +24,8 @@ from app.agent.constants import (
     get_message,
 )
 from app.agent.state import AgentState
+from app.database import async_session_maker
+from app.models.log import DietaryLog
 from app.schemas.analysis import FoodItem
 from app.schemas.sse import (
     AgentClarification,
@@ -109,6 +113,17 @@ async def detail_cycle(state: AgentState) -> dict:
             model=state.get("model"),
         )
 
+        # Update log status to clarification in database
+        log_id = state.get("log_id")
+        if log_id:
+            async with async_session_maker() as session:
+                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
+                log_entry = result.scalar_one_or_none()
+                if log_entry:
+                    log_entry.status = "clarification"
+                    await session.commit()
+                    logger.info(f"AMPM: Updated log {log_id} status to 'clarification'")
+
         # Update AMPM tracking data
         ampm_data = state.get("ampm_data") or {
             "low_confidence_items": [],
@@ -175,6 +190,16 @@ async def detail_cycle_streaming(
             provider=state.get("provider"),
             model=state.get("model"),
         )
+
+        # Update log status to clarification in database
+        if log_id:
+            async with async_session_maker() as session:
+                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
+                log_entry = result.scalar_one_or_none()
+                if log_entry:
+                    log_entry.status = "clarification"
+                    await session.commit()
+                    logger.info(f"AMPM Streaming: Updated log {log_id} status to 'clarification'")
 
         # Update AMPM tracking data
         ampm_data = state.get("ampm_data") or {
@@ -265,6 +290,15 @@ async def final_probe_streaming(
             )
 
             if log_id:
+                # Update log status to clarification in database
+                async with async_session_maker() as session:
+                    result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
+                    log_entry = result.scalar_one_or_none()
+                    if log_entry:
+                        log_entry.status = "clarification"
+                        await session.commit()
+                        logger.info(f"AMPM Final Probe: Updated log {log_id} status to 'clarification'")
+
                 yield SSEEvent(
                     type=EVENT_CLARIFICATION,
                     payload=AgentClarification(
