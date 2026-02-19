@@ -227,8 +227,8 @@ async def analyze_input_streaming(
         # Emit a thought event every 20 tokens to show liveness without flooding
         # yield removed to strictly TypeCheck: on_token must be Awaitable[None] (coroutine),
         # not AsyncGenerator. Use a Queue or other mechanism if streaming feedback required.
-        if token_count % 20 == 0:
-            logger.debug(f"Streaming token count: {token_count}")
+        if token_count % 10 == 0:
+            logger.info(f"Agent received {token_count} tokens from LLM so far...")
 
     try:
         result = await llm_service.analyze_multimodal_streaming(

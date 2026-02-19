@@ -510,6 +510,10 @@ async def _analyze_google_streaming(
             image_bytes = base64.b64decode(encoded)
             contents.append(types.Part.from_bytes(data=image_bytes, mime_type=mime_type))
 
+    if image_data_uri:
+        logger.info(f"Gemini image data URI length: {len(image_data_uri)}")
+
+    logger.info(f"Gemini contents: {[ (p if isinstance(p, str) else 'IMAGE_PART') for p in contents]}")
     accumulated_content = ""
     try:
         response_stream = await client.aio.models.generate_content_stream(
@@ -524,6 +528,8 @@ async def _analyze_google_streaming(
         async for chunk in response_stream:
             text = chunk.text
             accumulated_content += text
+            if len(accumulated_content) % 100 < len(text):
+                 logger.info(f"Received {len(accumulated_content)} chars from Gemini...")
             if on_token:
                 await on_token(text)
 
