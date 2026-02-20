@@ -224,32 +224,65 @@ async def analyze_input_streaming(
         )
         return
 
-    logger.info("Analyzing multimodal input with streaming")
-
-    # Token callback to emit thought events during LLM generation
-    token_count = 0
-
-    async def on_token(token: str):
-        nonlocal token_count
-        token_count += 1
-        # Emit a thought event every 20 tokens to show liveness without flooding
-        # yield removed to strictly TypeCheck: on_token must be Awaitable[None] (coroutine),
-        # not AsyncGenerator. Use a Queue or other mechanism if streaming feedback required.
-        if token_count % 10 == 0:
-            logger.info(f"Agent received {token_count} tokens from LLM so far...")
-
     try:
-        result = await llm_service.analyze_multimodal_streaming(
-            image_url=image_url,
-            transcript=transcript,
-            context=context,
-            on_token=on_token,
-            user_token=user_token,
-            language=language,
-            system_prompt_override=state.get("system_prompt_override"),
-            provider=state.get("provider"),
-            model=state.get("model"),
+        logger.info("Analyzing multimodal input with streaming")
+
+        # Token callback to emit thought events during LLM generation
+        import asyncio
+
+        token_queue = asyncio.Queue()
+
+        async def on_token(token: str):
+            await token_queue.put(("token", token))
+
+        # Run analysis as a task so we can yield from the queue while waiting
+        analysis_task = asyncio.create_task(
+            llm_service.analyze_multimodal_streaming(
+                image_url=image_url,
+                transcript=transcript,
+                context=context,
+                on_token=on_token,
+                user_token=user_token,
+                language=language,
+                system_prompt_override=state.get("system_prompt_override"),
+                provider=state.get("provider"),
+                model=state.get("model"),
+            )
         )
+
+        tokens_received = 0
+        last_yield_count = 0
+
+        while not analysis_task.done() or not token_queue.empty():
+            try:
+                # Wait for a token or timeout to check task status
+                try:
+                    msg_type, val = await asyncio.wait_for(token_queue.get(), timeout=1.0)
+                    if msg_type == "token":
+                        tokens_received += 1
+                        # Yield a thought every 50 tokens to show liveness
+                        if tokens_received - last_yield_count >= 50:
+                            yield SSEEvent(
+                                type=EVENT_THOUGHT,
+                                payload=AgentThought(
+                                    step=STEP_ANALYZING,
+                                    message=get_message("analyzing_progress", language).format(
+                                        count=tokens_received
+                                    ),
+                                    timestamp=datetime.now(UTC),
+                                ),
+                            )
+                            last_yield_count = tokens_received
+                            logger.info(f"Agent analysis progress: {tokens_received} tokens...")
+                except TimeoutError:
+                    # Just check if task is still running
+                    continue
+            except Exception as e:
+                logger.warning(f"Error in streaming feedback loop: {e}")
+                break
+
+        # Wait for final result
+        result = await analysis_task
 
         # Emit complete thought
         yield SSEEvent(
@@ -279,7 +312,7 @@ async def analyze_input_streaming(
                         res = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                         log_entry = res.scalar_one_or_none()
                         if log_entry:
-                            log_entry.status = "invalid"  # This status must exist in the Enum
+                            log_entry.status = "invalid"
                             if result.non_food_reason:
                                 log_entry.description = f"[Invalid]: {result.non_food_reason}"
                             await session.commit()
@@ -287,11 +320,6 @@ async def analyze_input_streaming(
                 except Exception as db_err:
                     logger.error(f"Failed to update log status to invalid: {db_err}")
 
-            # We can optionally stop the stream here or let the graph handle it.
-            # Assuming the graph will proceed to clarification/finalize, we need to ensure they don't break.
-            # But "invalid" is a terminal state usually.
-            # We should probably emit an EVENT_RESPONSE with status='invalid' to notify frontend immediately?
-            # The tech spec says "Mark log status as invalid". The frontend component handles the rest.
             if log_id:
                 yield SSEEvent(
                     type=EVENT_RESPONSE,

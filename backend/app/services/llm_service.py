@@ -68,6 +68,7 @@ def _clean_schema_for_google(schema: dict) -> dict:
     1. Resolve all $ref / $defs pointers (inline them).
     2. Recursively remove unsupported keywords for Gemini compatibility.
     3. Flatten anyOf with null for better stability.
+    4. Remove complex/empty objects that might trigger loops.
     """
 
     def _clean_node(node, is_properties_dict: bool = False):
@@ -86,7 +87,11 @@ def _clean_schema_for_google(schema: dict) -> dict:
             for k, v in node.items():
                 if k in ("additionalProperties", "$defs", "definitions"):
                     continue
-                # Keep 'title' if it's a property key, but strip if it's metadata
+
+                # Remove fields known to cause issues or not needed for LLM generation
+                if is_properties_dict and k in ("weights", "semantic_penalty", "dominant_factor"):
+                    continue
+
                 if k == "title" and not is_properties_dict:
                     continue
 
@@ -550,11 +555,8 @@ async def _analyze_google_streaming(
             f"{lang_instruction}\n"
             f"You are a dietary expert. Current time is {current_time}. "
             "Analyze the input to identify food items, estimate quantities, calories, and confidence.\n"
-            "Rate meal complexity from 0.0 (simple, single item) to 1.0 "
-            "(complex, multi-component) considering: number of distinct items, "
-            "composite dishes, ambiguous portions, mixed preparations.\n"
-            "Assess ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity.\n"
-            "Respond ONLY with valid JSON matching the configured response schema."
+            "Respond ONLY with valid JSON matching the configured response schema.\n"
+            "Do not include any text outside the JSON block."
         )
 
     contents = []
@@ -595,7 +597,15 @@ async def _analyze_google_streaming(
             if len(accumulated_content) % 100 < len(text):
                 logger.info(f"Received {len(accumulated_content)} chars from Gemini...")
             if on_token:
-                await on_token(text)
+                try:
+                    await on_token(text)
+                except Exception as e:
+                    logger.warning(f"on_token callback failed: {e}")
+
+        # Final safety check: if empty or corrupted, we might have hit a hidden error
+        if not accumulated_content.strip():
+            logger.error("Gemini returned empty content in streaming mode.")
+            raise LLMGenerationError("Gemini returned empty content")
 
         return AnalysisResult.model_validate_json(accumulated_content)
     except Exception as e:
