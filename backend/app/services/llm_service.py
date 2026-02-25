@@ -1,4 +1,4 @@
-"""LLM analysis service using OpenAI GPT-4o."""
+"""LLM analysis service."""
 
 import json
 import logging
@@ -25,26 +25,95 @@ class LLMGenerationError(Exception):
     pass
 
 
-def _clean_schema_for_google(schema: dict) -> dict:
+def _resolve_json_refs(schema: dict, root_schema: dict, seen_refs: set | None = None) -> dict:
     """
-    Recursively remove 'additionalProperties' and 'title' from schema for Gemini compatibility.
-    Gemini API is strict about supported JSON schema keywords.
+    Recursively resolve $ref pointers in a JSON schema using the root schema's $defs.
+    Gemini doesn't support $ref in response_schema.
+    Ensures absolute path resolution and prevents infinite recursion.
     """
-    if isinstance(schema, dict):
-        new_schema = {}
-        for k, v in schema.items():
-            if k == "additionalProperties":
-                continue
-            # Remove 'title' (schema metadata), but NOT if it's a property definition named 'title'
-            if k == "title" and isinstance(v, str):
-                continue
+    if seen_refs is None:
+        seen_refs = set()
 
-            new_schema[k] = _clean_schema_for_google(v)
-        return new_schema
+    if isinstance(schema, dict):
+        if "$ref" in schema:
+            ref_path = schema["$ref"]
+            if ref_path in seen_refs:
+                # Infinite recursion detected
+                return {"type": "object"}
+
+            # Create a NEW set for this branch to allow same-level siblings to resolve same refs
+            new_seen = seen_refs | {ref_path}
+
+            ref_schema = None
+            if ref_path.startswith("#/$defs/"):
+                def_name = ref_path.split("/")[-1]
+                ref_schema = root_schema.get("$defs", {}).get(def_name)
+            elif ref_path.startswith("#/definitions/"):
+                def_name = ref_path.split("/")[-1]
+                ref_schema = root_schema.get("definitions", {}).get(def_name)
+
+            if ref_schema:
+                # Recursively resolve the referenced schema
+                return _resolve_json_refs(ref_schema, root_schema, new_seen)
+
+        # Process all keys
+        return {k: _resolve_json_refs(v, root_schema, seen_refs) for k, v in schema.items()}
     elif isinstance(schema, list):
-        return [_clean_schema_for_google(item) for item in schema]
+        return [_resolve_json_refs(item, root_schema, seen_refs) for item in schema]
     else:
         return schema
+
+
+def _clean_schema_for_google(schema: dict) -> dict:
+    """
+    1. Resolve all $ref / $defs pointers (inline them).
+    2. Recursively remove unsupported keywords for Gemini compatibility.
+    3. Flatten anyOf with null for better stability.
+    4. Remove complex/empty objects that might trigger loops.
+    """
+
+    def _clean_node(node, is_properties_dict: bool = False):
+        if isinstance(node, dict):
+            # 1. Flatten anyOf with null
+            if "anyOf" in node:
+                variants = node["anyOf"]
+                non_null_variants = [v for v in variants if isinstance(v, dict) and v.get("type") != "null"]
+                if non_null_variants:
+                    primary = _clean_node(non_null_variants[0], is_properties_dict=is_properties_dict)
+                    if "default" in node:
+                        primary["default"] = node["default"]
+                    return primary
+
+            new_schema = {}
+            for k, v in node.items():
+                if k in ("additionalProperties", "$defs", "definitions"):
+                    continue
+
+                # Remove fields known to cause issues or not needed for LLM generation
+                if is_properties_dict and k in ("weights", "semantic_penalty", "dominant_factor"):
+                    continue
+
+                if k == "title" and not is_properties_dict:
+                    continue
+
+                # Recursively clean
+                new_schema[k] = _clean_node(v, is_properties_dict=(k == "properties"))
+
+            # Ensure 'required' ONLY contains keys present in 'properties'
+            if "required" in new_schema and "properties" in new_schema:
+                props = new_schema["properties"]
+                new_schema["required"] = [r for r in new_schema["required"] if r in props]
+
+            return new_schema
+        elif isinstance(node, list):
+            return [_clean_node(item) for item in node]
+        else:
+            return node
+
+    # First resolve all references so the schema is standalone
+    resolved_schema = _resolve_json_refs(schema, schema)
+    # Then clean out unsupported keywords and flatten nullable types
+    return _clean_node(resolved_schema)
 
 
 class ClarificationQuestion(BaseModel):
@@ -160,89 +229,74 @@ def _build_messages(
     return messages
 
 
-async def _get_image_content(image_path: str, token: str | None = None) -> str:
+async def _get_media_content(media_path: str, token: str | None = None) -> str:
     """
-    Get image content as base64 data URI.
+    Get media content as base64 data URI.
     Handles private Supabase Storage paths by downloading with user token.
+    Supports Image, Video, and Audio.
     """
     import base64
 
     import httpx
 
     # Return as-is if it's already a data URI
-    if image_path.startswith("data:"):
-        return image_path
+    if media_path.startswith("data:"):
+        return media_path
+
+    def _get_mime_type(path: str) -> str:
+        ext = path.lower().split(".")[-1]
+        mimes = {
+            "png": "image/png",
+            "jpg": "image/jpeg",
+            "jpeg": "image/jpeg",
+            "webp": "image/webp",
+            "mp4": "video/mp4",
+            "mpeg": "audio/mpeg",
+            "mp3": "audio/mpeg",
+            "wav": "audio/wav",
+            "mov": "video/quicktime",
+        }
+        return mimes.get(ext, "application/octet-stream")  # Default to generic if unknown
 
     # If it's a URL, try to download and base64 encode it
-    if image_path.startswith(("http://", "https://")):
-        # Add authentication for Supabase authenticated storage
-        if token and settings.SUPABASE_URL and "supabase" in image_path:
-            # Basic check if it's the authenticated endpoint or just a public one?
-            # For now, if token provided and 'supabase' in URL, try adding header.
-            # Only if it looks like the authenticated path?
-            # The existing code added header if 'authenticated' in path?
-            # The existing code constructed the URL. Here we assume image_path IS the URL.
-            # BUT wait, the existing code constructed the URL if it WAS NOT a URL.
-            pass
-
-        # If the path is ALREADY a full URL (which it is for GCS), we just download it.
-        # If it is a Supabase path (not URL) handled below?
-        # The existing code handled:
-        # 1. External URL (returns as is)
-        # 2. Supabase path (not URL) -> constructs URL and downloads.
-
-        # We want to change #1 to Download.
-
+    if media_path.startswith(("http://", "https://")):
         async with httpx.AsyncClient() as client:
             try:
-                # Prepare headers if needed (for now, assume external URLs don't need auth,
-                # or rely on Supabase logic below for internal paths)
                 req_headers = {}
-                if "supabase" in image_path and "/authenticated/" in image_path and token:
+                if "supabase" in media_path and "/authenticated/" in media_path and token:
                     req_headers["Authorization"] = f"Bearer {token}"
 
                 response = await client.get(
-                    image_path, headers=req_headers, follow_redirects=True, timeout=30.0
+                    media_path, headers=req_headers, follow_redirects=True, timeout=30.0
                 )
                 if response.status_code == 200:
-                    b64_image = base64.b64encode(response.content).decode("utf-8")
-                    mime_type = "image/jpeg"
-                    if image_path.lower().endswith(".png"):
-                        mime_type = "image/png"
-                    elif image_path.lower().endswith(".webp"):
-                        mime_type = "image/webp"
-                    return f"data:{mime_type};base64,{b64_image}"
+                    b64_data = base64.b64encode(response.content).decode("utf-8")
+                    mime_type = _get_mime_type(media_path)
+                    return f"data:{mime_type};base64,{b64_data}"
                 else:
-                    logger.warning(f"Failed to download image from {image_path}: {response.status_code}")
-                    # Fallback to returning URL if download fails (maybe OpenAI can access it?)
-                    return image_path
+                    logger.warning(f"Failed to download media from {media_path}: {response.status_code}")
+                    return media_path
             except Exception as e:
-                logger.warning(f"Failed to download/encode image: {e}")
-                return image_path
+                logger.warning(f"Failed to download/encode media: {e}")
+                return media_path
 
-    # Handle internal Supabase paths (not starting with http)
-    if token and settings.SUPABASE_URL and "supabase" not in image_path:
+    # Handle internal Supabase paths
+    if token and settings.SUPABASE_URL and "supabase" not in media_path:
         # Construct authenticated storage URL
-        url = f"{settings.SUPABASE_URL}/storage/v1/object/authenticated/raw_uploads/{image_path}"
+        url = f"{settings.SUPABASE_URL}/storage/v1/object/authenticated/raw_uploads/{media_path}"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers={"Authorization": f"Bearer {token}"})
 
             if response.status_code == 200:
-                b64_image = base64.b64encode(response.content).decode("utf-8")
-                mime_type = "image/jpeg"
-                if image_path.lower().endswith(".png"):
-                    mime_type = "image/png"
-                elif image_path.lower().endswith(".webp"):
-                    mime_type = "image/webp"
-
-                return f"data:{mime_type};base64,{b64_image}"
+                b64_data = base64.b64encode(response.content).decode("utf-8")
+                mime_type = _get_mime_type(media_path)
+                return f"data:{mime_type};base64,{b64_data}"
             else:
-                logger.warning(f"Failed to download image from Supabase: {response.status_code}")
+                logger.warning(f"Failed to download media from Supabase: {response.status_code}")
                 logger.debug(f"Failed URL: {url}")
 
-    # Fallback: return original path (likely to fail if private)
-    return image_path or ""
+    return media_path or ""
 
 
 async def analyze_multimodal(
@@ -264,36 +318,37 @@ async def analyze_multimodal(
 
     provider = provider or settings.LLM_PROVIDER
 
-    # Process image if provided
-    final_image_url = image_url
+    # Process image if provided (renamed to media support)
+    final_media_url = image_url
     if image_url:
-        final_image_url = await _get_image_content(image_url, user_token)
+        final_media_url = await _get_media_content(image_url, user_token)
 
-    if provider == "google":
-        return await _analyze_google(
-            final_image_url, transcript, context, language, system_prompt_override, model
-        )
+    if provider == "openai":
+        # Explicit OpenAI path
+        messages = _build_messages(final_media_url, transcript, context, language, system_prompt_override)
+        try:
+            client = _get_openai_client()
+            model_name = model or settings.OPENAI_MODEL_NAME
+            completion = await client.beta.chat.completions.parse(
+                model=model_name,
+                messages=messages,
+                response_format=AnalysisResult,
+            )
+            if completion.choices[0].message.refusal:
+                raise LLMGenerationError(f"LLM Refusal: {completion.choices[0].message.refusal}")
+            return completion.choices[0].message.parsed
+        except Exception as e:
+            logger.error(f"OpenAI analysis failed: {e}")
+            raise LLMGenerationError(f"Failed to analyze input with OpenAI: {str(e)}") from e
 
-    # Default to OpenAI
-    messages = _build_messages(final_image_url, transcript, context, language, system_prompt_override)
-    try:
-        client = _get_openai_client()
-        model_name = model or settings.OPENAI_MODEL_NAME
-        completion = await client.beta.chat.completions.parse(
-            model=model_name,
-            messages=messages,
-            response_format=AnalysisResult,
-        )
-        if completion.choices[0].message.refusal:
-            raise LLMGenerationError(f"LLM Refusal: {completion.choices[0].message.refusal}")
-        return completion.choices[0].message.parsed
-    except Exception as e:
-        logger.error(f"OpenAI analysis failed: {e}")
-        raise LLMGenerationError(f"Failed to analyze input with OpenAI: {str(e)}") from e
+    # Default to Google Gemini
+    return await _analyze_google(
+        final_media_url, transcript, context, language, system_prompt_override, model
+    )
 
 
 async def _analyze_google(
-    image_data_uri: str | None,
+    media_data_uri: str | None,
     transcript: str | None,
     context: str | None,
     language: str,
@@ -304,7 +359,7 @@ async def _analyze_google(
     client = _get_google_client()
     model_id = model_name or settings.GOOGLE_MODEL_NAME
 
-    # Build prompt and parts
+    # Build system instruction
     current_time = datetime.now().strftime("%H:%M")
     lang_name = "Dutch" if language == "nl" else "English"
     lang_instruction = f"IMPORTANT: Respond entirely in {lang_name}." if language != "en" else ""
@@ -313,52 +368,46 @@ async def _analyze_google(
 
     if system_prompt_override:
         try:
-            prompt = system_prompt_override.format(
+            system_instruction = system_prompt_override.format(
                 current_time=current_time, schema=schema_json, lang_instruction=lang_instruction
             )
         except (KeyError, ValueError):
-            prompt = system_prompt_override
+            system_instruction = system_prompt_override
     else:
-        # Simplified and optimized version for Gemini
-        prompt = (
+        system_instruction = (
             f"{lang_instruction}\n"
-            f"You are a dietary expert. Time: {current_time}.\n"
-            "Analyze input to: Identify foods, Estimate quantities/calories, Rate complexity (0.0-1.0).\n"
-            "Assess Ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity.\n"
-            "Output VALID JSON ONLY matching this schema: " + schema_json
+            f"You are a dietary expert. Current time is {current_time}. "
+            "Analyze the input to identify food items, estimate quantities, calories, and confidence.\n"
+            "Rate meal complexity from 0.0 (simple, single item) to 1.0 "
+            "(complex, multi-component) considering: number of distinct items, "
+            "composite dishes, ambiguous portions, mixed preparations.\n"
+            "Assess ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity."
         )
 
     contents = []
-    if prompt:
-        contents.append(prompt)
     if context:
         contents.append(f"Context: {context}")
     if transcript:
         contents.append(f"Transcript: {transcript}")
 
-    if image_data_uri:
-        if image_data_uri.startswith("data:"):
-            import base64
+    if media_data_uri and media_data_uri.startswith("data:"):
+        import base64
 
-            header, encoded = image_data_uri.split(",", 1)
-            mime_type = header.split(";")[0].split(":")[1]
-            image_bytes = base64.b64decode(encoded)
-            contents.append(types.Part.from_bytes(data=image_bytes, mime_type=mime_type))
-
-        else:
-            # If it's still a URL (fallback), Gemini might not support it directly in prompt parts easily
-            # But the service usually ensures it's a data URI.
-            pass
+        header, encoded = media_data_uri.split(",", 1)
+        mime_type = header.split(";")[0].split(":")[1]
+        data_bytes = base64.b64decode(encoded)
+        contents.append(types.Part.from_bytes(data=data_bytes, mime_type=mime_type))
 
     try:
         response = await client.aio.models.generate_content(
             model=model_id,
             contents=contents,
-            config={
-                "response_mime_type": "application/json",
-                "response_schema": _clean_schema_for_google(AnalysisResult.model_json_schema()),
-                "max_output_tokens": 2048,
-            },
+            config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                response_mime_type="application/json",
+                response_schema=_clean_schema_for_google(AnalysisResult.model_json_schema()),
+                max_output_tokens=2048,
+            ),
         )
         return AnalysisResult.model_validate_json(response.text)
     except Exception as e:
@@ -386,18 +435,18 @@ async def analyze_multimodal_streaming(
 
     provider = provider or settings.LLM_PROVIDER
 
-    # Process image if provided
-    final_image_url = image_url
+    # Process image if provided (renamed/enhanced)
+    final_media_url = image_url
     if image_url:
-        final_image_url = await _get_image_content(image_url, user_token)
+        final_media_url = await _get_media_content(image_url, user_token)
 
     if provider == "google":
         return await _analyze_google_streaming(
-            final_image_url, transcript, context, on_token, language, system_prompt_override, model
+            final_media_url, transcript, context, on_token, language, system_prompt_override, model
         )
 
     # Default to OpenAI
-    messages = _build_messages(final_image_url, transcript, context, language, system_prompt_override)
+    messages = _build_messages(final_media_url, transcript, context, language, system_prompt_override)
     accumulated_content = ""
     accumulated_refusal = ""
 
@@ -455,7 +504,7 @@ async def analyze_multimodal_streaming(
 
 
 async def _analyze_google_streaming(
-    image_data_uri: str | None,
+    media_data_uri: str | None,
     transcript: str | None,
     context: str | None,
     on_token: Callable[[str], Awaitable[None]] | None,
@@ -467,7 +516,7 @@ async def _analyze_google_streaming(
     client = _get_google_client()
     model_id = model_name or settings.GOOGLE_MODEL_NAME
 
-    # Build prompt and parts (reusing logic from _analyze_google)
+    # Build system instruction (reusing logic from _analyze_google)
     current_time = datetime.now().strftime("%H:%M")
     lang_name = "Dutch" if language == "nl" else "English"
     lang_instruction = f"IMPORTANT: Respond entirely in {lang_name}." if language != "en" else ""
@@ -475,55 +524,65 @@ async def _analyze_google_streaming(
 
     if system_prompt_override:
         try:
-            prompt = system_prompt_override.format(
+            system_instruction = system_prompt_override.format(
                 current_time=current_time, schema=schema_json, lang_instruction=lang_instruction
             )
         except (KeyError, ValueError):
-            prompt = system_prompt_override
+            system_instruction = system_prompt_override
     else:
-        prompt = (
+        system_instruction = (
             f"{lang_instruction}\n"
-            f"You are a dietary expert. Time: {current_time}.\n"
-            "Analyze input to: Identify foods, Estimate quantities/calories, Rate complexity (0.0-1.0).\n"
-            "Assess Ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity.\n"
-            "Output VALID JSON ONLY matching this schema: " + schema_json
+            f"You are a dietary expert. Current time is {current_time}. "
+            "Analyze the input to identify food items, estimate quantities, calories, and confidence.\n"
+            "Rate meal complexity from 0.0 (simple, single item) to 1.0 "
+            "(complex, multi-component) considering: number of distinct items, "
+            "composite dishes, ambiguous portions, mixed preparations.\n"
+            "Assess ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity."
         )
 
     contents = []
-    if prompt:
-        contents.append(prompt)
     if context:
         contents.append(f"Context: {context}")
     if transcript:
         contents.append(f"Transcript: {transcript}")
 
-    if image_data_uri:
-        if image_data_uri.startswith("data:"):
-            import base64
+    if media_data_uri and media_data_uri.startswith("data:"):
+        import base64
 
-            header, encoded = image_data_uri.split(",", 1)
-            mime_type = header.split(";")[0].split(":")[1]
-            image_bytes = base64.b64decode(encoded)
-            contents.append(types.Part.from_bytes(data=image_bytes, mime_type=mime_type))
+        header, encoded = media_data_uri.split(",", 1)
+        mime_type = header.split(";")[0].split(":")[1]
+        data_bytes = base64.b64decode(encoded)
+        contents.append(types.Part.from_bytes(data=data_bytes, mime_type=mime_type))
 
+    logger.info(f"Gemini contents: {[ (p if isinstance(p, str) else 'MEDIA_PART') for p in contents]}")
     accumulated_content = ""
     try:
         response_stream = await client.aio.models.generate_content_stream(
             model=model_id,
             contents=contents,
-            config={
-                "response_mime_type": "application/json",
-                "response_schema": _clean_schema_for_google(AnalysisResult.model_json_schema()),
-                "max_output_tokens": 2048,
-            },
+            config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
+                response_mime_type="application/json",
+                response_schema=_clean_schema_for_google(AnalysisResult.model_json_schema()),
+                max_output_tokens=2048,
+            ),
         )
 
         async for chunk in response_stream:
             text = chunk.text
             accumulated_content += text
-            logger.info(f"Received Google stream chunk: {len(text)} chars")
+            if len(accumulated_content) % 100 < len(text):
+                logger.info(f"Received {len(accumulated_content)} chars from Gemini...")
             if on_token:
-                await on_token(text)
+                try:
+                    await on_token(text)
+                except Exception as e:
+                    logger.warning(f"on_token callback failed: {e}")
+
+        # Final safety check
+        if not accumulated_content.strip():
+            logger.error("Gemini returned empty content in streaming mode.")
+            raise LLMGenerationError("Gemini returned empty content")
 
         return AnalysisResult.model_validate_json(accumulated_content)
     except Exception as e:
@@ -596,29 +655,31 @@ async def generate_clarification_question(
         "Generate a simple clarification question to help identify them better."
     )
 
-    if provider == "google":
-        return await _generate_google_clarification(system_prompt, user_prompt, language, model)
+    if provider == "openai":
+        # Explicit OpenAI path
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ]
 
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_prompt},
-    ]
+        try:
+            client = _get_openai_client()
+            model_name = model or settings.OPENAI_MODEL_NAME
+            completion = await client.beta.chat.completions.parse(
+                model=model_name,
+                messages=messages,
+                response_format=ClarificationQuestion,
+            )
+            return completion.choices[0].message.parsed
+        except Exception as e:
+            logger.error(f"OpenAI clarification generation failed: {e}")
+            return ClarificationQuestion(
+                question=msgs["generic_question"],
+                options=msgs["generic_options"],
+            )
 
-    try:
-        client = _get_openai_client()
-        model_name = model or settings.OPENAI_MODEL_NAME
-        completion = await client.beta.chat.completions.parse(
-            model=model_name,
-            messages=messages,
-            response_format=ClarificationQuestion,
-        )
-        return completion.choices[0].message.parsed
-    except Exception as e:
-        logger.error(f"OpenAI clarification generation failed: {e}")
-        return ClarificationQuestion(
-            question=msgs["generic_question"],
-            options=msgs["generic_options"],
-        )
+    # Default to Google Gemini
+    return await _generate_google_clarification(system_prompt, user_prompt, language, model)
 
 
 async def _generate_google_clarification(
@@ -634,11 +695,12 @@ async def _generate_google_clarification(
     try:
         response = await client.aio.models.generate_content(
             model=model_id,
-            contents=[system_prompt, user_prompt],
-            config={
-                "response_mime_type": "application/json",
-                "response_schema": _clean_schema_for_google(ClarificationQuestion.model_json_schema()),
-            },
+            contents=[user_prompt],
+            config=types.GenerateContentConfig(
+                system_instruction=system_prompt,
+                response_mime_type="application/json",
+                response_schema=_clean_schema_for_google(ClarificationQuestion.model_json_schema()),
+            ),
         )
         return ClarificationQuestion.model_validate_json(response.text)
     except Exception as e:

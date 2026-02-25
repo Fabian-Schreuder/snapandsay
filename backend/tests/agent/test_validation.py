@@ -38,7 +38,7 @@ class TestInvalidValidation:
             patch(
                 "app.agent.nodes.llm_service.analyze_multimodal_streaming", new_callable=AsyncMock
             ) as mock_analyze,
-            patch("app.agent.nodes.async_session_maker") as mock_session_maker,
+            patch("app.agent.nodes.database.async_session_maker") as mock_session_maker,
             patch("app.agent.nodes.llm_service._get_image_content", new_callable=AsyncMock),
         ):
             mock_analyze.return_value = analysis_result
@@ -90,7 +90,7 @@ class TestInvalidValidation:
             patch(
                 "app.agent.nodes.llm_service.analyze_multimodal_streaming", new_callable=AsyncMock
             ) as mock_analyze,
-            patch("app.agent.nodes.async_session_maker") as mock_session_maker,
+            patch("app.agent.nodes.database.async_session_maker") as mock_session_maker,
             patch("app.agent.nodes.llm_service._get_image_content", new_callable=AsyncMock),
         ):
             mock_analyze.return_value = analysis_result

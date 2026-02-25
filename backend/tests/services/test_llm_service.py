@@ -58,3 +58,28 @@ async def test_analyze_multimodal_api_error():
     with patch("app.services.llm_service._get_openai_client", return_value=mock_client):
         with pytest.raises(LLMGenerationError, match="Failed to analyze input"):
             await analyze_multimodal(image_url="http://test.com/image.jpg", provider="openai")
+
+
+@pytest.mark.asyncio
+async def test_analyze_multimodal_default_is_google():
+    """Test that Google Gemini is the default provider when none is specified."""
+    mock_result = AnalysisResult(
+        title="Orange",
+        items=[
+            FoodItem(name="Orange", quantity="1", calories=60, confidence=0.97),
+        ],
+        synthesis_comment="Vitamins!",
+    )
+
+    mock_response = MagicMock()
+    mock_response.text = mock_result.model_dump_json()
+
+    mock_client = MagicMock()
+    mock_client.aio.models.generate_content = AsyncMock(return_value=mock_response)
+
+    with patch("app.services.llm_service._get_google_client", return_value=mock_client):
+        # Call WITHOUT provider argument
+        result = await analyze_multimodal(image_url="http://test.com/orange.jpg", transcript="An orange")
+
+        assert result == mock_result
+        mock_client.aio.models.generate_content.assert_called_once()

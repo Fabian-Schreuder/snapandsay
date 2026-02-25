@@ -59,6 +59,7 @@ export interface UseAgentReturn {
     logId: string,
     imagePath?: string,
     audioPath?: string,
+    options?: { force_clarify?: boolean; force_finalize?: boolean },
   ) => void;
   submitClarificationResponse: (
     response: string,
@@ -105,6 +106,7 @@ export const useAgent = (): UseAgentReturn => {
     logId: string;
     imagePath?: string;
     audioPath?: string;
+    options?: { force_clarify?: boolean; force_finalize?: boolean };
   } | null>(null);
 
   // Use centralized feedback hook
@@ -130,10 +132,12 @@ export const useAgent = (): UseAgentReturn => {
     const handleOnline = () => {
       // If we were streaming and went offline, retry
       if (status === "connecting" && currentRequestRef.current) {
-        const { logId, imagePath, audioPath } = currentRequestRef.current;
+        const { logId, imagePath, audioPath, options } =
+          currentRequestRef.current;
         // Reset and retry after brief delay
         setTimeout(
-          () => startStreamingInternal(logId, imagePath, audioPath),
+          () =>
+            startStreamingInternal(logId, imagePath, audioPath, options),
           1000,
         );
       }
@@ -198,11 +202,12 @@ export const useAgent = (): UseAgentReturn => {
         retryCountRef.current < MAX_RETRIES
       ) {
         cleanup();
-        const { logId, imagePath, audioPath } = currentRequestRef.current;
+        const { logId, imagePath, audioPath, options } =
+          currentRequestRef.current;
         retryCountRef.current++;
         const delay = RETRY_DELAYS[retryCountRef.current - 1] ?? 4000;
         setTimeout(
-          () => startStreamingInternal(logId, imagePath, audioPath),
+          () => startStreamingInternal(logId, imagePath, audioPath, options),
           delay,
         );
       }
@@ -220,7 +225,12 @@ export const useAgent = (): UseAgentReturn => {
   }, [clarification]);
 
   const startStreamingInternal = useCallback(
-    async (logId: string, imagePath?: string, audioPath?: string) => {
+    async (
+      logId: string,
+      imagePath?: string,
+      audioPath?: string,
+      options?: { force_clarify?: boolean; force_finalize?: boolean },
+    ) => {
       cleanup();
       setStatus("connecting");
       setError(null);
@@ -245,6 +255,8 @@ export const useAgent = (): UseAgentReturn => {
             image_path: imagePath,
             audio_path: audioPath,
             language: statusLocale,
+            force_clarify: options?.force_clarify,
+            force_finalize: options?.force_finalize,
           }),
         });
 
@@ -414,6 +426,7 @@ export const useAgent = (): UseAgentReturn => {
             logId,
             currentRequest?.imagePath,
             currentRequest?.audioPath,
+            currentRequest?.options,
           );
         } else {
           // Fallback if status isn't processing (unexpected)
@@ -430,14 +443,19 @@ export const useAgent = (): UseAgentReturn => {
   );
 
   const startStreaming = useCallback(
-    (logId: string, imagePath?: string, audioPath?: string) => {
+    (
+      logId: string,
+      imagePath?: string,
+      audioPath?: string,
+      options?: { force_clarify?: boolean; force_finalize?: boolean },
+    ) => {
       // Store current request for potential retries
-      currentRequestRef.current = { logId, imagePath, audioPath };
+      currentRequestRef.current = { logId, imagePath, audioPath, options };
       retryCountRef.current = 0;
       setThoughts([]);
       setResult(null);
       setClarification(null);
-      startStreamingInternal(logId, imagePath, audioPath);
+      startStreamingInternal(logId, imagePath, audioPath, options);
     },
     [startStreamingInternal],
   );

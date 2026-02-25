@@ -10,7 +10,6 @@ from app.agent.ampm_nodes import (
 from app.agent.constants import (
     AMPM_ENTRY,
     ANALYZE_INPUT,
-    CONFIDENCE_THRESHOLD,
     FINALIZE_LOG,
     GENERATE_SEMANTIC_CLARIFICATION,
     MAX_CLARIFICATIONS,
@@ -136,13 +135,10 @@ async def run_streaming_agent(
             return
 
     # Determine routing based on confidence
-    overall_confidence = state.get("overall_confidence", 0.0)
-    clarification_count = state.get("clarification_count", 0)
-
     needs_clarification = False
 
-    # Route conditionally: skip AMPM if high confidence or max attempts
-    if overall_confidence < CONFIDENCE_THRESHOLD and clarification_count < MAX_CLARIFICATIONS:
+    # Route conditionally using centralized logic
+    if route_by_confidence(state) == AMPM_ENTRY:
         # Low confidence — run AMPM detail cycle (streaming)
         async for item in detail_cycle_streaming(state):
             if isinstance(item, SSEEvent):
