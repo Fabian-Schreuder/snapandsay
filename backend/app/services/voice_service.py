@@ -58,8 +58,8 @@ async def transcribe_audio(file_path: str, language: str, token: str | None = No
         # Assumption: file_path is relative to the bucket (e.g. "user_id/filename.webm")
         url = f"{settings.SUPABASE_URL}/storage/v1/object/authenticated/raw_uploads/{file_path}"
 
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers={"Authorization": f"Bearer {token}"})
+        async with httpx.AsyncClient() as http_client:
+            response = await http_client.get(url, headers={"Authorization": f"Bearer {token}"})
 
             if response.status_code != 200:
                 raise FileNotFoundError(
@@ -72,6 +72,7 @@ async def transcribe_audio(file_path: str, language: str, token: str | None = No
     if not audio_file:
         raise FileNotFoundError(f"Audio file not found: {file_path}")
 
+    client = _get_client()
     transcript = await client.audio.transcriptions.create(
         model=settings.WHISPER_MODEL_NAME, file=audio_file, language=language
     )

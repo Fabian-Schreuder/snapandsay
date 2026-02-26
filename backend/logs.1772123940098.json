@@ -1,0 +1,4067 @@
+[
+    {
+        "message": "Starting Container",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:44.915608671Z"
+    },
+    {
+        "message": "   FastAPI   Starting development server 🚀",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:45.963660649Z"
+    },
+    {
+        "message": "             __init__.py files",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:45.963678309Z"
+    },
+    {
+        "message": "INFO:app.services.food_class_registry:Loaded 3 food classes and 62 aliases into registry",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:49.749355940Z"
+    },
+    {
+        "message": " ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:49.749366780Z"
+    },
+    {
+        "message": "             Logs:",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:49.749380450Z"
+    },
+    {
+        "message": "INFO:uvicorn.error:Will watch for changes in these directories: ['/app']",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:49.749392870Z"
+    },
+    {
+        "message": "             from app.main import app",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:49.749394000Z"
+    },
+    {
+        "message": "             ├── 🐍 __init__.py",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:49.749403189Z"
+    },
+    {
+        "message": "      INFO   Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:49.749403709Z"
+    },
+    {
+        "message": "       app   Using import string: app.main:app",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:49.749410589Z"
+    },
+    {
+        "message": " ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:49.749418399Z"
+    },
+    {
+        "message": "      INFO   Started reloader process [10] using WatchFiles",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:49.749422519Z"
+    },
+    {
+        "message": "    server   Server started at http://0.0.0.0:8080",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:49.749424989Z"
+    },
+    {
+        "message": "      code   Importing the FastAPI app object from the module with the following",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:49.749428839Z"
+    },
+    {
+        "message": "INFO:uvicorn.error:Started reloader process [10] using WatchFiles",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:49.750149584Z"
+    },
+    {
+        "message": "INFO:watchfiles.main:19 changes detected",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:50.090641227Z"
+    },
+    {
+        "message": "INFO:app.services.food_class_registry:Loaded 3 food classes and 62 aliases into registry",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:51.279262160Z"
+    },
+    {
+        "message": "      INFO   Started server process [62]",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:51.294108526Z"
+    },
+    {
+        "message": "INFO:uvicorn.error:Started server process [62]",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:51.294113355Z"
+    },
+    {
+        "message": "      INFO   Waiting for application startup.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:51.294117095Z"
+    },
+    {
+        "message": "INFO:uvicorn.error:Waiting for application startup.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:51.294120385Z"
+    },
+    {
+        "message": "      INFO   Application startup complete.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:54.188764558Z"
+    },
+    {
+        "message": "INFO:uvicorn.error:Application startup complete.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:34:54.188770197Z"
+    },
+    {
+        "message": "      INFO   100.64.0.2:33082 - \"OPTIONS /api/v1/logs HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:00.008878708Z"
+    },
+    {
+        "message": "INFO:watchfiles.main:99 changes detected",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:02.411787026Z"
+    },
+    {
+        "message": "INFO:watchfiles.main:409 changes detected",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:02.870007089Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-22-54-148Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:03.922591897Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-04-08-254Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:04.114697608Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T14-54-51-848Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:04.304260513Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T13-44-31-801Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:04.484857511Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T13-40-02-834Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:05.271465006Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T12-35-27-384Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:05.792304282Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T12-33-45-139Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:05.917359612Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T12-32-13-169Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:06.138667993Z"
+    },
+    {
+        "message": "      INFO   100.64.0.2:33082 - \"GET /api/v1/logs HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:06.323180292Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-22-54-148Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:11.163705751Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-04-08-254Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:11.367056343Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T14-54-51-848Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:11.496703578Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T13-44-31-801Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:11.851915139Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T13-40-02-834Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:11.851919649Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T13-38-56-862Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:11.994248123Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T13-34-43-603Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:12.142788770Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T12-35-27-384Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:12.301923990Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T12-33-45-139Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:12.433447667Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:25152 - \"GET /api/v1/logs HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:12.862170856Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T12-32-13-169Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:12.862260654Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:50602 - \"OPTIONS /api/v1/analysis/upload HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:32.862659156Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:50602 - \"POST /api/v1/analysis/upload HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:32.862662306Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:50602 - \"OPTIONS /api/v1/analysis/stream HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:32.862665096Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:50602 - \"POST /api/v1/analysis/stream HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:32.862667986Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Stream Request Provider: None",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:32.862671606Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Config LLM_PROVIDER: google",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:32.862674566Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Using Google Key: AIzaS",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:32.862677546Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Force Clarify: False, Force Finalize: False",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:32.862680245Z"
+    },
+    {
+        "message": "INFO:watchfiles.main:4 changes detected",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:32.862684275Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Transcribing audio from 749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-35-23-627Z_audio.webm (language=nl)",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:32.862687635Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-35-23-627Z_audio.webm \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:33.277944780Z"
+    },
+    {
+        "message": "ERROR:app.agent.nodes:Failed to transcribe audio: 'AsyncClient' object has no attribute 'audio'",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:33.277948500Z"
+    },
+    {
+        "message": "WARNING:app.agent.nodes:Audio transcription failed, but image provided. Proceeding with image only.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:33.277953760Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Analyzing multimodal input with streaming",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:33.277957140Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-35-23-626Z_image.jpg \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:34.317354069Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Gemini contents: ['MEDIA_PART']",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:34.357213538Z"
+    },
+    {
+        "message": "INFO:google_genai.models:AFC is enabled with max remote calls: 10.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:34.358690039Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:streamGenerateContent?alt=sse \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:40.150164039Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 120 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:40.150169619Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 296 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:40.432692882Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 356 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:40.518302973Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 404 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:40.899301052Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 551 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:40.917636075Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 640 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:41.059711466Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 732 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:41.202613889Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 802 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:41.349206475Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 931 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:41.856393871Z"
+    },
+    {
+        "message": "INFO:app.services.semantic_gatekeeper:Semantic Gatekeeper: 'Glas halfvolle melk' detected as Umbrella Term.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:42.924369282Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-35-23-626Z_image.jpg \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:42.924374392Z"
+    },
+    {
+        "message": "INFO:google_genai.models:AFC is enabled with max remote calls: 10.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:42.924376742Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:49.866804295Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Updated log cd4f80f2-a546-45b9-a319-e8893fa268a7 status to 'clarification', count=1",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:51.879452779Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:50602 - \"OPTIONS ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:54.868710310Z"
+    },
+    {
+        "message": "             /api/v1/analysis/clarify/cd4f80f2-a546-45b9-a319-e8893fa268a7 ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:54.868716740Z"
+    },
+    {
+        "message": "             HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:54.868719490Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:50602 - \"POST ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:58.985074395Z"
+    },
+    {
+        "message": "             /api/v1/analysis/clarify/cd4f80f2-a546-45b9-a319-e8893fa268a7 ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:58.985078095Z"
+    },
+    {
+        "message": "             HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:35:58.985081065Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:50602 - \"POST /api/v1/analysis/stream HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:00.913386712Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Stream Request Provider: None",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:00.913390092Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Config LLM_PROVIDER: google",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:00.913394312Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Using Google Key: AIzaS",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:00.913399701Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Force Clarify: False, Force Finalize: False",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:00.913403471Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Using context from log cd4f80f2-a546-45b9-a319-e8893fa268a7: Q: Wat voor soort burger heeft u vandaag gegeten?",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:02.370886465Z"
+    },
+    {
+        "message": "...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:02.370890115Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Loaded clarification_count=1 for log cd4f80f2-a546-45b9-a319-e8893fa268a7",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:02.370893875Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Loaded ampm_data for log cd4f80f2-a546-45b9-a319-e8893fa268a7",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:02.370897515Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Transcribing audio from 749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-35-23-627Z_audio.webm (language=nl)",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:02.570362446Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-35-23-627Z_audio.webm \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:02.954250125Z"
+    },
+    {
+        "message": "ERROR:app.agent.nodes:Failed to transcribe audio: 'AsyncClient' object has no attribute 'audio'",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:02.954253675Z"
+    },
+    {
+        "message": "WARNING:app.agent.nodes:Audio transcription failed, but image provided. Proceeding with image only.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:02.954257145Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Analyzing multimodal input with streaming",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:02.954260695Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-35-23-626Z_image.jpg \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:02.954263845Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Gemini contents: ['Context: Q: Wat voor soort burger heeft u vandaag gegeten?\\nA: Vegetarisch', 'MEDIA_PART']",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:02.954277495Z"
+    },
+    {
+        "message": "INFO:google_genai.models:AFC is enabled with max remote calls: 10.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:02.954283285Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 118 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:08.358824542Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 217 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:08.583925255Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 343 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:08.929876425Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 447 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:09.263402139Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 525 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:09.297396601Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 620 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:09.343889875Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 776 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:09.536944577Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 834 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:09.928389272Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 907 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:09.928393722Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Mandatory clarification triggered by risk profile: meat_analogue",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:10.938440171Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Calculated deterministic complexity: 8.6 (Dominant: ingredients)",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:10.938443921Z"
+    },
+    {
+        "message": "INFO:app.services.semantic_gatekeeper:Semantic Gatekeeper: 'Vegetarische burger' detected as Umbrella Term.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:10.938447461Z"
+    },
+    {
+        "message": "INFO:app.services.semantic_gatekeeper:Semantic Gatekeeper: 'Halfvolle melk' detected as Umbrella Term.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:10.938450771Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Semantic Gatekeeper Interruption: Unbounded items found: ['Vegetarische burger', 'Halfvolle melk']",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:10.938454711Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-35-23-626Z_image.jpg \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:10.995803442Z"
+    },
+    {
+        "message": "INFO:google_genai.models:AFC is enabled with max remote calls: 10.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:10.998108175Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:18.922805171Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Updated log cd4f80f2-a546-45b9-a319-e8893fa268a7 status to 'clarification', count=2",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:20.941964600Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:62700 - \"POST ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:29.256940432Z"
+    },
+    {
+        "message": "             /api/v1/analysis/clarify/cd4f80f2-a546-45b9-a319-e8893fa268a7 ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:29.256948641Z"
+    },
+    {
+        "message": "             HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:29.256953201Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Using Google Key: AIzaS",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:30.937469330Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Force Clarify: False, Force Finalize: False",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:30.937472910Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:62700 - \"POST /api/v1/analysis/stream HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:30.937493469Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Stream Request Provider: None",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:30.937496219Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Config LLM_PROVIDER: google",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:30.937499089Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Using context from log cd4f80f2-a546-45b9-a319-e8893fa268a7: Q: Wat voor soort burger heeft u vandaag gegeten?",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:32.566017416Z"
+    },
+    {
+        "message": "...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:32.566022746Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Loaded clarification_count=2 for log cd4f80f2-a546-45b9-a319-e8893fa268a7",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:32.566027656Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Loaded ampm_data for log cd4f80f2-a546-45b9-a319-e8893fa268a7",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:32.566032556Z"
+    },
+    {
+        "message": "ERROR:app.agent.nodes:Failed to transcribe audio: 'AsyncClient' object has no attribute 'audio'",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:32.984618652Z"
+    },
+    {
+        "message": "WARNING:app.agent.nodes:Audio transcription failed, but image provided. Proceeding with image only.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:32.984623732Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Analyzing multimodal input with streaming",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:32.984628472Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-35-23-626Z_image.jpg \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:33.107844718Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Gemini contents: ['Context: Q: Wat voor soort burger heeft u vandaag gegeten?\\nA: Vegetarisch\\nQ: Wat voor melk zit er in uw glas?\\nA: Halfvolle melk', 'MEDIA_PART']",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:33.112341067Z"
+    },
+    {
+        "message": "INFO:google_genai.models:AFC is enabled with max remote calls: 10.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:33.118502870Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:streamGenerateContent?alt=sse \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:39.305861871Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 117 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:39.400362978Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 223 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:39.613226763Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 356 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:39.959878278Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 453 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:40.056129110Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 516 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:40.194374418Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 625 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:40.357012254Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 720 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:40.526651748Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 854 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:40.983910399Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 979 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:40.983914339Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Mandatory clarification triggered by risk profile: meat_analogue",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:41.956283792Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Calculated deterministic complexity: 5.9 (Dominant: ingredients)",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:41.956287072Z"
+    },
+    {
+        "message": "INFO:app.services.semantic_gatekeeper:Semantic Gatekeeper: 'Vegetarische burger' detected as Umbrella Term.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:41.956290122Z"
+    },
+    {
+        "message": "INFO:app.services.semantic_gatekeeper:Semantic Gatekeeper: 'Halfvolle melk' detected as Umbrella Term.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:41.956293072Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Semantic Gatekeeper Interruption: Unbounded items found: ['Vegetarische burger', 'Halfvolle melk']",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:41.956296212Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Finalized log cd4f80f2-a546-45b9-a319-e8893fa268a7 with status='logged', needs_review=False",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:44.062896471Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Persisted research metrics for log cd4f80f2-a546-45b9-a319-e8893fa268a7",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:45.515538772Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-35-23-626Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:50.473531941Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-22-54-148Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:50.969888868Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-04-08-254Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:51.230854784Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T14-54-51-848Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:51.381801191Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T13-44-31-801Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:51.528434747Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T13-40-02-834Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:51.683873382Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T13-38-56-862Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:52.006994910Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T13-34-43-603Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:52.006999480Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T12-35-27-384Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:52.144123051Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T12-32-13-169Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:52.464479497Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:62700 - \"GET /api/v1/logs HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:52.666746799Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:62700 - \"OPTIONS ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:55.259224790Z"
+    },
+    {
+        "message": "             /api/v1/logs/cd4f80f2-a546-45b9-a319-e8893fa268a7 HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:55.259228130Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/sign/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-35-23-626Z_image.jpg \"HTTP/2 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:57.652059425Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:62700 - \"GET ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:57.654342877Z"
+    },
+    {
+        "message": "             /api/v1/logs/cd4f80f2-a546-45b9-a319-e8893fa268a7 HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:36:57.654372897Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:11538 - \"POST /api/v1/analysis/upload HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:17.511055610Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:11538 - \"POST /api/v1/analysis/stream HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:17.511060670Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Stream Request Provider: None",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:17.511064050Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Config LLM_PROVIDER: google",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:17.511067950Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Using Google Key: AIzaS",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:17.511071500Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Force Clarify: False, Force Finalize: False",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:17.511074760Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Transcribing audio from 749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-37-10-713Z_audio.webm (language=nl)",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:19.052682681Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-37-10-713Z_audio.webm \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:20.042783278Z"
+    },
+    {
+        "message": "ERROR:app.agent.nodes:Failed to transcribe audio: 'AsyncClient' object has no attribute 'audio'",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:20.044422905Z"
+    },
+    {
+        "message": "WARNING:app.agent.nodes:Audio transcription failed, but image provided. Proceeding with image only.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:20.044431625Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Analyzing multimodal input with streaming",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:20.044436075Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-37-10-713Z_image.jpg \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:21.033273378Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Gemini contents: ['MEDIA_PART']",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:21.033276838Z"
+    },
+    {
+        "message": "INFO:google_genai.models:AFC is enabled with max remote calls: 10.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:21.033281527Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 356 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:29.360373654Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 408 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:29.468397864Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 538 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:29.727502077Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 628 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:30.124597745Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 799 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:30.124601085Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 858 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:30.218775719Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-37-10-713Z_image.jpg \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:31.554198107Z"
+    },
+    {
+        "message": "INFO:google_genai.models:AFC is enabled with max remote calls: 10.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:31.554200947Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:35.591917676Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Updated log 126ff8c2-7e00-4459-8f75-4d83af89885d status to 'clarification', count=1",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:37.609200258Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:17590 - \"OPTIONS ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:42.479849084Z"
+    },
+    {
+        "message": "             /api/v1/analysis/clarify/126ff8c2-7e00-4459-8f75-4d83af89885d ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:42.479858234Z"
+    },
+    {
+        "message": "             HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:42.479864914Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:17590 - \"POST ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:46.616400100Z"
+    },
+    {
+        "message": "             /api/v1/analysis/clarify/126ff8c2-7e00-4459-8f75-4d83af89885d ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:46.616402860Z"
+    },
+    {
+        "message": "             HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:46.616408180Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:17590 - \"POST /api/v1/analysis/stream HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:48.281493961Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Stream Request Provider: None",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:48.281498041Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Config LLM_PROVIDER: google",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:48.281501111Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Using Google Key: AIzaS",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:48.281503771Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Force Clarify: False, Force Finalize: False",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:48.281506881Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Using context from log 126ff8c2-7e00-4459-8f75-4d83af89885d: Q: Is de burger gemaakt van rundvlees, varkensvlee...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:50.073922385Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Loaded clarification_count=1 for log 126ff8c2-7e00-4459-8f75-4d83af89885d",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:50.073925345Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Loaded ampm_data for log 126ff8c2-7e00-4459-8f75-4d83af89885d",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:50.073928585Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Transcribing audio from 749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-37-10-713Z_audio.webm (language=nl)",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:50.172914979Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-37-10-713Z_audio.webm \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:50.346069960Z"
+    },
+    {
+        "message": "ERROR:app.agent.nodes:Failed to transcribe audio: 'AsyncClient' object has no attribute 'audio'",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:50.346075840Z"
+    },
+    {
+        "message": "WARNING:app.agent.nodes:Audio transcription failed, but image provided. Proceeding with image only.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:50.346080220Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Analyzing multimodal input with streaming",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:50.346084810Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-37-10-713Z_image.jpg \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:50.488496203Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Gemini contents: ['Context: Q: Is de burger gemaakt van rundvlees, varkensvlees of iets anders?\\nA: [Voice Response]', 'MEDIA_PART']",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:50.497918598Z"
+    },
+    {
+        "message": "INFO:google_genai.models:AFC is enabled with max remote calls: 10.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:50.500159293Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:streamGenerateContent?alt=sse \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:55.712041651Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 113 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:55.802755557Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 222 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:56.089774567Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 340 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:56.315394638Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 498 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:56.697966194Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 593 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:57.118121187Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 683 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:57.118125397Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 749 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:57.118129557Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 820 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:57.223699476Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 948 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:57.496855111Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Mandatory clarification triggered by risk profile: meat_analogue",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:58.534833643Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Calculated deterministic complexity: 5.9 (Dominant: ingredients)",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:58.534836113Z"
+    },
+    {
+        "message": "INFO:app.services.semantic_gatekeeper:Semantic Gatekeeper: 'Gegrilde burger (rundvlees)' detected as Umbrella Term.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:58.534838613Z"
+    },
+    {
+        "message": "INFO:app.services.semantic_gatekeeper:Semantic Gatekeeper: 'Volle melk' detected as Umbrella Term.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:58.534841273Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Semantic Gatekeeper Interruption: Unbounded items found: ['Gegrilde burger (rundvlees)', 'Volle melk']",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:58.534844253Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-37-10-713Z_image.jpg \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:58.725102292Z"
+    },
+    {
+        "message": "INFO:google_genai.models:AFC is enabled with max remote calls: 10.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:37:58.725106772Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:04.397209689Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Updated log 126ff8c2-7e00-4459-8f75-4d83af89885d status to 'clarification', count=2",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:06.411145959Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:22296 - \"POST ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:15.609305697Z"
+    },
+    {
+        "message": "             /api/v1/analysis/clarify/126ff8c2-7e00-4459-8f75-4d83af89885d ",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:15.609308567Z"
+    },
+    {
+        "message": "             HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:15.609311507Z"
+    },
+    {
+        "message": "      INFO   100.64.0.3:22296 - \"POST /api/v1/analysis/stream HTTP/1.1\" 200",
+        "severity": "info",
+        "attributes": {
+            "level": "info"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:17.322349111Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Force Clarify: False, Force Finalize: False",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:17.326169362Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Stream Request Provider: None",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:17.326190682Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Config LLM_PROVIDER: google",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:17.326194632Z"
+    },
+    {
+        "message": "INFO:app.api.v1.endpoints.stream:Using Google Key: AIzaS",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:17.326198622Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Loaded ampm_data for log 126ff8c2-7e00-4459-8f75-4d83af89885d",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:19.109573049Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Using context from log 126ff8c2-7e00-4459-8f75-4d83af89885d: Q: Is de burger gemaakt van rundvlees, varkensvlee...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:19.109581299Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Loaded clarification_count=2 for log 126ff8c2-7e00-4459-8f75-4d83af89885d",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:19.109685848Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Transcribing audio from 749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-37-10-713Z_audio.webm (language=nl)",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:19.135184893Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-37-10-713Z_audio.webm \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:19.328523899Z"
+    },
+    {
+        "message": "ERROR:app.agent.nodes:Failed to transcribe audio: 'AsyncClient' object has no attribute 'audio'",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:19.328527339Z"
+    },
+    {
+        "message": "WARNING:app.agent.nodes:Audio transcription failed, but image provided. Proceeding with image only.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:19.328529759Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Analyzing multimodal input with streaming",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:19.328532118Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: GET https://pezpwwvxpyhmeubpntlf.supabase.co/storage/v1/object/authenticated/raw_uploads/749887ba-2462-4da7-a7cd-965b1a16d7f1/2026-02-26T16-37-10-713Z_image.jpg \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:19.471221705Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Gemini contents: ['Context: Q: Is de burger gemaakt van rundvlees, varkensvlees of iets anders?\\nA: [Voice Response]\\nQ: Wat voor melk drinkt u bij deze maaltijd?\\nA: [Voice Response]', 'MEDIA_PART']",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:19.474627515Z"
+    },
+    {
+        "message": "INFO:google_genai.models:AFC is enabled with max remote calls: 10.",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:19.475974207Z"
+    },
+    {
+        "message": "INFO:httpx:HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:streamGenerateContent?alt=sse \"HTTP/1.1 200 OK\"",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476724042Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 769 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476725262Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 158 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476727122Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 208 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476729962Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 858 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476731582Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 329 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476732832Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 434 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476735812Z"
+    },
+    {
+        "message": "ERROR:app.services.llm_service:Google streaming analysis failed: 1 validation error for AnalysisResult",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476735892Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 581 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476738422Z"
+    },
+    {
+        "message": "  Invalid JSON: EOF while parsing a string at line 27 column 14 [type=json_invalid, input_value='{\\n  \"title\": \"Gegrilde ...: true,\\n  \"complexity_', input_type=str]",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476739172Z"
+    },
+    {
+        "message": "INFO:app.services.llm_service:Received 691 chars from Gemini...",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476741262Z"
+    },
+    {
+        "message": "    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476742512Z"
+    },
+    {
+        "message": "ERROR:app.agent.nodes:Analysis streaming failed: Failed to analyze input with Google (streaming): 1 validation error for AnalysisResult",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476746412Z"
+    },
+    {
+        "message": "  Invalid JSON: EOF while parsing a string at line 27 column 14 [type=json_invalid, input_value='{\\n  \"title\": \"Gegrilde ...: true,\\n  \"complexity_', input_type=str]",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476750012Z"
+    },
+    {
+        "message": "    For further information visit https://errors.pydantic.dev/2.12/v/json_invalid",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.476753182Z"
+    },
+    {
+        "message": "INFO:app.agent.nodes:Updated log 126ff8c2-7e00-4459-8f75-4d83af89885d status to 'failed'",
+        "severity": "error",
+        "attributes": {
+            "level": "error"
+        },
+        "tags": {
+            "project": "95919fb7-9e46-4e31-80d6-5d410ec77927",
+            "environment": "82a47a0e-929c-40c5-b20a-dcdca296b5ee",
+            "service": "e1bcd851-317e-4872-901e-d57695cde3d6",
+            "deployment": "bc973365-85c4-43eb-b0d4-7e10fc0bb61d",
+            "replica": "d8dce5b3-ec46-4e2f-8d59-b9b999976d57"
+        },
+        "timestamp": "2026-02-26T16:38:39.478904308Z"
+    }
+]

@@ -53,7 +53,10 @@ def _item_already_asked(item_name: str, state: AgentState) -> bool:
     # Extract significant words from item name (skip short articles/prepositions)
     words = [w for w in item_name.lower().split() if len(w) >= 3]
     questions_lower = " ".join(q.lower() for q in questions)
-    return any(word in questions_lower for word in words)
+    already_asked = any(word in questions_lower for word in words)
+    if already_asked:
+        logger.info(f"Item '{item_name}' already asked about in: {questions}")
+    return already_asked
 
 
 def _get_all_low_confidence_items(state: AgentState) -> list[FoodItem]:

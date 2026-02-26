@@ -564,7 +564,7 @@ async def _analyze_google_streaming(
                 system_instruction=system_instruction,
                 response_mime_type="application/json",
                 response_schema=_clean_schema_for_google(AnalysisResult.model_json_schema()),
-                max_output_tokens=2048,
+                max_output_tokens=8192,
             ),
         )
 
@@ -651,6 +651,8 @@ async def generate_clarification_question(
         "- Keep the question under 15 words\n"
         "- Provide 2-3 common answer options\n"
         "- Be friendly and patient\n"
+        "- If multiple items are uncertain, try to group them into a single, efficient question "
+        "(e.g. 'What kind of burger and milk did you have?')\n"
         f"- {template_instruction}"
     )
 
