@@ -154,7 +154,7 @@ async def analyze_input(state: AgentState) -> dict:
 
                     if log_entry.transcript and not transcript:
                         transcript = log_entry.transcript
-                        logger.info(f"Using persisted transcript for log {log_id}")
+                        logger.info(f"Using persisted transcript for log {log_id}: {transcript}")
 
                     # Load persisted AMPM state
                     if log_entry.clarification_count > 0:
@@ -208,6 +208,7 @@ async def analyze_input(state: AgentState) -> dict:
             "mandatory_clarification": result.mandatory_clarification,
             "start_time": start_time,
             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
+            "transcript": transcript,
         }
     except Exception as e:
         logger.error(f"Analysis failed: {e}")
@@ -248,7 +249,7 @@ async def analyze_input_streaming(
 
                     if log_entry.transcript and not transcript:
                         transcript = log_entry.transcript
-                        logger.info(f"Using persisted transcript for log {log_id}")
+                        logger.info(f"Using persisted transcript for log {log_id}: {transcript}")
 
                     # Load persisted AMPM state
                     if log_entry.clarification_count > 0:
@@ -403,6 +404,7 @@ async def analyze_input_streaming(
             "mandatory_clarification": result.mandatory_clarification,
             "start_time": start_time,
             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
+            "transcript": transcript,
         }
 
         # Check for invalid input (non-food)

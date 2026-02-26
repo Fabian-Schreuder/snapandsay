@@ -7,6 +7,7 @@ from app.agent.nodes import (
     _get_all_low_confidence_items,
     _item_already_asked,
     analyze_input,
+    analyze_input_streaming,
     finalize_log,
     finalize_log_streaming,
     generate_clarification,
@@ -57,6 +58,8 @@ async def test_analyze_input_with_image_and_transcript():
             model=None,
         )
         assert result["nutritional_data"] == analysis_result.model_dump()
+        assert "transcript" in result
+        assert result["transcript"] is None
 
 
 @pytest.mark.asyncio
@@ -95,6 +98,44 @@ async def test_analyze_input_with_audio():
             model=None,
         )
         assert result["nutritional_data"] == analysis_result.model_dump()
+        assert result["transcript"] == transcript
+
+
+@pytest.mark.asyncio
+async def test_analyze_input_streaming_with_audio():
+    state: AgentState = {
+        "messages": [],
+        "image_url": None,
+        "audio_url": "audio.mp3",
+        "nutritional_data": None,
+        "language": "nl",
+    }
+
+    transcript = "Havermelk"
+    analysis_result = AnalysisResult(
+        title="Milk",
+        items=[FoodItem(name="Havermelk", quantity="1 glass", confidence=0.9)],
+        synthesis_comment="OK",
+    )
+
+    with (
+        patch("app.agent.nodes.voice_service.transcribe_audio", new_callable=AsyncMock) as mock_transcribe,
+        patch(
+            "app.agent.nodes.llm_service.analyze_multimodal_streaming", new_callable=AsyncMock
+        ) as mock_analyze,
+    ):
+        mock_transcribe.return_value = transcript
+        mock_analyze.return_value = analysis_result
+
+        final_state = None
+        from app.schemas.sse import SSEEvent
+
+        async for item in analyze_input_streaming(state):
+            if not isinstance(item, SSEEvent):
+                final_state = item
+
+        assert final_state["nutritional_data"] == analysis_result.model_dump()
+        assert final_state["transcript"] == transcript
 
 
 class TestGenerateClarification:
@@ -477,9 +518,7 @@ class TestGetAllLowConfidenceItems:
             "mandatory_clarification": True,
         }
 
-        mock_question = ClarificationQuestion(
-            question="What kind of burger?", options=["Beef", "Veggie"]
-        )
+        mock_question = ClarificationQuestion(question="What kind of burger?", options=["Beef", "Veggie"])
 
         with patch(
             "app.agent.nodes.llm_service.generate_clarification_question",

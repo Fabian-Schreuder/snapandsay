@@ -1,11 +1,14 @@
 """Voice transcription service using OpenAI Whisper."""
 
 import asyncio
+import logging
 from functools import lru_cache
 
 from openai import AsyncOpenAI
 
 from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 @lru_cache(maxsize=1)
@@ -69,8 +72,8 @@ async def transcribe_audio(file_path: str, language: str, token: str | None = No
     if not audio_file:
         raise FileNotFoundError(f"Audio file not found: {file_path}")
 
-    client = _get_client()
     transcript = await client.audio.transcriptions.create(
         model=settings.WHISPER_MODEL_NAME, file=audio_file, language=language
     )
+    logger.info(f"Transcription result: {transcript.text}")
     return transcript.text
