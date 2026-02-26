@@ -36,6 +36,47 @@ from app.services.food_class_registry import registry as food_registry
 logger = logging.getLogger(__name__)
 
 
+def _item_already_asked(item_name: str, state: AgentState) -> bool:
+    """Check if we've already asked about this item (via ampm_data.questions_asked).
+
+    Uses word-level matching: if any significant word (3+ chars) from the item
+    name appears in a previously asked question, the item is considered already
+    asked about. This handles item name variants like 'Vegetarische burger'
+    matching a question that mentions 'burger'.
+    """
+    ampm_data = state.get("ampm_data")
+    if not ampm_data:
+        return False
+    questions = ampm_data.get("questions_asked", [])
+    if not questions:
+        return False
+    # Extract significant words from item name (skip short articles/prepositions)
+    words = [w for w in item_name.lower().split() if len(w) >= 3]
+    questions_lower = " ".join(q.lower() for q in questions)
+    return any(word in questions_lower for word in words)
+
+
+def _get_all_low_confidence_items(state: AgentState) -> list[FoodItem]:
+    """
+    Extract low-confidence FoodItems from nutritional data.
+
+    When mandatory_clarification, force_clarify, or score > clinical_threshold,
+    ALL items are returned (matching ampm_nodes._get_low_confidence_items logic).
+    Otherwise only items below CONFIDENCE_THRESHOLD are returned.
+    """
+    nutritional_data = state.get("nutritional_data", {}) or {}
+    items = nutritional_data.get("items", [])
+    force_clarify = state.get("force_clarify", False)
+    mandatory_clarification = state.get("mandatory_clarification", False)
+    score = state.get("complexity_score", 0.0)
+    threshold = state.get("clinical_threshold", 15.0)
+
+    if force_clarify or mandatory_clarification or (score > threshold):
+        return [FoodItem(**item) for item in items]
+
+    return [FoodItem(**item) for item in items if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD]
+
+
 def _enrich_with_complexity(result: AnalysisResult) -> None:
     """
     Enrich the AnalysisResult with deterministic complexity score.
@@ -423,14 +464,10 @@ async def generate_clarification(state: AgentState) -> dict:
     """
     Generate a clarification question for low-confidence items.
     """
-    nutritional_data = state.get("nutritional_data", {})
-    items = nutritional_data.get("items", [])
     clarification_count = state.get("clarification_count", 0)
 
-    # Find low-confidence items
-    low_confidence_items = [
-        FoodItem(**item) for item in items if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD
-    ]
+    # Find low-confidence items (includes all items when mandatory/clinical triggers)
+    low_confidence_items = _get_all_low_confidence_items(state)
 
     if low_confidence_items:
         await llm_service.generate_clarification_question(
@@ -466,15 +503,11 @@ async def generate_clarification_streaming(
         ),
     )
 
-    nutritional_data = state.get("nutritional_data", {})
-    items = nutritional_data.get("items", [])
     clarification_count = state.get("clarification_count", 0)
     log_id = state.get("log_id")
 
-    # Find low-confidence items
-    low_confidence_items = [
-        FoodItem(**item) for item in items if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD
-    ]
+    # Find low-confidence items (includes all items when mandatory/clinical triggers)
+    low_confidence_items = _get_all_low_confidence_items(state)
 
     if low_confidence_items and log_id:
         try:
@@ -557,10 +590,15 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
     if not unbounded_items or clarification_count >= MAX_CLARIFICATIONS:
         return {"semantic_interruption_needed": False}
 
+    # Filter out items we've already asked about (prevent duplicate questions)
+    askable_unbounded = [item for item in unbounded_items if not _item_already_asked(item, state)]
+    if not askable_unbounded:
+        return {"semantic_interruption_needed": False}
+
     # Re-fetch items from nutritional data to get full objects
     nutritional_data = state.get("nutritional_data", {})
     all_items = [FoodItem(**item) for item in nutritional_data.get("items", [])]
-    target_food_items = [item for item in all_items if item.name in unbounded_items]
+    target_food_items = [item for item in all_items if item.name in askable_unbounded]
 
     try:
         question = await llm_service.generate_clarification_question(
@@ -583,7 +621,7 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
             ampm_data["low_confidence_items"] = []
 
         ampm_data["questions_asked"].append(question.question)
-        for item in unbounded_items:
+        for item in askable_unbounded:
             if item not in ampm_data["low_confidence_items"]:
                 ampm_data["low_confidence_items"].append(item)
 
@@ -632,37 +670,27 @@ async def generate_semantic_clarification_streaming(
         yield {"semantic_interruption_needed": False}
         return
 
+    # Filter out items we've already asked about (prevent duplicate questions)
+    askable_unbounded = [item for item in unbounded_items if not _item_already_asked(item, state)]
+    if not askable_unbounded:
+        yield {"semantic_interruption_needed": False}
+        return
+
     # Emit thought
     yield SSEEvent(
         type=EVENT_THOUGHT,
         payload=AgentThought(
             step=STEP_SEMANTIC_CHECK,
-            message=get_message("clarifying", language),  # Reuse clarifying message or add new one
+            message=get_message("clarifying", language),
             timestamp=datetime.now(UTC),
         ),
     )
 
-    # Generate question logic
-    # TODO: Refactor llm_service to support specific semantic clarification or use rule-based
-    # For now, let's just ask about the first unbounded item to keep it simple and focused
-
-    # Simple template fallback if LLM service isn't specialized yet
-    # But ideally we use LLM to be natural
-
-    # Let's create a temporary mock or use the existing clarification generator
-    # but forced on these items.
-
     try:
-        # We need to construct FoodItems from the names for the service
-        # But wait, we just have names here.
-        # Let's assume we can pass a dummy FoodItem or modify the service.
-        # Actually, let's just use a simple prompt for now via LLM service if possible
-        # OR just reuse generate_clarification_question but ONLY for these items.
-
         # Re-fetch items from nutritional data to get full objects
         nutritional_data = state.get("nutritional_data", {})
         all_items = [FoodItem(**item) for item in nutritional_data.get("items", [])]
-        target_food_items = [item for item in all_items if item.name in unbounded_items]
+        target_food_items = [item for item in all_items if item.name in askable_unbounded]
 
         question = await llm_service.generate_clarification_question(
             low_confidence_items=target_food_items,
@@ -684,7 +712,7 @@ async def generate_semantic_clarification_streaming(
             ampm_data["low_confidence_items"] = []
 
         ampm_data["questions_asked"].append(question.question)
-        for item in unbounded_items:
+        for item in askable_unbounded:
             if item not in ampm_data["low_confidence_items"]:
                 ampm_data["low_confidence_items"].append(item)
 

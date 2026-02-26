@@ -4,11 +4,14 @@ from uuid import uuid4
 import pytest
 
 from app.agent.nodes import (
+    _get_all_low_confidence_items,
+    _item_already_asked,
     analyze_input,
     finalize_log,
     finalize_log_streaming,
     generate_clarification,
     generate_clarification_streaming,
+    generate_semantic_clarification,
 )
 from app.agent.state import AgentState
 from app.schemas.analysis import AnalysisResult, FoodItem
@@ -338,3 +341,155 @@ class TestFinalizeLogStreaming:
             response_events = [e for e in events if isinstance(e, SSEEvent) and e.type == "agent.response"]
             assert len(response_events) == 1
             assert response_events[0].payload.status == "logged"
+
+
+class TestSemanticClarificationDedup:
+    """Tests for preventing duplicate semantic clarification questions."""
+
+    def test_item_already_asked_returns_true(self):
+        """Should detect that an item was already asked about."""
+        state = {
+            "ampm_data": {
+                "questions_asked": ["Wat voor soort burger heeft u op het bord liggen?"],
+                "low_confidence_items": ["Gegrilde hamburger"],
+            }
+        }
+        assert _item_already_asked("burger", state) is True
+
+    def test_item_already_asked_returns_false_when_no_match(self):
+        """Should return False when item was not asked about."""
+        state = {
+            "ampm_data": {
+                "questions_asked": ["Wat voor soort melk drinkt u?"],
+                "low_confidence_items": [],
+            }
+        }
+        assert _item_already_asked("burger", state) is False
+
+    def test_item_already_asked_returns_false_when_no_ampm_data(self):
+        """Should return False when no ampm_data exists."""
+        state = {}
+        assert _item_already_asked("burger", state) is False
+
+    @pytest.mark.asyncio
+    async def test_semantic_clarification_skips_already_asked_items(self):
+        """Should skip semantic clarification when all unbounded items were already asked about."""
+        state = {
+            "unbounded_items": ["Vegetarische burger"],
+            "clarification_count": 1,
+            "ampm_data": {
+                "questions_asked": ["Wat voor soort burger heeft u op het bord liggen?"],
+                "low_confidence_items": ["Gegrilde hamburger"],
+            },
+            "nutritional_data": {
+                "items": [
+                    {"name": "Vegetarische burger", "quantity": "1", "confidence": 0.5, "calories": 300}
+                ]
+            },
+        }
+
+        result = await generate_semantic_clarification(state)
+        assert result["semantic_interruption_needed"] is False
+
+    @pytest.mark.asyncio
+    async def test_semantic_clarification_asks_only_new_items(self):
+        """Should only ask about unbounded items not yet asked about."""
+        state = {
+            "unbounded_items": ["Vegetarische burger", "Glas melk"],
+            "clarification_count": 1,
+            "ampm_data": {
+                "questions_asked": ["Wat voor soort burger heeft u op het bord liggen?"],
+                "low_confidence_items": ["Gegrilde hamburger"],
+            },
+            "nutritional_data": {
+                "items": [
+                    {"name": "Vegetarische burger", "quantity": "1", "confidence": 0.5, "calories": 300},
+                    {"name": "Glas melk", "quantity": "1 glas", "confidence": 0.6, "calories": 120},
+                ]
+            },
+        }
+
+        mock_question = ClarificationQuestion(
+            question="Wat voor soort melk drinkt u?", options=["Volle melk", "Halfvolle melk", "Magere melk"]
+        )
+
+        with patch(
+            "app.agent.nodes.llm_service.generate_clarification_question",
+            new_callable=AsyncMock,
+            return_value=mock_question,
+        ) as mock_gen:
+            result = await generate_semantic_clarification(state)
+
+            assert result["semantic_interruption_needed"] is True
+            assert result["needs_clarification"] is True
+
+            # Verify only "Glas melk" was passed to LLM (burger was already asked)
+            call_args = mock_gen.call_args
+            items_passed = call_args.args[0] if call_args.args else call_args.kwargs["low_confidence_items"]
+            item_names = [item.name for item in items_passed]
+            assert "Glas melk" in item_names
+            assert "Vegetarische burger" not in item_names
+
+
+class TestGetAllLowConfidenceItems:
+    """Tests for _get_all_low_confidence_items helper."""
+
+    def test_returns_all_items_when_mandatory_clarification(self):
+        """Should return ALL items when mandatory_clarification is True."""
+        state = {
+            "nutritional_data": {
+                "items": [
+                    {"name": "Burger", "quantity": "1", "confidence": 0.95, "calories": 500},
+                    {"name": "Melk", "quantity": "1 glas", "confidence": 0.9, "calories": 120},
+                ]
+            },
+            "mandatory_clarification": True,
+        }
+        items = _get_all_low_confidence_items(state)
+        assert len(items) == 2
+        assert {item.name for item in items} == {"Burger", "Melk"}
+
+    def test_returns_only_low_confidence_without_triggers(self):
+        """Should return only low-confidence items when no triggers are active."""
+        state = {
+            "nutritional_data": {
+                "items": [
+                    {"name": "Burger", "quantity": "1", "confidence": 0.5, "calories": 500},
+                    {"name": "Melk", "quantity": "1 glas", "confidence": 0.9, "calories": 120},
+                ]
+            },
+        }
+        items = _get_all_low_confidence_items(state)
+        assert len(items) == 1
+        assert items[0].name == "Burger"
+
+    @pytest.mark.asyncio
+    async def test_generate_clarification_includes_all_items_with_mandatory(self):
+        """generate_clarification should include all items when mandatory_clarification=True."""
+        state = {
+            "nutritional_data": {
+                "items": [
+                    {"name": "Burger", "quantity": "1", "confidence": 0.95, "calories": 500},
+                    {"name": "Melk", "quantity": "1 glas", "confidence": 0.9, "calories": 120},
+                ]
+            },
+            "clarification_count": 0,
+            "mandatory_clarification": True,
+        }
+
+        mock_question = ClarificationQuestion(
+            question="What kind of burger?", options=["Beef", "Veggie"]
+        )
+
+        with patch(
+            "app.agent.nodes.llm_service.generate_clarification_question",
+            new_callable=AsyncMock,
+            return_value=mock_question,
+        ) as mock_gen:
+            result = await generate_clarification(state)
+            assert result["needs_clarification"] is True
+
+            # Verify BOTH items were passed (not just the low-confidence one)
+            call_args = mock_gen.call_args
+            items_passed = call_args.kwargs["low_confidence_items"]
+            assert len(items_passed) == 2
