@@ -406,7 +406,7 @@ async def _analyze_google(
                 system_instruction=system_instruction,
                 response_mime_type="application/json",
                 response_schema=_clean_schema_for_google(AnalysisResult.model_json_schema()),
-                max_output_tokens=2048,
+                max_output_tokens=8192,
             ),
         )
         return AnalysisResult.model_validate_json(response.text)
@@ -596,6 +596,10 @@ async def generate_clarification_question(
     provider: str | None = None,
     model: str | None = None,
     dominant_factor: str | None = None,  # [NEW]
+    image_url: str | None = None,
+    transcript: str | None = None,
+    context: str | None = None,
+    user_token: str | None = None,
 ) -> ClarificationQuestion:
     """
     Generate a clarification question for low-confidence food items.
@@ -655,11 +659,26 @@ async def generate_clarification_question(
         "Generate a simple clarification question to help identify them better."
     )
 
+    # Process image if provided
+    final_media_url = image_url
+    if image_url:
+        final_media_url = await _get_media_content(image_url, user_token)
+
     if provider == "openai":
         # Explicit OpenAI path
+        user_content = []
+        if context:
+            user_content.append({"type": "text", "text": f"Context/Clarification: {context}"})
+        if transcript:
+            user_content.append({"type": "text", "text": f"User Input: {transcript}"})
+        if final_media_url:
+            user_content.append({"type": "image_url", "image_url": {"url": final_media_url}})
+
+        user_content.append({"type": "text", "text": user_prompt})
+
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
+            {"role": "user", "content": user_content},
         ]
 
         try:
@@ -679,12 +698,17 @@ async def generate_clarification_question(
             )
 
     # Default to Google Gemini
-    return await _generate_google_clarification(system_prompt, user_prompt, language, model)
+    return await _generate_google_clarification(
+        system_prompt, user_prompt, final_media_url, transcript, context, language, model
+    )
 
 
 async def _generate_google_clarification(
     system_prompt: str,
     user_prompt: str,
+    media_data_uri: str | None,
+    transcript: str | None,
+    context: str | None,
     language: str,
     model_name: str | None,
 ) -> ClarificationQuestion:
@@ -692,10 +716,26 @@ async def _generate_google_clarification(
     client = _get_google_client()
     model_id = model_name or settings.GOOGLE_MODEL_NAME
 
+    contents = []
+    if context:
+        contents.append(f"Context: {context}")
+    if transcript:
+        contents.append(f"Transcript: {transcript}")
+
+    if media_data_uri and media_data_uri.startswith("data:"):
+        import base64
+
+        header, encoded = media_data_uri.split(",", 1)
+        mime_type = header.split(";")[0].split(":")[1]
+        data_bytes = base64.b64decode(encoded)
+        contents.append(types.Part.from_bytes(data=data_bytes, mime_type=mime_type))
+
+    contents.append(user_prompt)
+
     try:
         response = await client.aio.models.generate_content(
             model=model_id,
-            contents=[user_prompt],
+            contents=contents,
             config=types.GenerateContentConfig(
                 system_instruction=system_prompt,
                 response_mime_type="application/json",

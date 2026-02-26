@@ -433,7 +433,13 @@ async def generate_clarification(state: AgentState) -> dict:
 
     if low_confidence_items:
         await llm_service.generate_clarification_question(
-            low_confidence_items, provider=state.get("provider"), model=state.get("model")
+            low_confidence_items=low_confidence_items,
+            provider=state.get("provider"),
+            model=state.get("model"),
+            image_url=state.get("image_url"),
+            transcript=state.get("transcript"),
+            context=state.get("context"),
+            user_token=state.get("user_token"),
         )
         return {
             "needs_clarification": True,
@@ -472,7 +478,14 @@ async def generate_clarification_streaming(
     if low_confidence_items and log_id:
         try:
             question = await llm_service.generate_clarification_question(
-                low_confidence_items, language, provider=state.get("provider"), model=state.get("model")
+                low_confidence_items=low_confidence_items,
+                language=language,
+                provider=state.get("provider"),
+                model=state.get("model"),
+                image_url=state.get("image_url"),
+                transcript=state.get("transcript"),
+                context=state.get("context"),
+                user_token=state.get("user_token"),
             )
 
             # Update log status to clarification in database
@@ -549,7 +562,14 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
 
     try:
         await llm_service.generate_clarification_question(
-            target_food_items, language, provider=state.get("provider"), model=state.get("model")
+            low_confidence_items=target_food_items,
+            language=language,
+            provider=state.get("provider"),
+            model=state.get("model"),
+            image_url=state.get("image_url"),
+            transcript=state.get("transcript"),
+            context=state.get("context"),
+            user_token=state.get("user_token"),
         )
 
         if log_id:
@@ -623,7 +643,14 @@ async def generate_semantic_clarification_streaming(
         target_food_items = [item for item in all_items if item.name in unbounded_items]
 
         question = await llm_service.generate_clarification_question(
-            target_food_items, language, provider=state.get("provider"), model=state.get("model")
+            low_confidence_items=target_food_items,
+            language=language,
+            provider=state.get("provider"),
+            model=state.get("model"),
+            image_url=state.get("image_url"),
+            transcript=state.get("transcript"),
+            context=state.get("context"),
+            user_token=state.get("user_token"),
         )
 
         if log_id:
