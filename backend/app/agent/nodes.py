@@ -339,7 +339,7 @@ async def analyze_input_streaming(
 
         # Wait for final result
         result = await analysis_task
-        
+
         # Calculate deterministic complexity score
         _enrich_with_complexity(result)
 
@@ -554,7 +554,7 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
 
         if log_id:
             try:
-                async with async_session_maker() as session:
+                async with database.async_session_maker() as session:
                     result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                     log_entry = result.scalar_one_or_none()
                     if log_entry:
@@ -627,7 +627,7 @@ async def generate_semantic_clarification_streaming(
         )
 
         if log_id:
-            async with async_session_maker() as session:
+            async with database.async_session_maker() as session:
                 result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
                 if log_entry:

@@ -46,6 +46,7 @@ async def test_analyze_input_calculates_complexity():
             mock_registry.lookup.return_value = "high_risk_class"
 
             mock_profile = RiskProfile(
+                name="high_risk_class",
                 weights={"ingredients": 0.5, "prep": 0.5, "volume": 0.5},
                 semantic_penalty=0.1,
                 mandatory_clarification=False,
@@ -66,13 +67,12 @@ async def test_analyze_input_calculates_complexity():
             # L_i=2, L_p=2, L_v=0
             # w=0.5
             # C = 0.5*(2^2) + 0.5*(2^2) + 0 + 0.1 = 0.5*4 + 0.5*4 + 0.1 = 2.0 + 2.0 + 0.1 = 4.1
-            # Capped at 1.0
 
             assert "complexity_breakdown" in result
             breakdown = result["complexity_breakdown"]
 
-            assert breakdown.score == 1.0
-            assert result["complexity_score"] == 1.0
+            assert breakdown.score == 4.1
+            assert result["complexity_score"] == 4.1
             assert breakdown.dominant_factor == "ingredients" or breakdown.dominant_factor == "prep"
 
             # Verify weights were populated from registry
@@ -134,6 +134,7 @@ async def test_analyze_input_uses_default_profile_when_no_registry_match():
     )
 
     default_profile = RiskProfile(
+        name="default",
         weights={"ingredients": 0.1, "prep": 0.1, "volume": 0.1},
         semantic_penalty=0.0,
         mandatory_clarification=False,

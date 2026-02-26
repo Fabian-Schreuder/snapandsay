@@ -190,15 +190,15 @@ class TestFinalProbe:
 
     @pytest.mark.asyncio
     async def test_triggers_when_complex_and_inconclusive(self):
-        """Should trigger when complexity_score > 0.7 and items still low confidence."""
-        state = _make_state(complexity_score=0.8)
+        """Should trigger when complexity_score > threshold and items still low confidence."""
+        state = _make_state(complexity_score=16.0)
         result = await final_probe(state)
         assert result["needs_clarification"] is True
 
     @pytest.mark.asyncio
     async def test_skips_when_low_complexity(self):
-        """Should skip when complexity_score <= 0.7."""
-        state = _make_state(complexity_score=0.3)
+        """Should skip when complexity_score <= threshold."""
+        state = _make_state(complexity_score=14.0)
         result = await final_probe(state)
         assert result["needs_clarification"] is False
 
@@ -206,7 +206,7 @@ class TestFinalProbe:
     async def test_skips_when_all_items_resolved(self):
         """Should skip when all items are above threshold (not inconclusive)."""
         state = _make_state(
-            complexity_score=0.9,
+            complexity_score=16.0,
             items=[{"name": "Apple", "quantity": "1", "calories": 80, "confidence": 0.95}],
         )
         result = await final_probe(state)
@@ -312,7 +312,7 @@ class TestFinalProbeStreaming:
         from uuid import uuid4
 
         log_id = uuid4()
-        state = _make_state(complexity_score=0.8, log_id=log_id)
+        state = _make_state(complexity_score=16.0, log_id=log_id)
 
         events = []
         async for item in final_probe_streaming(state):
@@ -325,7 +325,7 @@ class TestFinalProbeStreaming:
     @pytest.mark.asyncio
     async def test_silent_when_not_triggered(self):
         """Should yield only state update when conditions not met."""
-        state = _make_state(complexity_score=0.3)
+        state = _make_state(complexity_score=14.0)
 
         events = []
         async for item in final_probe_streaming(state):

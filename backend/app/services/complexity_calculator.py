@@ -30,8 +30,8 @@ def calculate_complexity(ambiguity_levels: AmbiguityLevels, risk_profile: RiskPr
     sum_weighted_squares = sum(contributions.values())
     raw_score = sum_weighted_squares + risk_profile.semantic_penalty
 
-    # 3. Cap score at 1.0
-    final_score = min(raw_score, 1.0)
+    # 3. Final score is the sum of weighted contributions and semantic penalty
+    final_score = raw_score
 
     # 4. Determine dominant factor (the dimension with the largest w·L² contribution).
     # Only considers the 3 ambiguity dimensions, not the semantic penalty.

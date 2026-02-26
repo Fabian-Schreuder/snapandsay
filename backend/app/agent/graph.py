@@ -12,7 +12,6 @@ from app.agent.constants import (
     ANALYZE_INPUT,
     FINALIZE_LOG,
     GENERATE_SEMANTIC_CLARIFICATION,
-    MAX_CLARIFICATIONS,
     SEMANTIC_GATEKEEPER,
 )
 from app.agent.nodes import (

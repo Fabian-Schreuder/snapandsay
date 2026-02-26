@@ -44,9 +44,8 @@ def route_by_confidence(state: AgentState) -> str:
         return AMPM_ENTRY
 
     # 2. Clinical Threshold Override
-    # Score range: 0.0-1.0.  Default threshold 15.0 effectively disables
-    # clinical routing for standard users (score can never exceed 1.0).
-    # Diabetic profile example: threshold=0.5, score=0.8 → triggers AMPM.
+    # Score range: 0.0-~32.0. Default threshold 15.0 triggers AMPM for complex/ambiguous foods.
+    # Diabetic profile example: threshold=5.0, score=8.0 → triggers AMPM.
     score = state.get("complexity_score", 0.0)
     threshold = state.get("clinical_threshold", 15.0)
 
