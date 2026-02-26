@@ -152,10 +152,6 @@ async def analyze_input(state: AgentState) -> dict:
                 result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
                 if log_entry:
-                    if log_entry.description:
-                        context = log_entry.description
-                        logger.info(f"Using context from log {log_id}: {context[:50]}...")
-
                     if log_entry.transcript and not transcript:
                         transcript = log_entry.transcript
                         logger.info(f"Using persisted transcript for log {log_id}: {transcript}")
@@ -170,6 +166,17 @@ async def analyze_input(state: AgentState) -> dict:
                     if log_entry.ampm_data:
                         state["ampm_data"] = log_entry.ampm_data
                         logger.info(f"Loaded ampm_data for log {log_id}")
+
+                        # Build context from previous Q&A pairs
+                        qas = []
+                        questions = log_entry.ampm_data.get("questions_asked", [])
+                        responses = log_entry.ampm_data.get("responses", [])
+                        for q, r in zip(questions, responses, strict=False):
+                            qas.append(f"Q: {q}\nA: {r}")
+
+                        if qas:
+                            context = "\n".join(qas)
+                            logger.info(f"Using context from ampm_data for log {log_id}: {context[:50]}...")
         except Exception as e:
             logger.warning(f"Failed to fetch log data from DB: {e}")
 
@@ -247,10 +254,6 @@ async def analyze_input_streaming(
                 result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
                 if log_entry:
-                    if log_entry.description:
-                        context = log_entry.description
-                        logger.info(f"Using context from log {log_id}: {context[:50]}...")
-
                     if log_entry.transcript and not transcript:
                         transcript = log_entry.transcript
                         logger.info(f"Using persisted transcript for log {log_id}: {transcript}")
@@ -265,6 +268,17 @@ async def analyze_input_streaming(
                     if log_entry.ampm_data:
                         state["ampm_data"] = log_entry.ampm_data
                         logger.info(f"Loaded ampm_data for log {log_id}")
+
+                        # Build context from previous Q&A pairs
+                        qas = []
+                        questions = log_entry.ampm_data.get("questions_asked", [])
+                        responses = log_entry.ampm_data.get("responses", [])
+                        for q, r in zip(questions, responses, strict=False):
+                            qas.append(f"Q: {q}\nA: {r}")
+
+                        if qas:
+                            context = "\n".join(qas)
+                            logger.info(f"Using context from ampm_data for log {log_id}: {context[:50]}...")
         except Exception as e:
             logger.warning(f"Failed to fetch log data from DB: {e}")
 

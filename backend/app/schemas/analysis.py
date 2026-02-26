@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Literal, Self
 from uuid import UUID
 
 from pydantic import BaseModel, Field, model_validator
@@ -53,7 +53,9 @@ class AnalysisResult(BaseModel):
 
     title: str = Field(..., description="Short, descriptive title of the meal (e.g. 'Roasted Cashews')")
     items: list[FoodItem] = Field(..., description="List of identified food items")
-    meal_type: str | None = Field(None, description="Type of meal (e.g., Breakfast, Lunch, Dinner, Snack)")
+    meal_type: Literal["breakfast", "lunch", "dinner", "snack"] | None = Field(
+        None, description="Type of meal (breakfast, lunch, dinner, snack)"
+    )
     synthesis_comment: str = Field(..., description="Overall summary or analysis comment")
 
     # Validation

@@ -127,13 +127,12 @@ async def detail_cycle(state: AgentState) -> dict:
         new_clarification_count = clarification_count + 1
 
         # Update AMPM tracking data
-        ampm_data = state.get("ampm_data") or {
-            "low_confidence_items": [],
-            "questions_asked": [],
-            "responses": [],
-            "pass_count": 0,
-        }
+        ampm_data = state.get("ampm_data") or {}
         ampm_data = dict(ampm_data)  # Make mutable copy
+        ampm_data.setdefault("low_confidence_items", [])
+        ampm_data.setdefault("questions_asked", [])
+        ampm_data.setdefault("responses", [])
+        ampm_data.setdefault("pass_count", 0)
         ampm_data["low_confidence_items"] = [item.name for item in low_items]
         for q in question_set.questions:
             ampm_data["questions_asked"].append(q.question)
@@ -214,13 +213,12 @@ async def detail_cycle_streaming(
         new_clarification_count = clarification_count + 1
 
         # Update AMPM tracking data
-        ampm_data = state.get("ampm_data") or {
-            "low_confidence_items": [],
-            "questions_asked": [],
-            "responses": [],
-            "pass_count": 0,
-        }
+        ampm_data = state.get("ampm_data") or {}
         ampm_data = dict(ampm_data)  # Make mutable copy
+        ampm_data.setdefault("low_confidence_items", [])
+        ampm_data.setdefault("questions_asked", [])
+        ampm_data.setdefault("responses", [])
+        ampm_data.setdefault("pass_count", 0)
         ampm_data["low_confidence_items"] = [item.name for item in low_items]
         for q in question_set.questions:
             ampm_data["questions_asked"].append(q.question)

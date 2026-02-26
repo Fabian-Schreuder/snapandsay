@@ -137,14 +137,9 @@ async def submit_clarification_response(
             item_label = resp.item_name or f"item {i + 1}"
             all_qa_parts.append(f"[{item_label}]: {clarification_text}")
 
-    # Combine all Q/A pairs into one context block
-    formatted_clarification = "\n".join(all_qa_parts)
+    # The clarification responses are now only stored in ampm_data below
 
-    # Store the clarification responses
-    if log.description:
-        log.description = f"{log.description}\n{formatted_clarification}"
-    else:
-        log.description = formatted_clarification
+    # The clarification responses are now only stored in ampm_data below
 
     # Append to ampm_data responses
     if log.ampm_data:
