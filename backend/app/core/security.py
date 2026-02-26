@@ -12,6 +12,7 @@ class UserContext(BaseModel):
     role: str
     email: str | None = None
     app_metadata: dict | None = None
+    token: str | None = None  # Raw JWT for downstream service calls (e.g. Supabase Storage)
 
 
 # Cache for PyJWKClient to avoid fetching keys on every request

@@ -26,6 +26,7 @@ from app.schemas.sse import (
     AgentError,
     AgentResponse,
     AgentThought,
+    ClarificationItem,
     SSEEvent,
 )
 from app.services import llm_service, semantic_gatekeeper, voice_service
@@ -516,7 +517,7 @@ async def generate_clarification_streaming(
 
     if low_confidence_items and log_id:
         try:
-            question = await llm_service.generate_clarification_question(
+            question_set = await llm_service.generate_clarification_question(
                 low_confidence_items=low_confidence_items,
                 language=language,
                 provider=state.get("provider"),
@@ -541,12 +542,18 @@ async def generate_clarification_streaming(
                 "items": [{"name": item.name, "confidence": item.confidence} for item in low_confidence_items]
             }
 
-            # Emit clarification event
+            # Emit clarification event with all questions
             yield SSEEvent(
                 type=EVENT_CLARIFICATION,
                 payload=AgentClarification(
-                    question=question.question,
-                    options=question.options,
+                    questions=[
+                        ClarificationItem(
+                            item_name=q.item_name,
+                            question=q.question,
+                            options=q.options,
+                        )
+                        for q in question_set.questions
+                    ],
                     context=context,
                     log_id=log_id,
                 ),
@@ -606,7 +613,7 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
     target_food_items = [item for item in all_items if item.name in askable_unbounded]
 
     try:
-        question = await llm_service.generate_clarification_question(
+        question_set = await llm_service.generate_clarification_question(
             low_confidence_items=target_food_items,
             language=language,
             provider=state.get("provider"),
@@ -625,7 +632,8 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
         if "low_confidence_items" not in ampm_data:
             ampm_data["low_confidence_items"] = []
 
-        ampm_data["questions_asked"].append(question.question)
+        for q in question_set.questions:
+            ampm_data["questions_asked"].append(q.question)
         for item in askable_unbounded:
             if item not in ampm_data["low_confidence_items"]:
                 ampm_data["low_confidence_items"].append(item)
@@ -697,7 +705,7 @@ async def generate_semantic_clarification_streaming(
         all_items = [FoodItem(**item) for item in nutritional_data.get("items", [])]
         target_food_items = [item for item in all_items if item.name in askable_unbounded]
 
-        question = await llm_service.generate_clarification_question(
+        question_set = await llm_service.generate_clarification_question(
             low_confidence_items=target_food_items,
             language=language,
             provider=state.get("provider"),
@@ -716,7 +724,8 @@ async def generate_semantic_clarification_streaming(
         if "low_confidence_items" not in ampm_data:
             ampm_data["low_confidence_items"] = []
 
-        ampm_data["questions_asked"].append(question.question)
+        for q in question_set.questions:
+            ampm_data["questions_asked"].append(q.question)
         for item in askable_unbounded:
             if item not in ampm_data["low_confidence_items"]:
                 ampm_data["low_confidence_items"].append(item)
@@ -736,14 +745,20 @@ async def generate_semantic_clarification_streaming(
 
         context = {
             "items": [{"name": item.name, "confidence": item.confidence} for item in target_food_items],
-            "type": "semantic",  # context marker
+            "type": "semantic",
         }
 
         yield SSEEvent(
             type=EVENT_CLARIFICATION,
             payload=AgentClarification(
-                question=question.question,
-                options=question.options,
+                questions=[
+                    ClarificationItem(
+                        item_name=q.item_name,
+                        question=q.question,
+                        options=q.options,
+                    )
+                    for q in question_set.questions
+                ],
                 context=context,
                 log_id=log_id,
             ),

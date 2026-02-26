@@ -17,7 +17,7 @@ from app.agent.nodes import (
 from app.agent.state import AgentState
 from app.schemas.analysis import AnalysisResult, FoodItem
 from app.schemas.sse import SSEEvent
-from app.services.llm_service import ClarificationQuestion
+from app.services.llm_service import ClarificationQuestion, ClarificationQuestionSet
 
 
 @pytest.mark.asyncio
@@ -151,14 +151,18 @@ class TestGenerateClarification:
             "clarification_count": 0,
         }
 
-        mock_question = ClarificationQuestion(
-            question="What kind of dressing?", options=["Ranch", "Italian", "None"]
+        mock_question_set = ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="Salad", question="What kind of dressing?", options=["Ranch", "Italian", "None"]
+                )
+            ]
         )
 
         with patch(
             "app.agent.nodes.llm_service.generate_clarification_question", new_callable=AsyncMock
         ) as mock_gen:
-            mock_gen.return_value = mock_question
+            mock_gen.return_value = mock_question_set
             result = await generate_clarification(state)
 
             assert result["needs_clarification"] is True
@@ -204,8 +208,14 @@ class TestGenerateClarificationStreaming:
             "log_id": log_id,
         }
 
-        mock_question = ClarificationQuestion(
-            question="What type of food is this?", options=["Pasta", "Rice", "Other"]
+        mock_question_set = ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="Mystery dish",
+                    question="What type of food is this?",
+                    options=["Pasta", "Rice", "Other"],
+                )
+            ]
         )
 
         mock_log = MagicMock()
@@ -215,7 +225,7 @@ class TestGenerateClarificationStreaming:
             patch(
                 "app.agent.nodes.llm_service.generate_clarification_question",
                 new_callable=AsyncMock,
-                return_value=mock_question,
+                return_value=mock_question_set,
             ),
             patch("app.agent.nodes.database.async_session_maker") as mock_session_maker,
         ):
@@ -241,7 +251,7 @@ class TestGenerateClarificationStreaming:
                 e for e in events if isinstance(e, SSEEvent) and e.type == "agent.clarification"
             ]
             assert len(clarification_events) == 1
-            assert clarification_events[0].payload.question == "What type of food is this?"
+            assert clarification_events[0].payload.questions[0].question == "What type of food is this?"
 
             # Check DB status was updated
             assert mock_log.status == "clarification"
@@ -450,14 +460,20 @@ class TestSemanticClarificationDedup:
             },
         }
 
-        mock_question = ClarificationQuestion(
-            question="Wat voor soort melk drinkt u?", options=["Volle melk", "Halfvolle melk", "Magere melk"]
+        mock_question_set = ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="Glas melk",
+                    question="Wat voor soort melk drinkt u?",
+                    options=["Volle melk", "Halfvolle melk", "Magere melk"],
+                )
+            ]
         )
 
         with patch(
             "app.agent.nodes.llm_service.generate_clarification_question",
             new_callable=AsyncMock,
-            return_value=mock_question,
+            return_value=mock_question_set,
         ) as mock_gen:
             result = await generate_semantic_clarification(state)
 
@@ -518,12 +534,18 @@ class TestGetAllLowConfidenceItems:
             "mandatory_clarification": True,
         }
 
-        mock_question = ClarificationQuestion(question="What kind of burger?", options=["Beef", "Veggie"])
+        mock_question_set = ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="Burger", question="What kind of burger?", options=["Beef", "Veggie"]
+                )
+            ]
+        )
 
         with patch(
             "app.agent.nodes.llm_service.generate_clarification_question",
             new_callable=AsyncMock,
-            return_value=mock_question,
+            return_value=mock_question_set,
         ) as mock_gen:
             result = await generate_clarification(state)
             assert result["needs_clarification"] is True

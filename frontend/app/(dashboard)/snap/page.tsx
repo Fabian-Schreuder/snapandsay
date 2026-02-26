@@ -244,9 +244,8 @@ export default function SnapPage() {
       {/* Clarification Prompt */}
       {clarification && (
         <ClarificationPrompt
-          question={clarification.question}
-          options={clarification.options}
-          onSubmit={submitClarificationResponse}
+          questions={clarification.questions}
+          onSubmitAll={submitClarificationResponse}
           onSkip={skipClarification}
         />
       )}

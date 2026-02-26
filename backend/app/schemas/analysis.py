@@ -85,8 +85,20 @@ class AnalysisResult(BaseModel):
         return sum(item.confidence for item in self.items) / len(self.items)
 
 
-class ClarifyRequest(BaseModel):
-    """Request body for clarification response endpoint."""
+class ClarifyResponse(BaseModel):
+    """A single clarification answer for one food item."""
 
+    item_name: str = Field(default="", description="Name of the food item this response is for")
     response: str = Field(..., description="User's clarification response text")
     is_voice: bool = Field(default=False, description="Whether response came from voice input")
+    audio_path: str | None = Field(
+        default=None, description="Supabase Storage path for voice audio to transcribe"
+    )
+
+
+class ClarifyRequest(BaseModel):
+    """Request body for clarification response endpoint (supports batch)."""
+
+    responses: list[ClarifyResponse] = Field(
+        ..., description="List of clarification responses (one per question)"
+    )

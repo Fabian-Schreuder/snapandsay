@@ -12,7 +12,7 @@ from app.agent.ampm_nodes import (
     final_probe_streaming,
 )
 from app.schemas.sse import SSEEvent
-from app.services.llm_service import ClarificationQuestion
+from app.services.llm_service import ClarificationQuestion, ClarificationQuestionSet
 
 # --- Helper fixtures ---
 
@@ -108,15 +108,21 @@ class TestDetailCycle:
     @pytest.mark.asyncio
     async def test_generates_question_for_low_confidence(self):
         """Should generate a clarification question when low-confidence items exist."""
-        mock_question = ClarificationQuestion(
-            question="Was the dish fried or grilled?", options=["Fried", "Grilled"]
+        mock_question_set = ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="Mystery Dish",
+                    question="Was the dish fried or grilled?",
+                    options=["Fried", "Grilled"],
+                )
+            ]
         )
         state = _make_state()
 
         with patch(
             "app.agent.ampm_nodes.llm_service.generate_clarification_question",
             new_callable=AsyncMock,
-            return_value=mock_question,
+            return_value=mock_question_set,
         ):
             result = await detail_cycle(state)
 
@@ -170,12 +176,18 @@ class TestDetailCycle:
         state = _make_state()
         state["complexity_breakdown"] = complexity_breakdown
 
-        mock_question = ClarificationQuestion(question="How was it prepared?", options=["Fried", "Grilled"])
+        mock_question_set = ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="Mystery Dish", question="How was it prepared?", options=["Fried", "Grilled"]
+                )
+            ]
+        )
 
         with patch(
             "app.agent.ampm_nodes.llm_service.generate_clarification_question",
             new_callable=AsyncMock,
-            return_value=mock_question,
+            return_value=mock_question_set,
         ) as mock_generate:
             await detail_cycle(state)
 
@@ -225,14 +237,20 @@ class TestDetailCycleStreaming:
     @pytest.mark.asyncio
     async def test_emits_thought_event(self):
         """Should emit a thought event at the start."""
-        mock_question = ClarificationQuestion(question="How was it prepared?", options=["Fried", "Baked"])
+        mock_question_set = ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="Mystery Dish", question="How was it prepared?", options=["Fried", "Baked"]
+                )
+            ]
+        )
         state = _make_state()
 
         events = []
         with patch(
             "app.agent.ampm_nodes.llm_service.generate_clarification_question",
             new_callable=AsyncMock,
-            return_value=mock_question,
+            return_value=mock_question_set,
         ):
             async for item in detail_cycle_streaming(state):
                 events.append(item)
@@ -288,12 +306,18 @@ class TestDetailCycleStreaming:
         )
         state = _make_state(log_id=uuid4(), complexity_breakdown=complexity_breakdown)
 
-        mock_question = ClarificationQuestion(question="How much did you have?", options=["A cup", "A bowl"])
+        mock_question_set = ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="Mystery Dish", question="How much did you have?", options=["A cup", "A bowl"]
+                )
+            ]
+        )
 
         with patch(
             "app.agent.ampm_nodes.llm_service.generate_clarification_question",
             new_callable=AsyncMock,
-            return_value=mock_question,
+            return_value=mock_question_set,
         ) as mock_generate:
             events = []
             async for item in detail_cycle_streaming(state):

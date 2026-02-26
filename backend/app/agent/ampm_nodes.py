@@ -31,6 +31,7 @@ from app.schemas.sse import (
     AgentClarification,
     AgentError,
     AgentThought,
+    ClarificationItem,
     SSEEvent,
 )
 from app.services import llm_service
@@ -113,7 +114,7 @@ async def detail_cycle(state: AgentState) -> dict:
         complexity_breakdown = state.get("complexity_breakdown")
         dominant_factor = complexity_breakdown.dominant_factor if complexity_breakdown else None
 
-        question = await llm_service.generate_clarification_question(
+        question_set = await llm_service.generate_clarification_question(
             askable_items,
             language=state.get("language", "nl") or "nl",
             provider=state.get("provider"),
@@ -134,7 +135,8 @@ async def detail_cycle(state: AgentState) -> dict:
         }
         ampm_data = dict(ampm_data)  # Make mutable copy
         ampm_data["low_confidence_items"] = [item.name for item in low_items]
-        ampm_data["questions_asked"].append(question.question)
+        for q in question_set.questions:
+            ampm_data["questions_asked"].append(q.question)
         ampm_data["pass_count"] += 1
 
         if log_id:
@@ -200,7 +202,7 @@ async def detail_cycle_streaming(
         complexity_breakdown = state.get("complexity_breakdown")
         dominant_factor = complexity_breakdown.dominant_factor if complexity_breakdown else None
 
-        question = await llm_service.generate_clarification_question(
+        question_set = await llm_service.generate_clarification_question(
             askable_items,
             language=language,
             provider=state.get("provider"),
@@ -220,7 +222,8 @@ async def detail_cycle_streaming(
         }
         ampm_data = dict(ampm_data)  # Make mutable copy
         ampm_data["low_confidence_items"] = [item.name for item in low_items]
-        ampm_data["questions_asked"].append(question.question)
+        for q in question_set.questions:
+            ampm_data["questions_asked"].append(q.question)
         ampm_data["pass_count"] += 1
 
         if log_id:
@@ -242,8 +245,14 @@ async def detail_cycle_streaming(
             yield SSEEvent(
                 type=EVENT_CLARIFICATION,
                 payload=AgentClarification(
-                    question=question.question,
-                    options=question.options,
+                    questions=[
+                        ClarificationItem(
+                            item_name=q.item_name,
+                            question=q.question,
+                            options=q.options,
+                        )
+                        for q in question_set.questions
+                    ],
                     context=context,
                     log_id=log_id,
                 ),
@@ -330,8 +339,13 @@ async def final_probe_streaming(
                 yield SSEEvent(
                     type=EVENT_CLARIFICATION,
                     payload=AgentClarification(
-                        question=get_message("final_probe", language),
-                        options=[],
+                        questions=[
+                            ClarificationItem(
+                                item_name="meal",
+                                question=get_message("final_probe", language),
+                                options=[],
+                            )
+                        ],
                         context={"type": "final_probe"},
                         log_id=log_id,
                     ),

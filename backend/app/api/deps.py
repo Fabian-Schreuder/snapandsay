@@ -30,6 +30,7 @@ async def get_current_user(
         )
     try:
         user_ctx = verify_token(token)
+        user_ctx.token = token  # Preserve raw JWT for downstream service calls
 
         # Ensure user exists in local database (sync with Supabase Auth)
         # This prevents ForeignKeyViolationError in log tables
