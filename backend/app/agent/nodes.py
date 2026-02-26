@@ -11,12 +11,11 @@ from app.agent.constants import (
     EVENT_ERROR,
     EVENT_RESPONSE,
     EVENT_THOUGHT,
+    MAX_CLARIFICATIONS,
     STEP_ANALYZING,
     STEP_CLARIFYING,
     STEP_FINALIZING,
-    STEP_FINALIZING,
     STEP_SEMANTIC_CHECK,
-    MAX_CLARIFICATIONS,
     get_message,
 )
 from app.agent.state import AgentState

@@ -75,8 +75,7 @@ class FoodClassRegistry:
         """
         Looks up a food name in the registry (case-insensitive).
         Returns the canonical class key if found, else None.
-        Should handle partial matching or lemmatization in future,
-        currently does exact match on aliases.
+        Handles exact matches, and compound words / plurals using regex.
         """
         if not food_name:
             return None
@@ -87,17 +86,19 @@ class FoodClassRegistry:
         if normalized_name in self._alias_map:
             return self._alias_map[normalized_name]
 
-        # Check if any alias is a substring of the food name (simple fuzzy match)
-        # e.g. "vegan burger" contains "burger"
-        # We prioritize longer matches (e.g. "cheeseburger" over "burger" if both exist)
-        # But here we just check if a known alias is part of the name
-
-        # Sort aliases by length descending to match specificity first
+        # Use regex to find if any alias is the base word (suffix) of the item.
+        # This handles compound words (e.g. "runderburger" ending in "burger", "sojamelk" ending in "melk")
+        # and plurals/diminutives ("burgers", "broodje").
+        # We sort aliases by length descending to match specificity first
+        # (e.g. "cheeseburger" before "burger").
         sorted_aliases = sorted(self._alias_map.keys(), key=len, reverse=True)
+
+        import re
+
         for alias in sorted_aliases:
-            # Check for word boundary match to avoid false positives (e.g. "ham" in "hamburger")
-            # For simplicity in MVP, just checking substring with spaces or exact bounds
-            if f" {alias} " in f" {normalized_name} ":
+            # Pattern: alias followed by optional plural/diminutive endings, at a word boundary
+            pattern = r"(?i)" + re.escape(alias) + r"(s|en|je|jes)?\b"
+            if re.search(pattern, normalized_name):
                 return self._alias_map[alias]
 
         return None
