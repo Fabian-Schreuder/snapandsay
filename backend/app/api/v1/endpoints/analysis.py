@@ -98,11 +98,31 @@ async def submit_clarification_response(
         # but we could add server-side transcription here if needed
         pass
 
-    # Store the clarification response (could be appended to description or a new field)
+    # Fetch question if ampm_data exists
+    last_question = ""
+    if log.ampm_data and "questions_asked" in log.ampm_data and log.ampm_data["questions_asked"]:
+        last_question = log.ampm_data["questions_asked"][-1]
+
+    formatted_clarification = (
+        f"Q: {last_question}\nA: {clarification_text}"
+        if last_question
+        else f"[Clarification]: {clarification_text}"
+    )
+
+    # Store the clarification response
     if log.description:
-        log.description = f"{log.description}\n[Clarification]: {clarification_text}"
+        log.description = f"{log.description}\n{formatted_clarification}"
     else:
-        log.description = f"[Clarification]: {clarification_text}"
+        log.description = formatted_clarification
+
+    # Append to ampm_data responses
+    if log.ampm_data:
+        # copy dict to avoid SQLAlchemy JSONB issue where it doesn't detect mutation
+        ampm_data = dict(log.ampm_data)
+        if "responses" not in ampm_data:
+            ampm_data["responses"] = []
+        ampm_data["responses"].append(clarification_text)
+        log.ampm_data = ampm_data
 
     # Update status back to processing for re-analysis
     log.status = "processing"

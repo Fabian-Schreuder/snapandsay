@@ -26,6 +26,7 @@ def _make_state(
     complexity_breakdown=None,
     language="en",
     log_id=None,
+    clinical_threshold=15.0,
 ):
     """Create a minimal AgentState dict for testing."""
     if items is None:
@@ -55,6 +56,7 @@ def _make_state(
         "model": None,
         "is_food": True,
         "non_food_reason": None,
+        "clinical_threshold": clinical_threshold,
     }
 
 
@@ -206,7 +208,8 @@ class TestFinalProbe:
     async def test_skips_when_all_items_resolved(self):
         """Should skip when all items are above threshold (not inconclusive)."""
         state = _make_state(
-            complexity_score=16.0,
+            complexity_score=14.0,
+            clinical_threshold=15.0,
             items=[{"name": "Apple", "quantity": "1", "calories": 80, "confidence": 0.95}],
         )
         result = await final_probe(state)

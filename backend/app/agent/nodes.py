@@ -14,7 +14,9 @@ from app.agent.constants import (
     STEP_ANALYZING,
     STEP_CLARIFYING,
     STEP_FINALIZING,
+    STEP_FINALIZING,
     STEP_SEMANTIC_CHECK,
+    MAX_CLARIFICATIONS,
     get_message,
 )
 from app.agent.state import AgentState
@@ -551,8 +553,9 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
     unbounded_items = state.get("unbounded_items", [])
     language = state.get("language", "nl") or "nl"
     log_id = state.get("log_id")
+    clarification_count = state.get("clarification_count", 0)
 
-    if not unbounded_items:
+    if not unbounded_items or clarification_count >= MAX_CLARIFICATIONS:
         return {"semantic_interruption_needed": False}
 
     # Re-fetch items from nutritional data to get full objects
@@ -561,7 +564,7 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
     target_food_items = [item for item in all_items if item.name in unbounded_items]
 
     try:
-        await llm_service.generate_clarification_question(
+        question = await llm_service.generate_clarification_question(
             low_confidence_items=target_food_items,
             language=language,
             provider=state.get("provider"),
@@ -572,6 +575,19 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
             user_token=state.get("user_token"),
         )
 
+        new_clarification_count = clarification_count + 1
+        ampm_data = state.get("ampm_data", {}) or {}
+
+        if "questions_asked" not in ampm_data:
+            ampm_data["questions_asked"] = []
+        if "low_confidence_items" not in ampm_data:
+            ampm_data["low_confidence_items"] = []
+
+        ampm_data["questions_asked"].append(question.question)
+        for item in unbounded_items:
+            if item not in ampm_data["low_confidence_items"]:
+                ampm_data["low_confidence_items"].append(item)
+
         if log_id:
             try:
                 async with database.async_session_maker() as session:
@@ -579,8 +595,12 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
                     log_entry = result.scalar_one_or_none()
                     if log_entry:
                         log_entry.status = "clarification"
+                        log_entry.clarification_count = new_clarification_count
+                        log_entry.ampm_data = ampm_data
                         await session.commit()
-                        logger.info(f"Updated log {log_id} status to 'clarification'")
+                        logger.info(
+                            f"Updated log {log_id} status to 'clarification', count={new_clarification_count}"
+                        )
             except Exception as db_err:
                 logger.error(f"Failed to update log status: {db_err}")
 
@@ -588,6 +608,8 @@ async def generate_semantic_clarification(state: AgentState) -> dict:
         return {
             "semantic_interruption_needed": True,
             "needs_clarification": True,
+            "clarification_count": new_clarification_count,
+            "ampm_data": ampm_data,
             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
         }
 
@@ -605,8 +627,9 @@ async def generate_semantic_clarification_streaming(
     language = state.get("language", "nl") or "nl"
     unbounded_items = state.get("unbounded_items", [])
     log_id = state.get("log_id")
+    clarification_count = state.get("clarification_count", 0)
 
-    if not unbounded_items:
+    if not unbounded_items or clarification_count >= MAX_CLARIFICATIONS:
         yield {"semantic_interruption_needed": False}
         return
 
@@ -653,13 +676,31 @@ async def generate_semantic_clarification_streaming(
             user_token=state.get("user_token"),
         )
 
+        new_clarification_count = clarification_count + 1
+        ampm_data = state.get("ampm_data", {}) or {}
+
+        if "questions_asked" not in ampm_data:
+            ampm_data["questions_asked"] = []
+        if "low_confidence_items" not in ampm_data:
+            ampm_data["low_confidence_items"] = []
+
+        ampm_data["questions_asked"].append(question.question)
+        for item in unbounded_items:
+            if item not in ampm_data["low_confidence_items"]:
+                ampm_data["low_confidence_items"].append(item)
+
         if log_id:
             async with database.async_session_maker() as session:
                 result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
                 if log_entry:
                     log_entry.status = "clarification"
+                    log_entry.clarification_count = new_clarification_count
+                    log_entry.ampm_data = ampm_data
                     await session.commit()
+                    logger.info(
+                        f"Updated log {log_id} status to 'clarification', count={new_clarification_count}"
+                    )
 
         context = {
             "items": [{"name": item.name, "confidence": item.confidence} for item in target_food_items],
@@ -679,6 +720,8 @@ async def generate_semantic_clarification_streaming(
         yield {
             "semantic_interruption_needed": True,
             "needs_clarification": True,
+            "clarification_count": new_clarification_count,
+            "ampm_data": ampm_data,
             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
         }
 
