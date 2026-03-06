@@ -47,37 +47,41 @@ agent:
   critical_actions:
     - "Load COMPLETE file {project-root}/_bmad/_memory/dsr-writer-sidecar/memories.md"
     - "Load COMPLETE file {project-root}/_bmad/_memory/dsr-writer-sidecar/instructions.md"
-    - "ONLY read/write files in {project-root}/_bmad/_memory/dsr-writer-sidecar/"
+    - "Read/write files ONLY in {project-root}/_bmad/_memory/dsr-writer-sidecar/ AND {project-root}/docs/thesis/msc-thesis-phase2/drafts/"
     - "Scan {project-root}/docs/thesis/msc-thesis-phase2/references.bib to cache available DSR and clinical citations"
     - "Search {project-root}/docs/thesis/msc-thesis-phase2/ for existing Markdown drafts to assess current thesis progress"
+    - "Save ALL generated .md and .tex output files to {project-root}/docs/thesis/msc-thesis-phase2/drafts/"
+    - "After completing any drafting or conversion task, UPDATE {project-root}/_bmad/_memory/dsr-writer-sidecar/memories.md with: what was produced, file paths, user preferences noted, and current thesis progress"
 
   prompts:
     - id: draft-section
       content: |
-        <instructions>Draft a DSR thesis section (500-800 words) for a specified phase or subsection. Analyze the Snap and Say codebase to extract relevant artifacts. Output in Markdown. Follow clinical neutrality and audience calibration guidelines.</instructions>
+        <instructions>Draft a DSR thesis section (500-800 words) for a specified phase or subsection. Analyze the Snap and Say codebase to extract relevant artifacts. Output in Markdown. Follow clinical neutrality and audience calibration guidelines. Save the output file to {project-root}/docs/thesis/msc-thesis-phase2/drafts/.</instructions>
         <process>
         1. Identify the target DSR phase (Problem ID, Objectives, D&D, Demo, Evaluation, Communication)
         2. Navigate the codebase from entry points (graph.py, routing.py)
         3. Extract relevant design artifacts and map to DSR constructs
         4. Draft prose with clinical framing and proper citations
         5. Ensure code-to-prose traceability with inline references
+        6. Save the output .md file to {project-root}/docs/thesis/msc-thesis-phase2/drafts/
+        7. Update memories.md with what was produced and current thesis progress
         </process>
 
     - id: extract-artifacts
       content: |
-        <instructions>Analyze specified codebase modules to identify and catalogue DSR artifacts (constructs, models, methods, instantiations). Map each artifact to its DSR classification and clinical purpose.</instructions>
+        <instructions>Analyze specified codebase modules to identify and catalogue DSR artifacts (constructs, models, methods, instantiations). Map each artifact to its DSR classification and clinical purpose. Save the output catalogue to {project-root}/docs/thesis/msc-thesis-phase2/drafts/. Update memories.md with findings.</instructions>
 
     - id: convert-latex
       content: |
-        <instructions>Convert a Markdown draft section to publication-ready LaTeX. Apply proper formatting, integrate BibTeX citations from docs/thesis/msc-thesis-phase2/references.bib, and follow the thesis template structure.</instructions>
+        <instructions>Convert a Markdown draft section to publication-ready LaTeX. Apply proper formatting, integrate BibTeX citations from docs/thesis/msc-thesis-phase2/references.bib, and follow the thesis template structure. Save the output .tex file to {project-root}/docs/thesis/msc-thesis-phase2/drafts/. Update memories.md with what was converted.</instructions>
 
     - id: evaluate-section
       content: |
-        <instructions>Review a drafted section for DSR rigor, clinical accuracy, audience calibration, and traceability. Identify gaps, weak claims, and missing citations. Suggest specific improvements.</instructions>
+        <instructions>Review a drafted section for DSR rigor, clinical accuracy, audience calibration, and traceability. Identify gaps, weak claims, and missing citations. Suggest specific improvements. Update memories.md with review findings and recommendations.</instructions>
 
     - id: classify-contribution
       content: |
-        <instructions>Apply Gregor & Hevner's (2013) Knowledge Contribution framework to classify the paper's contribution type (Improvement, Invention, Exaptation, Routine Design). Provide rationale and suggest how to tailor claims accordingly.</instructions>
+        <instructions>Apply Gregor & Hevner's (2013) Knowledge Contribution framework to classify the paper's contribution type (Improvement, Invention, Exaptation, Routine Design). Provide rationale and suggest how to tailor claims accordingly. Update memories.md with classification outcome.</instructions>
 
   menu:
     - trigger: DS or fuzzy match on draft-section
