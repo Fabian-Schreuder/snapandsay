@@ -59,7 +59,7 @@ class OracleRunner:
     ) -> dict[str, Any]:
         """
         Orchestrates the benchmarking loop for a single dish.
-        Returns result dict including latency_seconds for timing.
+        Returns result dict including latency_seconds for timing and complexity metrics.
         """
         start_time = time.perf_counter()
 
@@ -118,6 +118,8 @@ class OracleRunner:
         final_log = None
         error_msg = None
         clarification_history = []
+        complexity_breakdown = None
+        complexity_score = None
 
         stream_payload = {
             "log_id": log_id,
@@ -198,6 +200,18 @@ class OracleRunner:
                             # Final result
                             final_log = data.get("nutritional_data")
                             status = data.get("status")
+
+                            # Extract complexity data from response payload
+                            complexity_breakdown = data.get("complexity_breakdown")
+                            if complexity_breakdown and not isinstance(complexity_breakdown, dict):
+                                logger.warning(
+                                    f"[{dish.dish_id}] Invalid complexity_breakdown format: "
+                                    f"{type(complexity_breakdown)}"
+                                )
+                                complexity_breakdown = None
+
+                            complexity_score = data.get("complexity_score")
+
                             logger.info(f"[{dish.dish_id}] Final Result: {status}")
                             # We can break here as we got the result
                             break
@@ -220,6 +234,8 @@ class OracleRunner:
             "error": error_msg,
             "log_id": log_id,
             "clarification_history": clarification_history,
+            "complexity_breakdown": complexity_breakdown,
+            "complexity_score": complexity_score,
         }
 
     async def _submit_answer(self, log_id: str, answer: str, headers: dict):

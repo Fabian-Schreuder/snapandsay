@@ -12,7 +12,7 @@ from app.agent.ampm_nodes import (
     final_probe_streaming,
 )
 from app.schemas.sse import SSEEvent
-from app.services.llm_service import ClarificationQuestion
+from app.services.llm_service import ClarificationQuestion, ClarificationQuestionSet
 
 # --- Helper fixtures ---
 
@@ -23,8 +23,10 @@ def _make_state(
     items=None,
     ampm_data=None,
     complexity_score=0.0,
+    complexity_breakdown=None,
     language="en",
     log_id=None,
+    clinical_threshold=15.0,
 ):
     """Create a minimal AgentState dict for testing."""
     if items is None:
@@ -45,6 +47,7 @@ def _make_state(
         "ampm_data": ampm_data,
         "current_pass": None,
         "complexity_score": complexity_score,
+        "complexity_breakdown": complexity_breakdown,
         "start_time": None,
         "agent_turn_count": 0,
         "language": language,
@@ -53,6 +56,7 @@ def _make_state(
         "model": None,
         "is_food": True,
         "non_food_reason": None,
+        "clinical_threshold": clinical_threshold,
     }
 
 
@@ -104,15 +108,21 @@ class TestDetailCycle:
     @pytest.mark.asyncio
     async def test_generates_question_for_low_confidence(self):
         """Should generate a clarification question when low-confidence items exist."""
-        mock_question = ClarificationQuestion(
-            question="Was the dish fried or grilled?", options=["Fried", "Grilled"]
+        mock_question_set = ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="Mystery Dish",
+                    question="Was the dish fried or grilled?",
+                    options=["Fried", "Grilled"],
+                )
+            ]
         )
         state = _make_state()
 
         with patch(
             "app.agent.ampm_nodes.llm_service.generate_clarification_question",
             new_callable=AsyncMock,
-            return_value=mock_question,
+            return_value=mock_question_set,
         ):
             result = await detail_cycle(state)
 
@@ -151,6 +161,40 @@ class TestDetailCycle:
         assert result["needs_review"] is True
         assert result["needs_clarification"] is False
 
+    @pytest.mark.asyncio
+    async def test_passes_dominant_factor_from_state(self):
+        """Should pass dominant_factor from state to LLM service."""
+        from app.schemas.analysis import AmbiguityLevels, ComplexityBreakdown
+
+        complexity_breakdown = ComplexityBreakdown(
+            score=0.8,
+            dominant_factor="prep",
+            levels=AmbiguityLevels(hidden_ingredients=0, invisible_prep=3, portion_ambiguity=0),
+            weights={},
+            semantic_penalty=0.0,
+        )
+        state = _make_state()
+        state["complexity_breakdown"] = complexity_breakdown
+
+        mock_question_set = ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="Mystery Dish", question="How was it prepared?", options=["Fried", "Grilled"]
+                )
+            ]
+        )
+
+        with patch(
+            "app.agent.ampm_nodes.llm_service.generate_clarification_question",
+            new_callable=AsyncMock,
+            return_value=mock_question_set,
+        ) as mock_generate:
+            await detail_cycle(state)
+
+            # Verify dominant_factor was passed
+            call_kwargs = mock_generate.call_args.kwargs
+            assert call_kwargs["dominant_factor"] == "prep"
+
 
 # --- final_probe (non-streaming) ---
 
@@ -160,15 +204,15 @@ class TestFinalProbe:
 
     @pytest.mark.asyncio
     async def test_triggers_when_complex_and_inconclusive(self):
-        """Should trigger when complexity_score > 0.7 and items still low confidence."""
-        state = _make_state(complexity_score=0.8)
+        """Should trigger when complexity_score > threshold and items still low confidence."""
+        state = _make_state(complexity_score=16.0)
         result = await final_probe(state)
         assert result["needs_clarification"] is True
 
     @pytest.mark.asyncio
     async def test_skips_when_low_complexity(self):
-        """Should skip when complexity_score <= 0.7."""
-        state = _make_state(complexity_score=0.3)
+        """Should skip when complexity_score <= threshold."""
+        state = _make_state(complexity_score=14.0)
         result = await final_probe(state)
         assert result["needs_clarification"] is False
 
@@ -176,7 +220,8 @@ class TestFinalProbe:
     async def test_skips_when_all_items_resolved(self):
         """Should skip when all items are above threshold (not inconclusive)."""
         state = _make_state(
-            complexity_score=0.9,
+            complexity_score=14.0,
+            clinical_threshold=15.0,
             items=[{"name": "Apple", "quantity": "1", "calories": 80, "confidence": 0.95}],
         )
         result = await final_probe(state)
@@ -192,14 +237,20 @@ class TestDetailCycleStreaming:
     @pytest.mark.asyncio
     async def test_emits_thought_event(self):
         """Should emit a thought event at the start."""
-        mock_question = ClarificationQuestion(question="How was it prepared?", options=["Fried", "Baked"])
+        mock_question_set = ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="Mystery Dish", question="How was it prepared?", options=["Fried", "Baked"]
+                )
+            ]
+        )
         state = _make_state()
 
         events = []
         with patch(
             "app.agent.ampm_nodes.llm_service.generate_clarification_question",
             new_callable=AsyncMock,
-            return_value=mock_question,
+            return_value=mock_question_set,
         ):
             async for item in detail_cycle_streaming(state):
                 events.append(item)
@@ -239,6 +290,42 @@ class TestDetailCycleStreaming:
         error_events = [e for e in sse_events if e.type == "agent.error"]
         assert len(error_events) == 1
 
+    @pytest.mark.asyncio
+    async def test_passes_dominant_factor_from_state_streaming(self):
+        """Should pass dominant_factor from state to LLM service (streaming variant)."""
+        from uuid import uuid4
+
+        from app.schemas.analysis import AmbiguityLevels, ComplexityBreakdown
+
+        complexity_breakdown = ComplexityBreakdown(
+            score=0.8,
+            dominant_factor="volume",
+            levels=AmbiguityLevels(hidden_ingredients=0, invisible_prep=0, portion_ambiguity=3),
+            weights={},
+            semantic_penalty=0.0,
+        )
+        state = _make_state(log_id=uuid4(), complexity_breakdown=complexity_breakdown)
+
+        mock_question_set = ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="Mystery Dish", question="How much did you have?", options=["A cup", "A bowl"]
+                )
+            ]
+        )
+
+        with patch(
+            "app.agent.ampm_nodes.llm_service.generate_clarification_question",
+            new_callable=AsyncMock,
+            return_value=mock_question_set,
+        ) as mock_generate:
+            events = []
+            async for item in detail_cycle_streaming(state):
+                events.append(item)
+
+            call_kwargs = mock_generate.call_args.kwargs
+            assert call_kwargs["dominant_factor"] == "volume"
+
 
 # --- final_probe_streaming ---
 
@@ -252,7 +339,7 @@ class TestFinalProbeStreaming:
         from uuid import uuid4
 
         log_id = uuid4()
-        state = _make_state(complexity_score=0.8, log_id=log_id)
+        state = _make_state(complexity_score=16.0, log_id=log_id)
 
         events = []
         async for item in final_probe_streaming(state):
@@ -265,7 +352,7 @@ class TestFinalProbeStreaming:
     @pytest.mark.asyncio
     async def test_silent_when_not_triggered(self):
         """Should yield only state update when conditions not met."""
-        state = _make_state(complexity_score=0.3)
+        state = _make_state(complexity_score=14.0)
 
         events = []
         async for item in final_probe_streaming(state):

@@ -47,25 +47,22 @@ async def test_stream_error_updates_db_status(test_client, db_session, override_
 
     # Create fake user in auth.users to satisfy FK
     unique_email = f"test_{uuid4()}@example.com"
-    try:
-        await db_session.execute(
-            text("""
-            INSERT INTO auth.users (id, aud, role, email)
-            VALUES (:id, 'authenticated', 'authenticated', :email)
-            ON CONFLICT (id) DO NOTHING
-            """),
-            {"id": user_id, "email": unique_email},
-        )
-        await db_session.execute(
-            text("""
-            INSERT INTO dietary_logs (id, user_id, image_path, status, description, created_at, client_timestamp)
-            VALUES (:id, :user_id, :image_path, 'processing', 'Initial description', NOW(), NOW())
-            """),
-            {"id": log_id, "user_id": user_id, "image_path": f"{user_id}/test.jpg"},
-        )
-        await db_session.commit()
-    except Exception as e:
-        pytest.fail(f"Setup insert failed: {e}")
+    await db_session.execute(
+        text("""
+        INSERT INTO auth.users (id, aud, role, email)
+        VALUES (:id, 'authenticated', 'authenticated', :email)
+        ON CONFLICT (id) DO NOTHING
+        """),
+        {"id": user_id, "email": unique_email},
+    )
+    await db_session.execute(
+        text("""
+        INSERT INTO dietary_logs (id, user_id, image_path, status, description, created_at, client_timestamp, needs_review, clarification_count)
+        VALUES (:id, :user_id, :image_path, 'processing', 'Initial description', NOW(), NOW(), false, 0)
+        """),
+        {"id": log_id, "user_id": user_id, "image_path": f"{user_id}/test.jpg"},
+    )
+    await db_session.commit()
 
     # Define a context manager to mock async_session_maker expecting new sessions
     class MockSessionMaker:
@@ -81,7 +78,7 @@ async def test_stream_error_updates_db_status(test_client, db_session, override_
     # Mock LLM service AND async_session_maker
     with (
         patch("app.services.llm_service.analyze_multimodal_streaming", new_callable=AsyncMock) as mock_llm,
-        patch("app.agent.nodes.async_session_maker") as mock_maker,
+        patch("app.agent.nodes.database.async_session_maker") as mock_maker,
     ):
         mock_llm.side_effect = Exception("Simulated LLM Critical Failure")
         mock_maker.return_value = MockSessionMaker()

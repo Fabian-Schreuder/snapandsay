@@ -23,7 +23,7 @@ router = APIRouter()
 # Processing timeout in seconds
 PROCESSING_TIMEOUT = 120
 # Heartbeat interval in seconds
-HEARTBEAT_INTERVAL = 15
+HEARTBEAT_INTERVAL = 10
 
 
 async def event_generator(
@@ -57,6 +57,8 @@ async def event_generator(
         "system_prompt_override": request.system_prompt_override,
         "provider": request.provider,
         "model": request.model,
+        "clinical_threshold": request.clinical_threshold,
+        "mandatory_clarification": False,
         "force_clarify": request.force_clarify,
         "force_finalize": request.force_finalize,
     }

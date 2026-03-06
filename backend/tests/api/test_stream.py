@@ -46,6 +46,10 @@ async def test_stream_endpoint_returns_sse_content_type(test_client: AsyncClient
 
         response = await test_client.post("/api/v1/analysis/stream", json=request_data)
 
+        # Verify clinical_threshold was passed to agent state (default 15.0)
+        call_args = mock_agent.call_args[0][0]
+        assert call_args["clinical_threshold"] == 15.0
+
         assert response.status_code == 200
         assert response.headers["content-type"] == "text/event-stream; charset=utf-8"
         assert response.headers["cache-control"] == "no-cache"
@@ -125,3 +129,31 @@ async def test_stream_endpoint_emits_response_on_success(test_client: AsyncClien
         content = response.text
         assert "agent.response" in content
         assert "success" in content
+
+
+@pytest.mark.asyncio
+async def test_stream_endpoint_custom_clinical_threshold(test_client: AsyncClient):
+    """Test that a custom clinical_threshold is propagated to the agent state."""
+    request_data = {
+        "log_id": str(uuid4()),
+        "image_path": "https://example.com/image.jpg",
+        "clinical_threshold": 5.0,
+    }
+
+    with patch("app.api.v1.endpoints.stream.run_streaming_agent") as mock_agent:
+
+        async def mock_generator(*args):
+            yield SSEEvent(
+                type=EVENT_THOUGHT,
+                payload=AgentThought(step="analyzing", message="Looking..."),
+            )
+            yield {"nutritional_data": {"items": [], "synthesis_comment": "Test"}}
+
+        mock_agent.return_value = mock_generator()
+
+        response = await test_client.post("/api/v1/analysis/stream", json=request_data)
+
+        call_args = mock_agent.call_args[0][0]
+        assert call_args["clinical_threshold"] == 5.0
+        assert call_args["mandatory_clarification"] is False
+        assert response.status_code == 200

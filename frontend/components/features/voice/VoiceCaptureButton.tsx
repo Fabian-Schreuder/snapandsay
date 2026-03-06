@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useAudio } from "../../../hooks/use-audio";
 import { useFeedback } from "../../../hooks/use-feedback";
 import { Mic } from "lucide-react";
-import { AlertDialog, AlertDialogContent } from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogContent, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import PermissionErrorState from "../camera/PermissionErrorState";
 import { VoiceButton, VoiceButtonState } from "@/components/ui/voice-button";
 
@@ -92,6 +92,7 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
         onOpenChange={setShowPermissionDialog}
       >
         <AlertDialogContent className="p-0 border-none bg-zinc-900 max-w-none w-screen h-screen rounded-none flex items-center justify-center">
+          <AlertDialogTitle className="sr-only">Microphone Permission Required</AlertDialogTitle>
           <PermissionErrorState
             mediaType="microphone"
             errorType="permission"

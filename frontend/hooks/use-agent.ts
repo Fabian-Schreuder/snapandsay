@@ -29,9 +29,14 @@ interface AgentError {
   message: string;
 }
 
-interface AgentClarification {
+interface ClarificationItem {
+  item_name: string;
   question: string;
   options: string[];
+}
+
+interface AgentClarification {
+  questions: ClarificationItem[];
   context: Record<string, unknown>;
   log_id: string;
 }
@@ -62,8 +67,12 @@ export interface UseAgentReturn {
     options?: { force_clarify?: boolean; force_finalize?: boolean },
   ) => void;
   submitClarificationResponse: (
-    response: string,
-    isVoice?: boolean,
+    responses: Array<{
+      item_name: string;
+      response: string;
+      is_voice?: boolean;
+      audio_path?: string;
+    }>,
   ) => Promise<void>;
   submitText: (text: string) => Promise<void>;
   skipClarification: () => void;
@@ -378,15 +387,21 @@ export const useAgent = (): UseAgentReturn => {
   );
 
   const submitClarificationResponse = useCallback(
-    async (response: string, isVoice = false) => {
+    async (
+      responses: Array<{
+        item_name: string;
+        response: string;
+        is_voice?: boolean;
+        audio_path?: string;
+      }>,
+    ) => {
       if (!clarification) return;
 
       try {
-        setStatus("connecting"); // Show connecting instead of generic streaming during transition
+        setStatus("connecting");
         const logId = clarification.log_id;
         setClarification(null);
 
-        // Clear clarification timeout
         if (clarificationTimeoutRef.current) {
           clearTimeout(clarificationTimeoutRef.current);
         }
@@ -395,7 +410,7 @@ export const useAgent = (): UseAgentReturn => {
           data: { session },
         } = await supabase.auth.getSession();
 
-        // Submit clarification to backend
+        // Submit all clarification responses in one batch POST
         const res = await fetch(
           `${API_BASE_URL}/api/v1/analysis/clarify/${logId}`,
           {
@@ -407,8 +422,12 @@ export const useAgent = (): UseAgentReturn => {
                 : {}),
             },
             body: JSON.stringify({
-              response,
-              is_voice: isVoice,
+              responses: responses.map((r) => ({
+                item_name: r.item_name,
+                response: r.response,
+                is_voice: r.is_voice ?? false,
+                ...(r.audio_path ? { audio_path: r.audio_path } : {}),
+              })),
             }),
           },
         );
@@ -420,7 +439,6 @@ export const useAgent = (): UseAgentReturn => {
         // Re-trigger streaming for the log to get updated analysis
         const data = await res.json();
         if (data.status === "processing") {
-          // Reuse current image/audio paths if available
           const currentRequest = currentRequestRef.current;
           await startStreamingInternal(
             logId,
@@ -429,7 +447,6 @@ export const useAgent = (): UseAgentReturn => {
             currentRequest?.options,
           );
         } else {
-          // Fallback if status isn't processing (unexpected)
           setStatus("complete");
           triggerCompletionFeedback();
         }

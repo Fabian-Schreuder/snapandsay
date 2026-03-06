@@ -39,6 +39,35 @@ class TestRouteByConfidence:
         }
         assert route_by_confidence(state) == AMPM_ENTRY
 
+    def test_mandatory_clarification_override(self):
+        """Mandatory clarification should force AMPM even if confidence is high."""
+        state = {
+            "mandatory_clarification": True,
+            "overall_confidence": 0.95,
+            "clarification_count": 0,
+        }
+        assert route_by_confidence(state) == AMPM_ENTRY
+
+    def test_clinical_threshold_override(self):
+        """Score > Threshold should force AMPM even if confidence is high."""
+        state = {
+            "complexity_score": 0.6,
+            "clinical_threshold": 0.5,
+            "overall_confidence": 0.95,
+            "clarification_count": 0,
+        }
+        assert route_by_confidence(state) == AMPM_ENTRY
+
+    def test_clinical_threshold_pass(self):
+        """Score <= Threshold and High Confidence should go to Finalize."""
+        state = {
+            "complexity_score": 0.4,
+            "clinical_threshold": 0.5,
+            "overall_confidence": 0.95,
+            "clarification_count": 0,
+        }
+        assert route_by_confidence(state) == FINALIZE_LOG
+
     def test_max_attempts_routes_to_finalize_despite_low_confidence(self):
         """Max clarification attempts (>= 2) should force finalize_log."""
         state = {
@@ -84,6 +113,25 @@ class TestRouteByConfidence:
             "overall_confidence": 0.50,
         }
         assert route_by_confidence(state) == AMPM_ENTRY
+
+    def test_mandatory_clarification_capped_by_max_attempts(self):
+        """Max attempts should override mandatory_clarification (safety cap)."""
+        state = {
+            "mandatory_clarification": True,
+            "overall_confidence": 0.50,
+            "clarification_count": 2,
+        }
+        assert route_by_confidence(state) == FINALIZE_LOG
+
+    def test_clinical_threshold_capped_by_max_attempts(self):
+        """Max attempts should override clinical threshold (safety cap)."""
+        state = {
+            "complexity_score": 0.9,
+            "clinical_threshold": 0.1,
+            "overall_confidence": 0.50,
+            "clarification_count": 3,
+        }
+        assert route_by_confidence(state) == FINALIZE_LOG
 
     def test_force_clarify_overrides_high_confidence(self):
         """force_clarify should route to AMPM even if confidence is high."""

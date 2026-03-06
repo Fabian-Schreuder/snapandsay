@@ -1,6 +1,8 @@
 # Node Names
 ANALYZE_INPUT = "analyze_input"
+SEMANTIC_GATEKEEPER = "semantic_gatekeeper"
 GENERATE_CLARIFICATION = "generate_clarification"
+GENERATE_SEMANTIC_CLARIFICATION = "generate_semantic_clarification"
 FINALIZE_LOG = "finalize_log"
 
 # AMPM Node Names
@@ -19,6 +21,7 @@ EVENT_FINAL_PROBE = "agent.final_probe"
 # Thought Step Constants
 STEP_ANALYZING = "analyzing"
 STEP_CLARIFYING = "clarifying"
+STEP_SEMANTIC_CHECK = "semantic_check"
 STEP_FINALIZING = "finalizing"
 STEP_DETAIL_CYCLE = "detail_cycle"
 STEP_FINAL_PROBE = "final_probe"
@@ -75,3 +78,23 @@ def get_message(key: str, language: str = "nl") -> str:
 CONFIDENCE_THRESHOLD = 0.85
 MAX_CLARIFICATIONS = 2
 CLARIFICATION_TIMEOUT_SECONDS = 30
+
+# Clarification Prompt Templates
+CLARIFICATION_TEMPLATES = {
+    "prep": (
+        "Focus on HOW the food was prepared (fried, grilled, baked, raw). "
+        "Ask specifically about the cooking method."
+    ),
+    "volume": (
+        "Focus on the QUANTITY or SIZE of the portion. "
+        "Ask specifically about how much was eaten (cups, grams, pieces, bowl size)."
+    ),
+    "ingredients": (
+        "Focus on HIDDEN ingredients or composition. "
+        "Ask specifically what is inside or what it is made of."
+    ),
+    "default": (
+        "Focus on the most uncertain item. "
+        "Generate a simple clarification question to help identify it better."
+    ),
+}

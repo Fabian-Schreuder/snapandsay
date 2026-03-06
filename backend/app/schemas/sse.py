@@ -32,13 +32,23 @@ class AgentError(BaseModel):
     message: str = Field(..., description="Human-friendly error message")
 
 
-class AgentClarification(BaseModel):
-    """Schema for agent clarification question events."""
+class ClarificationItem(BaseModel):
+    """A single clarification question about one food item."""
 
+    item_name: str = Field(..., description="Name of the food item being asked about")
     question: str = Field(..., description="Clarification question text")
     options: list[str] = Field(
         default_factory=list,
         description="Suggested answer options for quick selection",
+    )
+
+
+class AgentClarification(BaseModel):
+    """Schema for agent clarification question events (supports multi-page)."""
+
+    questions: list[ClarificationItem] = Field(
+        ...,
+        description="List of clarification questions (one per uncertain item)",
     )
     context: dict[str, Any] = Field(
         default_factory=dict,

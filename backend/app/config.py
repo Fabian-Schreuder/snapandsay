@@ -1,3 +1,6 @@
+from typing import Any
+
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -62,9 +65,32 @@ class Settings(BaseSettings):
     # Defaults include localhost and the main verification domain.
     CORS_ORIGINS: list[str] = [
         "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
+        "http://localhost:3002",
+        "http://127.0.0.1:3002",
+        "http://localhost:3003",
+        "http://127.0.0.1:3003",
         "https://snapandsay.vercel.app",
         "https://snapandsay-production.up.railway.app",
     ]
+
+    @field_validator("CORS_ORIGINS", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, v: Any) -> list[str]:
+        if isinstance(v, str):
+            if v.startswith("["):
+                # Pydantic/JSON string, let Pydantic handle it or parse manually
+                return v  # Pydantic might parse this if returned as is? No, Pydantic expects list.
+                # Actually, if it's a JSON string, we should parse it or let standard validaton retry.
+                # Simplest for comma-separated:
+            if "," in v:
+                return [origin.strip() for origin in v.split(",")]
+            return [v]
+        elif isinstance(v, list):
+            return v
+        return v
 
     model_config = SettingsConfigDict(
         env_file=(".env", ".env.local"), env_file_encoding="utf-8", extra="ignore"

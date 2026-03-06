@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Literal, Self
 from uuid import UUID
 
 from pydantic import BaseModel, Field, model_validator
@@ -53,12 +53,17 @@ class AnalysisResult(BaseModel):
 
     title: str = Field(..., description="Short, descriptive title of the meal (e.g. 'Roasted Cashews')")
     items: list[FoodItem] = Field(..., description="List of identified food items")
-    meal_type: str | None = Field(None, description="Type of meal (e.g., Breakfast, Lunch, Dinner, Snack)")
+    meal_type: Literal["breakfast", "lunch", "dinner", "snack"] | None = Field(
+        None, description="Type of meal (breakfast, lunch, dinner, snack)"
+    )
     synthesis_comment: str = Field(..., description="Overall summary or analysis comment")
 
     # Validation
     is_food: bool = Field(False, description="Whether the input is a valid food/drink item")
     non_food_reason: str | None = Field(None, description="Reason why input is not food (if is_food=False)")
+    mandatory_clarification: bool = Field(
+        False, description="Whether the food class requires mandatory clarification (from Registry)"
+    )
 
     # AMPM complexity rating
     complexity_score: float = Field(
@@ -82,8 +87,20 @@ class AnalysisResult(BaseModel):
         return sum(item.confidence for item in self.items) / len(self.items)
 
 
-class ClarifyRequest(BaseModel):
-    """Request body for clarification response endpoint."""
+class ClarifyResponse(BaseModel):
+    """A single clarification answer for one food item."""
 
+    item_name: str = Field(default="", description="Name of the food item this response is for")
     response: str = Field(..., description="User's clarification response text")
     is_voice: bool = Field(default=False, description="Whether response came from voice input")
+    audio_path: str | None = Field(
+        default=None, description="Supabase Storage path for voice audio to transcribe"
+    )
+
+
+class ClarifyRequest(BaseModel):
+    """Request body for clarification response endpoint (supports batch)."""
+
+    responses: list[ClarifyResponse] = Field(
+        ..., description="List of clarification responses (one per question)"
+    )

@@ -1,0 +1,98 @@
+# Biomimicry Risk Registry
+# Foods where visual appearance diverges from nutritional reality
+
+default:
+  weights: { ingredients: 0.5, prep: 0.5, volume: 0.5 }
+  semantic_penalty: 0.0
+  mandatory_clarification: false
+  is_umbrella_term: false
+
+classes:
+  # 1. Meat Analogues ("The Impossible Factor")
+  # Visual Triggers: Burger patties, sausages, meatballs, chicken nuggets, mince
+  # Risk: High carbs vs zero carbs (pea/soy/starch binders), high sodium, coconut oil/sat fat.
+  meat_analogue:
+    weights: { ingredients: 0.9, prep: 0.7, volume: 0.3 }
+    semantic_penalty: 4.0
+    mandatory_clarification: true
+    is_umbrella_term: true
+    aliases:
+      - "burger"
+      - "hamburger"
+      - "cheeseburger"
+      - "patty"
+      - "sausage"
+      - "worst"
+      - "meatball"
+      - "gehaktbal"
+      - "nugget"
+      - "chicken nugget"
+      - "kipnugget"
+      - "mince"
+      - "gehakt"
+      - "ground meat"
+      - "meatloaf"
+      - "bratwurst"
+      - "braadworst"
+      - "hot dog"
+      - "hotdog"
+
+  # 2. Dairy Analogues ("The White Liquid Paradox")
+  # Visual Triggers: Milk, cheese slices, yogurt, ice cream, coffee drinks
+  # Risk: Protein (Cow 8g) vs Carb (Oat) vs Zero (Almond).
+  dairy_analogue:
+    weights: { ingredients: 0.8, prep: 0.2, volume: 0.2 }
+    semantic_penalty: 3.5
+    mandatory_clarification: true
+    is_umbrella_term: true
+    aliases:
+      - "milk"
+      - "melk"
+      - "cheese"
+      - "kaas"
+      - "yogurt"
+      - "yoghurt"
+      - "ice cream"
+      - "ijs"
+      - "latte"
+      - "cappuccino"
+      - "macchiato"
+      - "cream"
+      - "room"
+      - "butter"
+      - "boter"
+
+  # 3. Stealth Carb Substitutes ("The Keto Effect")
+  # Visual Triggers: Bread, pizza, pasta, buns, wraps
+  # Risk: Wheat (High Carb) vs Almond/Cauliflower (Low Carb/High Fat).
+  stealth_carb:
+    weights: { ingredients: 0.8, prep: 0.6, volume: 0.4 }
+    semantic_penalty: 3.0
+    mandatory_clarification: true
+    is_umbrella_term: true
+    aliases:
+      - "bread"
+      - "brood"
+      - "pizza"
+      - "crust"
+      - "bodem"
+      - "pasta"
+      - "spaghetti"
+      - "macaroni"
+      - "noodle"
+      - "noodles"
+      - "noedels"
+      - "bami"
+      - "bun"
+      - "broodje"
+      - "bagel"
+      - "wrap"
+      - "tortilla"
+      - "rice"
+      - "rijst"
+      - "cauliflower rice"
+      - "bloemkoolrijst"
+      - "pancake"
+      - "pannenkoek"
+      - "waffle"
+      - "wafel"

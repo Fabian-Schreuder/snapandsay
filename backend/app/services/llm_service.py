@@ -11,6 +11,7 @@ from google.genai import types
 from openai import AsyncOpenAI
 from pydantic import BaseModel
 
+from app.agent.constants import CLARIFICATION_TEMPLATES
 from app.config import settings
 from app.schemas.analysis import AnalysisResult, FoodItem
 
@@ -116,10 +117,17 @@ def _clean_schema_for_google(schema: dict) -> dict:
 
 
 class ClarificationQuestion(BaseModel):
-    """Schema for generated clarification question."""
+    """Schema for a single clarification question about one food item."""
 
+    item_name: str = ""
     question: str
     options: list[str]
+
+
+class ClarificationQuestionSet(BaseModel):
+    """Schema for multiple clarification questions (one per uncertain item)."""
+
+    questions: list[ClarificationQuestion]
 
 
 @lru_cache(maxsize=1)
@@ -405,6 +413,7 @@ async def _analyze_google(
                 system_instruction=system_instruction,
                 response_mime_type="application/json",
                 response_schema=_clean_schema_for_google(AnalysisResult.model_json_schema()),
+                max_output_tokens=8192,
             ),
         )
         return AnalysisResult.model_validate_json(response.text)
@@ -532,7 +541,10 @@ async def _analyze_google_streaming(
             f"{lang_instruction}\n"
             f"You are a dietary expert. Current time is {current_time}. "
             "Analyze the input to identify food items, estimate quantities, calories, and confidence.\n"
-            "Do not include any text outside the JSON block."
+            "Rate meal complexity from 0.0 (simple, single item) to 1.0 "
+            "(complex, multi-component) considering: number of distinct items, "
+            "composite dishes, ambiguous portions, mixed preparations.\n"
+            "Assess ambiguity (0-3) for: Hidden Ingredients, Invisible Prep, Portion Ambiguity."
         )
 
     contents = []
@@ -559,6 +571,7 @@ async def _analyze_google_streaming(
                 system_instruction=system_instruction,
                 response_mime_type="application/json",
                 response_schema=_clean_schema_for_google(AnalysisResult.model_json_schema()),
+                max_output_tokens=8192,
             ),
         )
 
@@ -589,9 +602,15 @@ async def generate_clarification_question(
     language: str = "nl",
     provider: str | None = None,
     model: str | None = None,
-) -> ClarificationQuestion:
+    dominant_factor: str | None = None,
+    image_url: str | None = None,
+    transcript: str | None = None,
+    context: str | None = None,
+    user_token: str | None = None,
+) -> ClarificationQuestionSet:
     """
-    Generate a clarification question for low-confidence food items.
+    Generate clarification questions for low-confidence food items.
+    Returns one focused question per item in a single LLM call.
     Supports OpenAI and Google Gemini providers.
     """
     provider = provider or settings.LLM_PROVIDER
@@ -614,9 +633,14 @@ async def generate_clarification_question(
     msgs = fallback_messages.get(language, fallback_messages["nl"])
 
     if not low_confidence_items:
-        return ClarificationQuestion(
-            question=msgs["empty_question"],
-            options=msgs["empty_options"],
+        return ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="unknown",
+                    question=msgs["empty_question"],
+                    options=msgs["empty_options"],
+                )
+            ]
         )
 
     # Build item descriptions for the prompt
@@ -628,28 +652,47 @@ async def generate_clarification_question(
     lang_name = "Dutch" if language == "nl" else "English"
     lang_instruction = f"IMPORTANT: Respond entirely in {lang_name}. " if language != "en" else ""
 
+    # Select the appropriate template instruction
+    template_instruction = CLARIFICATION_TEMPLATES.get(dominant_factor, CLARIFICATION_TEMPLATES["default"])
+
     system_prompt = (
         f"{lang_instruction}"
         "You are a friendly dietary assistant helping seniors log their meals. "
-        "Generate a single, simple clarification question about uncertain food items. "
+        "Generate ONE separate clarification question for EACH uncertain food item. "
         "Requirements:\n"
         "- Use 6th grade reading level\n"
-        "- Keep the question under 15 words\n"
-        "- Provide 2-3 common answer options\n"
+        "- Keep each question under 15 words\n"
         "- Be friendly and patient\n"
-        "- Focus on the most uncertain item"
+        "- Provide 2-3 answer options per question that have the BIGGEST impact on "
+        "calorie estimation accuracy (e.g. cooking method, fat content, size)\n"
+        "- Set item_name to the exact name of the food item being asked about\n"
+        f"- {template_instruction}"
     )
 
     user_prompt = (
         f"The following food items have low confidence scores:\n{items_text}\n\n"
-        "Generate a simple clarification question to help identify them better."
+        "Generate one clarification question per item."
     )
 
+    # Process image if provided
+    final_media_url = image_url
+    if image_url:
+        final_media_url = await _get_media_content(image_url, user_token)
+
     if provider == "openai":
-        # Explicit OpenAI path
+        user_content = []
+        if context:
+            user_content.append({"type": "text", "text": f"Context/Clarification: {context}"})
+        if transcript:
+            user_content.append({"type": "text", "text": f"User Input: {transcript}"})
+        if final_media_url:
+            user_content.append({"type": "image_url", "image_url": {"url": final_media_url}})
+
+        user_content.append({"type": "text", "text": user_prompt})
+
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
+            {"role": "user", "content": user_content},
         ]
 
         try:
@@ -658,44 +701,102 @@ async def generate_clarification_question(
             completion = await client.beta.chat.completions.parse(
                 model=model_name,
                 messages=messages,
-                response_format=ClarificationQuestion,
+                response_format=ClarificationQuestionSet,
             )
             return completion.choices[0].message.parsed
         except Exception as e:
             logger.error(f"OpenAI clarification generation failed: {e}")
-            return ClarificationQuestion(
-                question=msgs["generic_question"],
-                options=msgs["generic_options"],
+            return ClarificationQuestionSet(
+                questions=[
+                    ClarificationQuestion(
+                        item_name=item.name,
+                        question=msgs["generic_question"],
+                        options=msgs["generic_options"],
+                    )
+                    for item in low_confidence_items
+                ]
             )
 
     # Default to Google Gemini
-    return await _generate_google_clarification(system_prompt, user_prompt, language, model)
+    return await _generate_google_clarification(
+        system_prompt,
+        user_prompt,
+        final_media_url,
+        transcript,
+        context,
+        language,
+        model,
+        low_confidence_items,
+        msgs,
+    )
 
 
 async def _generate_google_clarification(
     system_prompt: str,
     user_prompt: str,
+    media_data_uri: str | None,
+    transcript: str | None,
+    context: str | None,
     language: str,
     model_name: str | None,
-) -> ClarificationQuestion:
+    low_confidence_items: list[FoodItem] | None = None,
+    fallback_msgs: dict | None = None,
+) -> ClarificationQuestionSet:
     """Inner helper for Google Gemini clarification generation."""
     client = _get_google_client()
     model_id = model_name or settings.GOOGLE_MODEL_NAME
 
+    contents = []
+    if context:
+        contents.append(f"Context: {context}")
+    if transcript:
+        contents.append(f"Transcript: {transcript}")
+
+    if media_data_uri and media_data_uri.startswith("data:"):
+        import base64
+
+        header, encoded = media_data_uri.split(",", 1)
+        mime_type = header.split(";")[0].split(":")[1]
+        data_bytes = base64.b64decode(encoded)
+        contents.append(types.Part.from_bytes(data=data_bytes, mime_type=mime_type))
+
+    contents.append(user_prompt)
+
     try:
         response = await client.aio.models.generate_content(
             model=model_id,
-            contents=[user_prompt],
+            contents=contents,
             config=types.GenerateContentConfig(
                 system_instruction=system_prompt,
                 response_mime_type="application/json",
-                response_schema=_clean_schema_for_google(ClarificationQuestion.model_json_schema()),
+                response_schema=_clean_schema_for_google(ClarificationQuestionSet.model_json_schema()),
             ),
         )
-        return ClarificationQuestion.model_validate_json(response.text)
+        return ClarificationQuestionSet.model_validate_json(response.text)
     except Exception as e:
         logger.error(f"Google clarification generation failed: {e}")
-        return ClarificationQuestion(
-            question="Can you tell me more about what you ate?",
-            options=["Main dish", "Side dish", "Drink"],
+        msgs = fallback_msgs or {
+            "generic_question": "Can you tell me more about what you ate?",
+            "generic_options": ["Main dish", "Side dish", "Drink"],
+        }
+        items = low_confidence_items or []
+        if items:
+            return ClarificationQuestionSet(
+                questions=[
+                    ClarificationQuestion(
+                        item_name=item.name,
+                        question=msgs["generic_question"],
+                        options=msgs["generic_options"],
+                    )
+                    for item in items
+                ]
+            )
+        return ClarificationQuestionSet(
+            questions=[
+                ClarificationQuestion(
+                    item_name="unknown",
+                    question=msgs["generic_question"],
+                    options=msgs["generic_options"],
+                )
+            ]
         )

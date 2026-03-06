@@ -1,11 +1,14 @@
 """Voice transcription service using OpenAI Whisper."""
 
 import asyncio
+import logging
 from functools import lru_cache
 
 from openai import AsyncOpenAI
 
 from app.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 @lru_cache(maxsize=1)
@@ -55,8 +58,8 @@ async def transcribe_audio(file_path: str, language: str, token: str | None = No
         # Assumption: file_path is relative to the bucket (e.g. "user_id/filename.webm")
         url = f"{settings.SUPABASE_URL}/storage/v1/object/authenticated/raw_uploads/{file_path}"
 
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers={"Authorization": f"Bearer {token}"})
+        async with httpx.AsyncClient() as http_client:
+            response = await http_client.get(url, headers={"Authorization": f"Bearer {token}"})
 
             if response.status_code != 200:
                 raise FileNotFoundError(
@@ -73,4 +76,5 @@ async def transcribe_audio(file_path: str, language: str, token: str | None = No
     transcript = await client.audio.transcriptions.create(
         model=settings.WHISPER_MODEL_NAME, file=audio_file, language=language
     )
+    logger.info(f"Transcription result: {transcript.text}")
     return transcript.text

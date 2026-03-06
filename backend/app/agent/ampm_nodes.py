@@ -31,6 +31,7 @@ from app.schemas.sse import (
     AgentClarification,
     AgentError,
     AgentThought,
+    ClarificationItem,
     SSEEvent,
 )
 from app.services import llm_service
@@ -62,8 +63,11 @@ def _get_low_confidence_items(state: AgentState) -> list[FoodItem]:
     nutritional_data = state.get("nutritional_data", {}) or {}
     items = nutritional_data.get("items", [])
     force_clarify = state.get("force_clarify", False)
+    mandatory_clarification = state.get("mandatory_clarification", False)
+    score = state.get("complexity_score", 0.0)
+    threshold = state.get("clinical_threshold", 15.0)
 
-    if force_clarify:
+    if force_clarify or mandatory_clarification or (score > threshold):
         return [FoodItem(**item) for item in items]
 
     return [FoodItem(**item) for item in items if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD]
@@ -106,11 +110,16 @@ async def detail_cycle(state: AgentState) -> dict:
         return {"needs_clarification": False}
 
     try:
-        question = await llm_service.generate_clarification_question(
+        # Extract dominant factor for targeted questioning
+        complexity_breakdown = state.get("complexity_breakdown")
+        dominant_factor = complexity_breakdown.dominant_factor if complexity_breakdown else None
+
+        question_set = await llm_service.generate_clarification_question(
             askable_items,
             language=state.get("language", "nl") or "nl",
             provider=state.get("provider"),
             model=state.get("model"),
+            dominant_factor=dominant_factor,
         )
 
         # Update log status and AMPM state in database
@@ -118,15 +127,15 @@ async def detail_cycle(state: AgentState) -> dict:
         new_clarification_count = clarification_count + 1
 
         # Update AMPM tracking data
-        ampm_data = state.get("ampm_data") or {
-            "low_confidence_items": [],
-            "questions_asked": [],
-            "responses": [],
-            "pass_count": 0,
-        }
+        ampm_data = state.get("ampm_data") or {}
         ampm_data = dict(ampm_data)  # Make mutable copy
+        ampm_data.setdefault("low_confidence_items", [])
+        ampm_data.setdefault("questions_asked", [])
+        ampm_data.setdefault("responses", [])
+        ampm_data.setdefault("pass_count", 0)
         ampm_data["low_confidence_items"] = [item.name for item in low_items]
-        ampm_data["questions_asked"].append(question.question)
+        for q in question_set.questions:
+            ampm_data["questions_asked"].append(q.question)
         ampm_data["pass_count"] += 1
 
         if log_id:
@@ -188,26 +197,31 @@ async def detail_cycle_streaming(
         return
 
     try:
-        question = await llm_service.generate_clarification_question(
+        # Extract dominant factor for targeted questioning
+        complexity_breakdown = state.get("complexity_breakdown")
+        dominant_factor = complexity_breakdown.dominant_factor if complexity_breakdown else None
+
+        question_set = await llm_service.generate_clarification_question(
             askable_items,
             language=language,
             provider=state.get("provider"),
             model=state.get("model"),
+            dominant_factor=dominant_factor,
         )
 
         # Update log status and AMPM state in database
         new_clarification_count = clarification_count + 1
 
         # Update AMPM tracking data
-        ampm_data = state.get("ampm_data") or {
-            "low_confidence_items": [],
-            "questions_asked": [],
-            "responses": [],
-            "pass_count": 0,
-        }
+        ampm_data = state.get("ampm_data") or {}
         ampm_data = dict(ampm_data)  # Make mutable copy
+        ampm_data.setdefault("low_confidence_items", [])
+        ampm_data.setdefault("questions_asked", [])
+        ampm_data.setdefault("responses", [])
+        ampm_data.setdefault("pass_count", 0)
         ampm_data["low_confidence_items"] = [item.name for item in low_items]
-        ampm_data["questions_asked"].append(question.question)
+        for q in question_set.questions:
+            ampm_data["questions_asked"].append(q.question)
         ampm_data["pass_count"] += 1
 
         if log_id:
@@ -229,8 +243,14 @@ async def detail_cycle_streaming(
             yield SSEEvent(
                 type=EVENT_CLARIFICATION,
                 payload=AgentClarification(
-                    question=question.question,
-                    options=question.options,
+                    questions=[
+                        ClarificationItem(
+                            item_name=q.item_name,
+                            question=q.question,
+                            options=q.options,
+                        )
+                        for q in question_set.questions
+                    ],
                     context=context,
                     log_id=log_id,
                 ),
@@ -259,13 +279,14 @@ async def final_probe(state: AgentState) -> dict:
     AMPM Final Probe: conditionally ask "Did you have anything else with that?"
 
     Only triggers if:
-      - complexity_score > 0.7 (meal is inherently complex)
+      - complexity_score > threshold (meal is inherently complex based on clinical profile)
       - Detail Cycle was inconclusive (items still below threshold)
     """
     complexity_score = state.get("complexity_score", 0.0)
+    threshold = state.get("clinical_threshold", 15.0)
     inconclusive = _is_detail_cycle_inconclusive(state)
 
-    if complexity_score > 0.7 and inconclusive:
+    if complexity_score > threshold and inconclusive:
         # The final probe question is handled via streaming/clarification;
         # in the compiled graph path we just mark state.
         return {"needs_clarification": True}
@@ -283,10 +304,11 @@ async def final_probe_streaming(
     """
     language = state.get("language", "nl") or "nl"
     complexity_score = state.get("complexity_score", 0.0)
+    threshold = state.get("clinical_threshold", 15.0)
     inconclusive = _is_detail_cycle_inconclusive(state)
     log_id = state.get("log_id")
 
-    if complexity_score > 0.7 and inconclusive:
+    if complexity_score > threshold and inconclusive:
         try:
             yield SSEEvent(
                 type=EVENT_THOUGHT,
@@ -315,8 +337,13 @@ async def final_probe_streaming(
                 yield SSEEvent(
                     type=EVENT_CLARIFICATION,
                     payload=AgentClarification(
-                        question=get_message("final_probe", language),
-                        options=[],
+                        questions=[
+                            ClarificationItem(
+                                item_name="meal",
+                                question=get_message("final_probe", language),
+                                options=[],
+                            )
+                        ],
                         context={"type": "final_probe"},
                         log_id=log_id,
                     ),

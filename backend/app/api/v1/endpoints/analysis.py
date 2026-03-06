@@ -91,18 +91,63 @@ async def submit_clarification_response(
             detail=f"Log is not awaiting clarification. Current status: {log.status}",
         )
 
-    # Handle voice response transcription if needed
-    clarification_text = request.response
-    if request.is_voice:
-        # Voice responses should already be transcribed by the frontend
-        # but we could add server-side transcription here if needed
-        pass
+    # Process all clarification responses (batch)
+    import logging
 
-    # Store the clarification response (could be appended to description or a new field)
-    if log.description:
-        log.description = f"{log.description}\n[Clarification]: {clarification_text}"
-    else:
-        log.description = f"[Clarification]: {clarification_text}"
+    from app.services import voice_service
+
+    endpoint_logger = logging.getLogger(__name__)
+
+    all_qa_parts = []
+    all_response_texts = []
+
+    # Get questions asked for Q/A pairing
+    questions_asked = []
+    if log.ampm_data and "questions_asked" in log.ampm_data:
+        questions_asked = log.ampm_data["questions_asked"]
+
+    for i, resp in enumerate(request.responses):
+        # Transcribe voice responses if needed
+        clarification_text = resp.response
+        if resp.is_voice and resp.audio_path:
+            try:
+                language = "nl"
+                if log.ampm_data and "language" in log.ampm_data:
+                    language = log.ampm_data["language"]
+
+                clarification_text = await voice_service.transcribe_audio(
+                    file_path=resp.audio_path,
+                    language=language,
+                    token=current_user.token,
+                )
+                endpoint_logger.info(
+                    f"Transcribed voice clarification for '{resp.item_name}': {clarification_text}"
+                )
+            except Exception as e:
+                endpoint_logger.error(f"Voice transcription failed for '{resp.item_name}': {e}")
+                clarification_text = resp.response
+
+        all_response_texts.append(clarification_text)
+
+        # Pair with question if available
+        question = questions_asked[i] if i < len(questions_asked) else ""
+        if question:
+            all_qa_parts.append(f"Q: {question}\nA: {clarification_text}")
+        else:
+            item_label = resp.item_name or f"item {i + 1}"
+            all_qa_parts.append(f"[{item_label}]: {clarification_text}")
+
+    # The clarification responses are now only stored in ampm_data below
+
+    # The clarification responses are now only stored in ampm_data below
+
+    # Append to ampm_data responses
+    if log.ampm_data:
+        ampm_data = dict(log.ampm_data)
+        if "responses" not in ampm_data:
+            ampm_data["responses"] = []
+        ampm_data["responses"].extend(all_response_texts)
+        log.ampm_data = ampm_data
 
     # Update status back to processing for re-analysis
     log.status = "processing"

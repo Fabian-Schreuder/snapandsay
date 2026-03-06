@@ -12,6 +12,9 @@ class StreamAnalysisRequest(BaseModel):
     image_path: str | None = Field(None, description="Path to uploaded image")
     audio_path: str | None = Field(None, description="Path to uploaded audio")
     language: str = Field(default="nl", description="Language code for agent responses")
+    clinical_threshold: float = Field(
+        default=15.0, description="Complexity threshold for routing to clarification (lower = more sensitive)"
+    )
     system_prompt_override: str | None = Field(
         None, description="Optional system prompt to use for experiments"
     )

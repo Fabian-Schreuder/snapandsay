@@ -14,7 +14,7 @@ import sys
 from datetime import UTC, datetime
 from pathlib import Path
 
-from app.benchmarking.experiment_log import ExperimentLog
+from app.benchmarking.experiment_log import ExperimentLog, ExperimentResult
 from app.benchmarking.metrics import LatencyTracker, MetricsCalculator
 from app.benchmarking.nutrition5k_loader import Nutrition5kLoader
 from app.benchmarking.oracle_runner import OracleRunner
@@ -102,8 +102,6 @@ async def main_async(args):
             return
 
         with open(detail_file) as f:
-            from app.benchmarking.experiment_log import ExperimentResult
-
             data = json.load(f)
             result = ExperimentResult(
                 experiment_id=data["experiment_id"],
@@ -227,6 +225,8 @@ async def main_async(args):
     mae_results = []
 
     # Recreate latency tracker and calculate MAE
+    # We re-instantiate and re-populate from 'results' to ensure we capture
+    # metrics for ALL dishes (including those loaded from checkpoints)
     latency_tracker = LatencyTracker()
     dishes_map = {d.dish_id: d for d in all_dishes}
 
@@ -246,14 +246,16 @@ async def main_async(args):
             mae_results.append(dish_mae)
 
             # Add detailed result
-            per_dish_results.append(
-                {
-                    "dish_id": dish_id,
-                    "success": True,
-                    "mae": dish_mae.to_dict(),
-                    "latency": result.get("latency_seconds", 0),
-                }
-            )
+            dish_result = {
+                "dish_id": dish_id,
+                "success": True,
+                "mae": dish_mae.to_dict(),
+                "latency": result.get("latency_seconds", 0),
+                "turns": result.get("turns", 0),
+                "complexity_breakdown": result.get("complexity_breakdown"),
+                "complexity_score": result.get("complexity_score"),
+            }
+            per_dish_results.append(dish_result)
         else:
             per_dish_results.append(
                 {
@@ -261,21 +263,23 @@ async def main_async(args):
                     "success": False,
                     "error": result.get("error"),
                     "latency": result.get("latency_seconds", 0),
+                    "turns": result.get("turns", 0),
+                    "complexity_breakdown": result.get("complexity_breakdown"),
+                    "complexity_score": result.get("complexity_score"),
                 }
             )
 
     aggregate_mae = metrics_calc.aggregate_mae(mae_results)
     aggregate_latency = latency_tracker.aggregate()
+    complexity_stats = metrics_calc.aggregate_complexity(per_dish_results)
 
     # Create ExperimentResult
-    from app.benchmarking.experiment_log import ExperimentResult
-
     experiment_id = datetime.now().strftime("%Y%m%d_%H%M%S")
     final_result = ExperimentResult(
         experiment_id=f"run_{experiment_id}",
         prompt_version="baseline_run",
         timestamp=datetime.now(UTC).isoformat(),
-        metrics=aggregate_mae.to_dict()["mae"],
+        metrics={**aggregate_mae.to_dict()["mae"], "complexity_stats": complexity_stats.to_dict()},
         latency_stats=aggregate_latency.to_dict(),
         per_dish_results=per_dish_results,
         config=vars(args),
@@ -294,6 +298,20 @@ async def main_async(args):
     mae = final_result.metrics
     print(f"Calories MAE: {mae['calories']:.1f} kcal")
     print(f"Protein MAE: {mae['protein']:.1f} g")
+
+    # Complexity metrics summary
+    cs = mae.get("complexity_stats", {})
+    if cs.get("total_scored", 0) > 0:
+        print("\n--- Complexity Scoring Metrics ---")
+        print(f"Dishes Scored:        {cs['total_scored']}")
+        print(f"Mean Complexity:      {cs['mean_score']:.4f}")
+        print(f"Clarifications:       {cs['clarification_triggered_count']}")
+        print(f"Total Questions:      {cs.get('total_questions_asked', 0)}")
+        dist = cs.get("dominant_factor_distribution", {})
+        if dist:
+            print("Dominant Factor Distribution:")
+            for factor, count in sorted(dist.items(), key=lambda x: -x[1]):
+                print(f"  {factor}: {count}")
 
     print(f"\n✓ Result saved to: {output_dir / f'experiment_run_{experiment_id}.json'}")
 

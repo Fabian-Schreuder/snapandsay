@@ -39,7 +39,20 @@ def route_by_confidence(state: AgentState) -> str:
     if clarification_count >= MAX_CLARIFICATIONS:
         return FINALIZE_LOG
 
-    # Route based on confidence threshold
+    # 1. Mandatory Override
+    if state.get("mandatory_clarification"):
+        return AMPM_ENTRY
+
+    # 2. Clinical Threshold Override
+    # Score range: 0.0-~32.0. Default threshold 15.0 triggers AMPM for complex/ambiguous foods.
+    # Diabetic profile example: threshold=5.0, score=8.0 → triggers AMPM.
+    score = state.get("complexity_score", 0.0)
+    threshold = state.get("clinical_threshold", 15.0)
+
+    if score > threshold:
+        return AMPM_ENTRY
+
+    # 3. Standard Confidence Check (Existing)
     if overall_confidence >= CONFIDENCE_THRESHOLD:
         return FINALIZE_LOG
 

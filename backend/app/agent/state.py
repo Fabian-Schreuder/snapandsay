@@ -58,6 +58,10 @@ class AgentState(TypedDict):
     complexity_score: float
     complexity_breakdown: ComplexityBreakdown | None
 
+    # Semantic Gatekeeper
+    unbounded_items: list[str] | None
+    semantic_interruption_needed: bool
+
     # Research Metrics
     start_time: float | None  # Timestamp when analysis started
     agent_turn_count: int  # Total agent responses generated
@@ -71,6 +75,10 @@ class AgentState(TypedDict):
     model: str | None
     is_food: bool | None
     non_food_reason: str | None
+
+    # Clinical Routing
+    clinical_threshold: float
+    mandatory_clarification: bool
 
     # Test/Forced modes
     force_clarify: bool | None

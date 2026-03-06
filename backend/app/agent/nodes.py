@@ -11,24 +11,121 @@ from app.agent.constants import (
     EVENT_ERROR,
     EVENT_RESPONSE,
     EVENT_THOUGHT,
+    MAX_CLARIFICATIONS,
     STEP_ANALYZING,
     STEP_CLARIFYING,
     STEP_FINALIZING,
+    STEP_SEMANTIC_CHECK,
     get_message,
 )
 from app.agent.state import AgentState
 from app.models.log import DietaryLog
-from app.schemas.analysis import FoodItem
+from app.schemas.analysis import AnalysisResult, FoodItem
 from app.schemas.sse import (
     AgentClarification,
     AgentError,
     AgentResponse,
     AgentThought,
+    ClarificationItem,
     SSEEvent,
 )
-from app.services import llm_service, voice_service
+from app.services import llm_service, semantic_gatekeeper, voice_service
+from app.services.complexity_calculator import calculate_complexity
+from app.services.food_class_registry import RiskProfile
+from app.services.food_class_registry import registry as food_registry
 
 logger = logging.getLogger(__name__)
+
+
+def _item_already_asked(item_name: str, state: AgentState) -> bool:
+    """Check if we've already asked about this item (via ampm_data.questions_asked).
+
+    Uses word-level matching: if any significant word (3+ chars) from the item
+    name appears in a previously asked question, the item is considered already
+    asked about. This handles item name variants like 'Vegetarische burger'
+    matching a question that mentions 'burger'.
+    """
+    ampm_data = state.get("ampm_data")
+    if not ampm_data:
+        return False
+    questions = ampm_data.get("questions_asked", [])
+    if not questions:
+        return False
+    # Extract significant words from item name (skip short articles/prepositions)
+    words = [w for w in item_name.lower().split() if len(w) >= 3]
+    questions_lower = " ".join(q.lower() for q in questions)
+    already_asked = any(word in questions_lower for word in words)
+    if already_asked:
+        logger.info(f"Item '{item_name}' already asked about in: {questions}")
+    return already_asked
+
+
+def _get_all_low_confidence_items(state: AgentState) -> list[FoodItem]:
+    """
+    Extract low-confidence FoodItems from nutritional data.
+
+    When mandatory_clarification, force_clarify, or score > clinical_threshold,
+    ALL items are returned (matching ampm_nodes._get_low_confidence_items logic).
+    Otherwise only items below CONFIDENCE_THRESHOLD are returned.
+    """
+    nutritional_data = state.get("nutritional_data", {}) or {}
+    items = nutritional_data.get("items", [])
+    force_clarify = state.get("force_clarify", False)
+    mandatory_clarification = state.get("mandatory_clarification", False)
+    score = state.get("complexity_score", 0.0)
+    threshold = state.get("clinical_threshold", 15.0)
+
+    if force_clarify or mandatory_clarification or (score > threshold):
+        return [FoodItem(**item) for item in items]
+
+    return [FoodItem(**item) for item in items if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD]
+
+
+def _enrich_with_complexity(result: AnalysisResult) -> None:
+    """
+    Enrich the AnalysisResult with deterministic complexity score.
+    Refines the LLM-provided breakdown with calculated values.
+    """
+    if not result.complexity_breakdown or not result.complexity_breakdown.levels:
+        logger.warning("No ambiguity levels found in analysis result, skipping deterministic scoring")
+        return
+
+    levels = result.complexity_breakdown.levels
+
+    # Collect risk profiles from registry matches (title + items).
+    # Use cached lookup key to avoid redundant substring search in get_risk_profile.
+    profiles: list[RiskProfile] = []
+
+    if result.title:
+        class_key = food_registry.lookup(result.title)
+        if class_key:
+            profiles.append(food_registry.get_risk_profile(result.title))
+
+    for item in result.items:
+        class_key = food_registry.lookup(item.name)
+        if class_key:
+            profiles.append(food_registry.get_risk_profile(item.name))
+
+    # Pick most conservative profile (highest semantic_penalty), else default
+    if profiles:
+        profiles.sort(key=lambda p: p.semantic_penalty, reverse=True)
+        selected_profile = profiles[0]
+    else:
+        selected_profile = food_registry.get_risk_profile("")
+
+    full_breakdown = calculate_complexity(levels, selected_profile)
+
+    result.complexity_breakdown = full_breakdown
+    result.complexity_score = full_breakdown.score
+    if selected_profile.mandatory_clarification:
+        result.mandatory_clarification = True
+        logger.info("Mandatory clarification triggered by risk profile: %s", selected_profile.name)
+
+    logger.info(
+        "Calculated deterministic complexity: %s (Dominant: %s)",
+        result.complexity_score,
+        full_breakdown.dominant_factor,
+    )
 
 
 async def analyze_input(state: AgentState) -> dict:
@@ -55,13 +152,9 @@ async def analyze_input(state: AgentState) -> dict:
                 result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
                 if log_entry:
-                    if log_entry.description:
-                        context = log_entry.description
-                        logger.info(f"Using context from log {log_id}: {context[:50]}...")
-
                     if log_entry.transcript and not transcript:
                         transcript = log_entry.transcript
-                        logger.info(f"Using persisted transcript for log {log_id}")
+                        logger.info(f"Using persisted transcript for log {log_id}: {transcript}")
 
                     # Load persisted AMPM state
                     if log_entry.clarification_count > 0:
@@ -73,6 +166,17 @@ async def analyze_input(state: AgentState) -> dict:
                     if log_entry.ampm_data:
                         state["ampm_data"] = log_entry.ampm_data
                         logger.info(f"Loaded ampm_data for log {log_id}")
+
+                        # Build context from previous Q&A pairs
+                        qas = []
+                        questions = log_entry.ampm_data.get("questions_asked", [])
+                        responses = log_entry.ampm_data.get("responses", [])
+                        for q, r in zip(questions, responses, strict=False):
+                            qas.append(f"Q: {q}\nA: {r}")
+
+                        if qas:
+                            context = "\n".join(qas)
+                            logger.info(f"Using context from ampm_data for log {log_id}: {context[:50]}...")
         except Exception as e:
             logger.warning(f"Failed to fetch log data from DB: {e}")
 
@@ -103,13 +207,19 @@ async def analyze_input(state: AgentState) -> dict:
             provider=state.get("provider"),
             model=state.get("model"),
         )
+
+        # Calculate deterministic complexity score
+        _enrich_with_complexity(result)
+
         return {
             "nutritional_data": result.model_dump(),
             "overall_confidence": result.overall_confidence,
             "complexity_score": result.complexity_score,
             "complexity_breakdown": result.complexity_breakdown,
+            "mandatory_clarification": result.mandatory_clarification,
             "start_time": start_time,
             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
+            "transcript": transcript,
         }
     except Exception as e:
         logger.error(f"Analysis failed: {e}")
@@ -144,13 +254,9 @@ async def analyze_input_streaming(
                 result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
                 log_entry = result.scalar_one_or_none()
                 if log_entry:
-                    if log_entry.description:
-                        context = log_entry.description
-                        logger.info(f"Using context from log {log_id}: {context[:50]}...")
-
                     if log_entry.transcript and not transcript:
                         transcript = log_entry.transcript
-                        logger.info(f"Using persisted transcript for log {log_id}")
+                        logger.info(f"Using persisted transcript for log {log_id}: {transcript}")
 
                     # Load persisted AMPM state
                     if log_entry.clarification_count > 0:
@@ -162,6 +268,17 @@ async def analyze_input_streaming(
                     if log_entry.ampm_data:
                         state["ampm_data"] = log_entry.ampm_data
                         logger.info(f"Loaded ampm_data for log {log_id}")
+
+                        # Build context from previous Q&A pairs
+                        qas = []
+                        questions = log_entry.ampm_data.get("questions_asked", [])
+                        responses = log_entry.ampm_data.get("responses", [])
+                        for q, r in zip(questions, responses, strict=False):
+                            qas.append(f"Q: {q}\nA: {r}")
+
+                        if qas:
+                            context = "\n".join(qas)
+                            logger.info(f"Using context from ampm_data for log {log_id}: {context[:50]}...")
         except Exception as e:
             logger.warning(f"Failed to fetch log data from DB: {e}")
 
@@ -284,6 +401,9 @@ async def analyze_input_streaming(
         # Wait for final result
         result = await analysis_task
 
+        # Calculate deterministic complexity score
+        _enrich_with_complexity(result)
+
         # Emit complete thought
         yield SSEEvent(
             type=EVENT_THOUGHT,
@@ -299,8 +419,10 @@ async def analyze_input_streaming(
             "overall_confidence": result.overall_confidence,
             "complexity_score": result.complexity_score,
             "complexity_breakdown": result.complexity_breakdown,
+            "mandatory_clarification": result.mandatory_clarification,
             "start_time": start_time,
             "agent_turn_count": state.get("agent_turn_count", 0) + 1,
+            "transcript": transcript,
         }
 
         # Check for invalid input (non-food)
@@ -362,18 +484,20 @@ async def generate_clarification(state: AgentState) -> dict:
     """
     Generate a clarification question for low-confidence items.
     """
-    nutritional_data = state.get("nutritional_data", {})
-    items = nutritional_data.get("items", [])
     clarification_count = state.get("clarification_count", 0)
 
-    # Find low-confidence items
-    low_confidence_items = [
-        FoodItem(**item) for item in items if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD
-    ]
+    # Find low-confidence items (includes all items when mandatory/clinical triggers)
+    low_confidence_items = _get_all_low_confidence_items(state)
 
     if low_confidence_items:
         await llm_service.generate_clarification_question(
-            low_confidence_items, provider=state.get("provider"), model=state.get("model")
+            low_confidence_items=low_confidence_items,
+            provider=state.get("provider"),
+            model=state.get("model"),
+            image_url=state.get("image_url"),
+            transcript=state.get("transcript"),
+            context=state.get("context"),
+            user_token=state.get("user_token"),
         )
         return {
             "needs_clarification": True,
@@ -399,20 +523,23 @@ async def generate_clarification_streaming(
         ),
     )
 
-    nutritional_data = state.get("nutritional_data", {})
-    items = nutritional_data.get("items", [])
     clarification_count = state.get("clarification_count", 0)
     log_id = state.get("log_id")
 
-    # Find low-confidence items
-    low_confidence_items = [
-        FoodItem(**item) for item in items if item.get("confidence", 1.0) < CONFIDENCE_THRESHOLD
-    ]
+    # Find low-confidence items (includes all items when mandatory/clinical triggers)
+    low_confidence_items = _get_all_low_confidence_items(state)
 
     if low_confidence_items and log_id:
         try:
-            question = await llm_service.generate_clarification_question(
-                low_confidence_items, language, provider=state.get("provider"), model=state.get("model")
+            question_set = await llm_service.generate_clarification_question(
+                low_confidence_items=low_confidence_items,
+                language=language,
+                provider=state.get("provider"),
+                model=state.get("model"),
+                image_url=state.get("image_url"),
+                transcript=state.get("transcript"),
+                context=state.get("context"),
+                user_token=state.get("user_token"),
             )
 
             # Update log status to clarification in database
@@ -429,12 +556,18 @@ async def generate_clarification_streaming(
                 "items": [{"name": item.name, "confidence": item.confidence} for item in low_confidence_items]
             }
 
-            # Emit clarification event
+            # Emit clarification event with all questions
             yield SSEEvent(
                 type=EVENT_CLARIFICATION,
                 payload=AgentClarification(
-                    question=question.question,
-                    options=question.options,
+                    questions=[
+                        ClarificationItem(
+                            item_name=q.item_name,
+                            question=q.question,
+                            options=q.options,
+                        )
+                        for q in question_set.questions
+                    ],
                     context=context,
                     log_id=log_id,
                 ),
@@ -450,6 +583,212 @@ async def generate_clarification_streaming(
             yield {"needs_clarification": False}
     else:
         yield {"needs_clarification": False}
+
+
+async def check_semantic_ambiguity(state: AgentState) -> dict:
+    """
+    Check if any items are 'Umbrella Terms' that require immediate clarification.
+    """
+    nutritional_data = state.get("nutritional_data", {})
+    items = nutritional_data.get("items", [])
+
+    # Convert dict items to FoodItem objects for the service
+    food_items = [FoodItem(**item) for item in items]
+
+    unbounded_items = semantic_gatekeeper.semantic_gatekeeper.assess_lexical_boundedness(food_items)
+
+    if unbounded_items:
+        logger.info(f"Semantic Gatekeeper Interruption: Unbounded items found: {unbounded_items}")
+        return {"unbounded_items": unbounded_items, "semantic_interruption_needed": True}
+
+    return {"unbounded_items": [], "semantic_interruption_needed": False}
+
+
+async def generate_semantic_clarification(state: AgentState) -> dict:
+    """
+    Generate a specific 'What kind of X?' question for unbounded items.
+    """
+    unbounded_items = state.get("unbounded_items", [])
+    language = state.get("language", "nl") or "nl"
+    log_id = state.get("log_id")
+    clarification_count = state.get("clarification_count", 0)
+
+    if not unbounded_items or clarification_count >= MAX_CLARIFICATIONS:
+        return {"semantic_interruption_needed": False}
+
+    # Filter out items we've already asked about (prevent duplicate questions)
+    askable_unbounded = [item for item in unbounded_items if not _item_already_asked(item, state)]
+    if not askable_unbounded:
+        return {"semantic_interruption_needed": False}
+
+    # Re-fetch items from nutritional data to get full objects
+    nutritional_data = state.get("nutritional_data", {})
+    all_items = [FoodItem(**item) for item in nutritional_data.get("items", [])]
+    target_food_items = [item for item in all_items if item.name in askable_unbounded]
+
+    try:
+        question_set = await llm_service.generate_clarification_question(
+            low_confidence_items=target_food_items,
+            language=language,
+            provider=state.get("provider"),
+            model=state.get("model"),
+            image_url=state.get("image_url"),
+            transcript=state.get("transcript"),
+            context=state.get("context"),
+            user_token=state.get("user_token"),
+        )
+
+        new_clarification_count = clarification_count + 1
+        ampm_data = state.get("ampm_data", {}) or {}
+
+        if "questions_asked" not in ampm_data:
+            ampm_data["questions_asked"] = []
+        if "low_confidence_items" not in ampm_data:
+            ampm_data["low_confidence_items"] = []
+
+        for q in question_set.questions:
+            ampm_data["questions_asked"].append(q.question)
+        for item in askable_unbounded:
+            if item not in ampm_data["low_confidence_items"]:
+                ampm_data["low_confidence_items"].append(item)
+
+        if log_id:
+            try:
+                async with database.async_session_maker() as session:
+                    result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
+                    log_entry = result.scalar_one_or_none()
+                    if log_entry:
+                        log_entry.status = "clarification"
+                        log_entry.clarification_count = new_clarification_count
+                        log_entry.ampm_data = ampm_data
+                        await session.commit()
+                        logger.info(
+                            f"Updated log {log_id} status to 'clarification', count={new_clarification_count}"
+                        )
+            except Exception as db_err:
+                logger.error(f"Failed to update log status: {db_err}")
+
+        # Return state update
+        return {
+            "semantic_interruption_needed": True,
+            "needs_clarification": True,
+            "clarification_count": new_clarification_count,
+            "ampm_data": ampm_data,
+            "agent_turn_count": state.get("agent_turn_count", 0) + 1,
+        }
+
+    except Exception as e:
+        logger.error(f"Semantic clarification failed: {e}")
+        return {"semantic_interruption_needed": False}
+
+
+async def generate_semantic_clarification_streaming(
+    state: AgentState,
+) -> AsyncGenerator[SSEEvent | dict, None]:
+    """
+    Generate semantic clarification with streaming events.
+    """
+    language = state.get("language", "nl") or "nl"
+    unbounded_items = state.get("unbounded_items", [])
+    log_id = state.get("log_id")
+    clarification_count = state.get("clarification_count", 0)
+
+    if not unbounded_items or clarification_count >= MAX_CLARIFICATIONS:
+        yield {"semantic_interruption_needed": False}
+        return
+
+    # Filter out items we've already asked about (prevent duplicate questions)
+    askable_unbounded = [item for item in unbounded_items if not _item_already_asked(item, state)]
+    if not askable_unbounded:
+        yield {"semantic_interruption_needed": False}
+        return
+
+    # Emit thought
+    yield SSEEvent(
+        type=EVENT_THOUGHT,
+        payload=AgentThought(
+            step=STEP_SEMANTIC_CHECK,
+            message=get_message("clarifying", language),
+            timestamp=datetime.now(UTC),
+        ),
+    )
+
+    try:
+        # Re-fetch items from nutritional data to get full objects
+        nutritional_data = state.get("nutritional_data", {})
+        all_items = [FoodItem(**item) for item in nutritional_data.get("items", [])]
+        target_food_items = [item for item in all_items if item.name in askable_unbounded]
+
+        question_set = await llm_service.generate_clarification_question(
+            low_confidence_items=target_food_items,
+            language=language,
+            provider=state.get("provider"),
+            model=state.get("model"),
+            image_url=state.get("image_url"),
+            transcript=state.get("transcript"),
+            context=state.get("context"),
+            user_token=state.get("user_token"),
+        )
+
+        new_clarification_count = clarification_count + 1
+        ampm_data = state.get("ampm_data", {}) or {}
+
+        if "questions_asked" not in ampm_data:
+            ampm_data["questions_asked"] = []
+        if "low_confidence_items" not in ampm_data:
+            ampm_data["low_confidence_items"] = []
+
+        for q in question_set.questions:
+            ampm_data["questions_asked"].append(q.question)
+        for item in askable_unbounded:
+            if item not in ampm_data["low_confidence_items"]:
+                ampm_data["low_confidence_items"].append(item)
+
+        if log_id:
+            async with database.async_session_maker() as session:
+                result = await session.execute(select(DietaryLog).where(DietaryLog.id == log_id))
+                log_entry = result.scalar_one_or_none()
+                if log_entry:
+                    log_entry.status = "clarification"
+                    log_entry.clarification_count = new_clarification_count
+                    log_entry.ampm_data = ampm_data
+                    await session.commit()
+                    logger.info(
+                        f"Updated log {log_id} status to 'clarification', count={new_clarification_count}"
+                    )
+
+        context = {
+            "items": [{"name": item.name, "confidence": item.confidence} for item in target_food_items],
+            "type": "semantic",
+        }
+
+        yield SSEEvent(
+            type=EVENT_CLARIFICATION,
+            payload=AgentClarification(
+                questions=[
+                    ClarificationItem(
+                        item_name=q.item_name,
+                        question=q.question,
+                        options=q.options,
+                    )
+                    for q in question_set.questions
+                ],
+                context=context,
+                log_id=log_id,
+            ),
+        )
+
+        yield {
+            "semantic_interruption_needed": True,
+            "needs_clarification": True,
+            "clarification_count": new_clarification_count,
+            "ampm_data": ampm_data,
+            "agent_turn_count": state.get("agent_turn_count", 0) + 1,
+        }
+
+    except Exception as e:
+        logger.error(f"Semantic clarification failed: {e}")
+        yield {"semantic_interruption_needed": False}
 
 
 async def finalize_log(state: AgentState) -> dict:
@@ -557,13 +896,22 @@ async def finalize_log_streaming(
                         elif audio_url:
                             modality = "voice"
 
+                        # Get complexity data from state/result
+                        complexity_score = state.get("complexity_score")
+                        complexity_breakdown = state.get("complexity_breakdown")
+                        dominant_factor = (
+                            complexity_breakdown.dominant_factor if complexity_breakdown else None
+                        )
+
                         research_log = ResearchLog(
                             log_id=log_id,
                             input_modality=modality,
                             processing_time_ms=processing_time_ms,
                             agent_turns_count=state.get("agent_turn_count", 1),
-                            was_corrected=clarification_count > 0,  # Simple heuristic for now
+                            was_corrected=clarification_count > 0,
                             confidence_score=overall_confidence,
+                            complexity_score=complexity_score,
+                            dominant_factor=dominant_factor,
                         )
                         session.add(research_log)
                         await session.commit()
