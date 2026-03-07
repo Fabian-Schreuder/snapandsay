@@ -1,3 +1,9 @@
 [submodule "docs/thesis/msc-thesis-phase2"]
 	path = docs/thesis/msc-thesis-phase2
 	url = https://github.com/Fabian-Schreuder/msc-thesis-phase2.git
+[submodule "docs/thesis/msc-thesis-phase1"]
+	path = docs/thesis/msc-thesis-phase1
+	url = https://github.com/Fabian-Schreuder/msc-thesis-phase1
+[submodule "docs/thesis/msc-thesis-consolidated"]
+	path = docs/thesis/msc-thesis-consolidated
+	url = https://github.com/Fabian-Schreuder/msc-thesis-consolidated
