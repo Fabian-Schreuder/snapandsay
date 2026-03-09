@@ -433,10 +433,10 @@ class TestRoutingAccuracy:
     def test_excludes_failed_dishes(self, metrics_calculator):
         """Failed dishes should not count as routing decisions."""
         per_dish = [
-            {"dish_id": "s1", "turns": 0, "success": True},   # TN
+            {"dish_id": "s1", "turns": 0, "success": True},  # TN
             {"dish_id": "s2", "turns": 0, "success": False},  # Failed — excluded
             {"dish_id": "c1", "turns": 0, "success": False},  # Failed — excluded
-            {"dish_id": "c2", "turns": 1, "success": True},   # TP
+            {"dish_id": "c2", "turns": 1, "success": True},  # TP
         ]
         complexity_map = {"s1": "simple", "s2": "simple", "c1": "complex", "c2": "complex"}
 

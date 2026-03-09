@@ -89,27 +89,37 @@ async def test_run_dish_full_flow(runner, mock_dish):
     mock_upload_resp.raise_for_status = MagicMock()
 
     # Stream 1: returns clarification (stream terminates after)
-    stream1 = _make_stream([
-        _sse_line("agent.clarification", {
-            "questions": [
-                {"item_name": "Chicken", "question": "Is this spicy?", "options": ["yes", "no"]}
-            ],
-            "context": {},
-            "log_id": "log_abc",
-        }),
-        "",
-    ])
+    stream1 = _make_stream(
+        [
+            _sse_line(
+                "agent.clarification",
+                {
+                    "questions": [
+                        {"item_name": "Chicken", "question": "Is this spicy?", "options": ["yes", "no"]}
+                    ],
+                    "context": {},
+                    "log_id": "log_abc",
+                },
+            ),
+            "",
+        ]
+    )
 
     # Stream 2: returns response (after reconnection)
-    stream2 = _make_stream([
-        _sse_line("agent.response", {
-            "status": "success",
-            "nutritional_data": {"title": "Chicken"},
-            "complexity_breakdown": {"score": 5.0, "dominant_factor": "item_count"},
-            "complexity_score": 5.0,
-        }),
-        "",
-    ])
+    stream2 = _make_stream(
+        [
+            _sse_line(
+                "agent.response",
+                {
+                    "status": "success",
+                    "nutritional_data": {"title": "Chicken"},
+                    "complexity_breakdown": {"score": 5.0, "dominant_factor": "item_count"},
+                    "complexity_score": 5.0,
+                },
+            ),
+            "",
+        ]
+    )
 
     # Mock clarify submit response
     mock_clarify_resp = MagicMock()
@@ -151,26 +161,40 @@ async def test_clarification_question_extraction(runner, mock_dish):
     runner.access_token = "fake-token"
 
     # Stream 1: clarification with multiple questions
-    stream1 = _make_stream([
-        _sse_line("agent.clarification", {
-            "questions": [
-                {"item_name": "Burger", "question": "What kind of burger?", "options": ["beef", "veggie"]},
-                {"item_name": "Sauce", "question": "What sauce?", "options": ["ketchup", "mayo"]},
-            ],
-            "context": {},
-            "log_id": "log_q",
-        }),
-        "",
-    ])
+    stream1 = _make_stream(
+        [
+            _sse_line(
+                "agent.clarification",
+                {
+                    "questions": [
+                        {
+                            "item_name": "Burger",
+                            "question": "What kind of burger?",
+                            "options": ["beef", "veggie"],
+                        },
+                        {"item_name": "Sauce", "question": "What sauce?", "options": ["ketchup", "mayo"]},
+                    ],
+                    "context": {},
+                    "log_id": "log_q",
+                },
+            ),
+            "",
+        ]
+    )
 
     # Stream 2: response after reconnection
-    stream2 = _make_stream([
-        _sse_line("agent.response", {
-            "status": "success",
-            "nutritional_data": {"title": "Burger"},
-        }),
-        "",
-    ])
+    stream2 = _make_stream(
+        [
+            _sse_line(
+                "agent.response",
+                {
+                    "status": "success",
+                    "nutritional_data": {"title": "Burger"},
+                },
+            ),
+            "",
+        ]
+    )
 
     mock_clarify = AsyncMock()
     mock_stream = MagicMock(side_effect=[stream1, stream2])
@@ -205,21 +229,29 @@ async def test_submit_answers_is_awaited(runner, mock_dish):
         call_order.append("submit_end")
 
     # Stream 1: clarification
-    stream1 = _make_stream([
-        _sse_line("agent.clarification", {
-            "questions": [{"item_name": "X", "question": "Q?", "options": []}],
-            "context": {},
-            "log_id": "log_await",
-        }),
-        "",
-    ])
+    stream1 = _make_stream(
+        [
+            _sse_line(
+                "agent.clarification",
+                {
+                    "questions": [{"item_name": "X", "question": "Q?", "options": []}],
+                    "context": {},
+                    "log_id": "log_await",
+                },
+            ),
+            "",
+        ]
+    )
 
     # Stream 2: response
     stream2_lines = [
-        _sse_line("agent.response", {
-            "status": "success",
-            "nutritional_data": {"title": "X"},
-        }),
+        _sse_line(
+            "agent.response",
+            {
+                "status": "success",
+                "nutritional_data": {"title": "X"},
+            },
+        ),
         "",
     ]
 
@@ -268,24 +300,34 @@ async def test_run_dish_max_turns_limit(runner, mock_dish):
     )
 
     # Stream 1: first clarification (turns=1, processed normally)
-    stream1 = _make_stream([
-        _sse_line("agent.clarification", {
-            "questions": [{"item_name": "A", "question": "Q1?", "options": []}],
-            "context": {},
-            "log_id": "log_limit",
-        }),
-        "",
-    ])
+    stream1 = _make_stream(
+        [
+            _sse_line(
+                "agent.clarification",
+                {
+                    "questions": [{"item_name": "A", "question": "Q1?", "options": []}],
+                    "context": {},
+                    "log_id": "log_limit",
+                },
+            ),
+            "",
+        ]
+    )
 
     # Stream 2: second clarification (turns=2, exceeds max_turns=1, break)
-    stream2 = _make_stream([
-        _sse_line("agent.clarification", {
-            "questions": [{"item_name": "B", "question": "Q2?", "options": []}],
-            "context": {},
-            "log_id": "log_limit",
-        }),
-        "",
-    ])
+    stream2 = _make_stream(
+        [
+            _sse_line(
+                "agent.clarification",
+                {
+                    "questions": [{"item_name": "B", "question": "Q2?", "options": []}],
+                    "context": {},
+                    "log_id": "log_limit",
+                },
+            ),
+            "",
+        ]
+    )
 
     mock_stream = MagicMock(side_effect=[stream1, stream2])
 
@@ -327,13 +369,18 @@ async def test_mode_sets_force_flags(runner, mock_dish):
     # Test single-shot mode
     runner.mode = "single-shot"
 
-    stream1 = _make_stream([
-        _sse_line("agent.response", {
-            "status": "success",
-            "nutritional_data": {"title": "Test"},
-        }),
-        "",
-    ])
+    stream1 = _make_stream(
+        [
+            _sse_line(
+                "agent.response",
+                {
+                    "status": "success",
+                    "nutritional_data": {"title": "Test"},
+                },
+            ),
+            "",
+        ]
+    )
 
     captured_payloads = []
 
@@ -357,23 +404,33 @@ async def test_semantic_gatekeeper_in_single_shot(runner, mock_dish):
     runner.mode = "single-shot"
 
     # Stream 1: semantic gatekeeper fires clarification despite force_finalize
-    stream1 = _make_stream([
-        _sse_line("agent.clarification", {
-            "questions": [{"item_name": "Soup", "question": "What kind of soup?", "options": []}],
-            "context": {"type": "semantic"},
-            "log_id": "log_sg",
-        }),
-        "",
-    ])
+    stream1 = _make_stream(
+        [
+            _sse_line(
+                "agent.clarification",
+                {
+                    "questions": [{"item_name": "Soup", "question": "What kind of soup?", "options": []}],
+                    "context": {"type": "semantic"},
+                    "log_id": "log_sg",
+                },
+            ),
+            "",
+        ]
+    )
 
     # Stream 2: response after auto-answer
-    stream2 = _make_stream([
-        _sse_line("agent.response", {
-            "status": "success",
-            "nutritional_data": {"title": "Soup"},
-        }),
-        "",
-    ])
+    stream2 = _make_stream(
+        [
+            _sse_line(
+                "agent.response",
+                {
+                    "status": "success",
+                    "nutritional_data": {"title": "Soup"},
+                },
+            ),
+            "",
+        ]
+    )
 
     mock_clarify = AsyncMock()
     mock_stream = MagicMock(side_effect=[stream1, stream2])
@@ -397,14 +454,19 @@ async def test_max_reconnections_limit(runner, mock_dish):
 
     # Create streams that always return clarification
     def always_clarify(*args, **kwargs):
-        return _make_stream([
-            _sse_line("agent.clarification", {
-                "questions": [{"item_name": "X", "question": "Q?", "options": []}],
-                "context": {},
-                "log_id": "log_inf",
-            }),
-            "",
-        ])
+        return _make_stream(
+            [
+                _sse_line(
+                    "agent.clarification",
+                    {
+                        "questions": [{"item_name": "X", "question": "Q?", "options": []}],
+                        "context": {},
+                        "log_id": "log_inf",
+                    },
+                ),
+                "",
+            ]
+        )
 
     mock_clarify = AsyncMock()
     mock_stream = MagicMock(side_effect=always_clarify)

@@ -236,16 +236,12 @@ class OracleRunner:
                                 for q_item in questions_list:
                                     q_text = q_item.get("question", "")
                                     intent = self._question_parser.parse(q_text)
-                                    answer = self._question_parser.lookup_answer(
-                                        intent, dish
-                                    )
+                                    answer = self._question_parser.lookup_answer(intent, dish)
                                     logger.info(
                                         f"[{dish.dish_id}] Q: {q_text[:50]} → "
                                         f"{intent.question_type.name}: {answer[:50]}..."
                                     )
-                                    responses.append(
-                                        {"response": answer, "is_voice": False}
-                                    )
+                                    responses.append({"response": answer, "is_voice": False})
                                     clarification_history.append(
                                         {
                                             "question": q_text,
@@ -257,9 +253,7 @@ class OracleRunner:
                                     )
 
                                 # Submit all answers and wait for confirmation
-                                await self._submit_answers(
-                                    log_id, responses, headers
-                                )
+                                await self._submit_answers(log_id, responses, headers)
                                 # Stream terminates after clarification — break inner loop
                                 # to reconnect via outer loop
                                 break
@@ -319,9 +313,7 @@ class OracleRunner:
             result["semantic_gatekeeper_fired"] = True
         return result
 
-    async def _submit_answers(
-        self, log_id: str, responses: list[dict], headers: dict
-    ):
+    async def _submit_answers(self, log_id: str, responses: list[dict], headers: dict):
         """Submit clarification responses. Raises on failure to prevent silent reconnect loops."""
         url = f"/api/v1/analysis/clarify/{log_id}"
         payload = {"responses": responses}

@@ -515,9 +515,7 @@ async def _run_compare(args, output_dir: Path):
         mode_total_mae[mode_name] = metrics_calc.aggregate_mae(mae_results)
 
     # TNR/TPR for agentic mode
-    routing_acc = metrics_calc.calculate_routing_accuracy(
-        mode_per_dish["agentic"], dish_complexity_map
-    )
+    routing_acc = metrics_calc.calculate_routing_accuracy(mode_per_dish["agentic"], dish_complexity_map)
 
     # Turn reduction
     turn_reduction = metrics_calc.calculate_turn_reduction(
@@ -554,10 +552,7 @@ async def _run_compare(args, output_dir: Path):
 
     # TNR/TPR
     if routing_acc and not routing_acc.get("skipped"):
-        print(
-            f"\nRouting Accuracy (agentic): "
-            f"TNR={routing_acc['tnr']:.3f}, TPR={routing_acc['tpr']:.3f}"
-        )
+        print(f"\nRouting Accuracy (agentic): " f"TNR={routing_acc['tnr']:.3f}, TPR={routing_acc['tpr']:.3f}")
         ra = routing_acc
         print(f"  TN={ra['tn']}, FP={ra['fp']}, TP={ra['tp']}, FN={ra['fn']}")
 
