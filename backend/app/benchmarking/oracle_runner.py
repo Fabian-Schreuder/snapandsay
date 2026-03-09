@@ -1,4 +1,3 @@
-import asyncio
 import json
 import logging
 import time
@@ -15,12 +14,27 @@ from app.config import settings
 logger = logging.getLogger(__name__)
 
 
+VALID_MODES = {"agentic", "single-shot", "naive-always-ask"}
+
+
 class OracleRunner:
-    def __init__(self, api_url: str, email: str, password: str, max_turns: int = 3):
+    def __init__(
+        self,
+        api_url: str,
+        email: str,
+        password: str,
+        max_turns: int = 3,
+        mode: str = "agentic",
+        timeout: float = 180.0,
+    ):
+        if mode not in VALID_MODES:
+            raise ValueError(f"Invalid mode '{mode}'. Must be one of: {VALID_MODES}")
+
         self.api_url = api_url.rstrip("/")
         self.email = email
         self.password = password
         self.max_turns = max_turns
+        self.mode = mode
 
         # Initialize Supabase Client for Auth logic
         self.supabase: Client = create_client(str(settings.SUPABASE_URL), str(settings.SUPABASE_ANON_KEY))
@@ -28,7 +42,7 @@ class OracleRunner:
         self.user_id: str | None = None
 
         # Async HTTP client for API calls
-        self.client = httpx.AsyncClient(base_url=self.api_url, timeout=120.0, verify=False)  # noqa: S501
+        self.client = httpx.AsyncClient(base_url=self.api_url, timeout=timeout, verify=False)  # noqa: S501
 
         # Question parser for targeted Oracle responses
         self._question_parser = QuestionParser()
@@ -111,122 +125,186 @@ class OracleRunner:
         provider: str | None = None,
         model: str | None = None,
     ) -> dict[str, Any]:
-        """
-        Connects to SSE stream and handles events.
+        """Reconnection-based SSE processing loop.
+
+        The server terminates the SSE stream after each clarification event.
+        This loop handles reconnection: after receiving a clarification, it submits
+        the oracle answer, then opens a NEW stream (with log_id) to continue
+        the conversation until an agent.response or agent.error is received.
         """
         turns = 0
         final_log = None
         error_msg = None
-        clarification_history = []
+        clarification_history: list[dict[str, Any]] = []
         complexity_breakdown = None
         complexity_score = None
+        semantic_gatekeeper_fired = False
+        max_reconnections = 10
 
-        stream_payload = {
+        # Build initial stream payload with force flags based on mode
+        force_finalize = self.mode == "single-shot"
+        force_clarify = self.mode == "naive-always-ask"
+
+        initial_payload = {
             "log_id": log_id,
             "image_path": image_url,
             "audio_path": None,
             "system_prompt_override": system_prompt_override,
             "provider": provider,
             "model": model,
+            "force_finalize": force_finalize,
+            "force_clarify": force_clarify,
         }
 
-        # Note: In a real scenario, the stream URL might expect GET for event-stream,
-        # but analysis/stream is POST.
-
-        current_event_type = None
+        done = False
+        reconnection_count = 0
+        is_first_request = True
 
         try:
-            async with self.client.stream(
-                "POST", "/api/v1/analysis/stream", json=stream_payload, headers=headers
-            ) as response:
-                if response.status_code != 200:
-                    return {
-                        "dish_id": dish.dish_id,
-                        "success": False,
-                        "error": f"Stream failed: {response.status_code}",
+            while not done and reconnection_count <= max_reconnections:
+                # First iteration: send full payload. Subsequent: continuation with log_id
+                if is_first_request:
+                    stream_payload = initial_payload
+                    is_first_request = False
+                else:
+                    reconnection_count += 1
+                    stream_payload = {
                         "log_id": log_id,
+                        "image_path": image_url,
+                        "audio_path": None,
+                        "system_prompt_override": system_prompt_override,
+                        "provider": provider,
+                        "model": model,
+                        "force_finalize": force_finalize,
+                        "force_clarify": force_clarify,
                     }
 
-                async for line in response.aiter_lines():
-                    if not line.strip() or line.startswith(":"):
-                        continue
+                current_event_type = None
 
-                    if line.startswith("event:"):
-                        current_event_type = line.split(":", 1)[1].strip()
-                    elif line.startswith("data:"):
-                        data_str = line.split(":", 1)[1].strip()
-                        try:
-                            # Parse the wrapper {type: ..., payload: ...}
-                            event_wrapper = json.loads(data_str)
-                        except json.JSONDecodeError:
+                async with self.client.stream(
+                    "POST", "/api/v1/analysis/stream", json=stream_payload, headers=headers
+                ) as response:
+                    if response.status_code != 200:
+                        error_msg = f"Stream failed: {response.status_code}"
+                        done = True
+                        break
+
+                    async for line in response.aiter_lines():
+                        if not line.strip() or line.startswith(":"):
                             continue
 
-                        # Extract type and payload
-                        # Backend sends: {"type": "...", "payload": {...}} in data field
-                        event_type = event_wrapper.get("type", current_event_type)
-                        data = event_wrapper.get("payload", event_wrapper)
+                        if line.startswith("event:"):
+                            current_event_type = line.split(":", 1)[1].strip()
+                        elif line.startswith("data:"):
+                            data_str = line.split(":", 1)[1].strip()
+                            try:
+                                event_wrapper = json.loads(data_str)
+                            except json.JSONDecodeError:
+                                continue
 
-                        # Handle Event
-                        if event_type == "agent.clarification":
-                            turns += 1
-                            question = data.get("question", "")
-                            logger.info(f"[{dish.dish_id}] Clarification {turns}: {question}")
+                            event_type = event_wrapper.get("type", current_event_type)
+                            data = event_wrapper.get("payload", event_wrapper)
 
-                            if turns > self.max_turns:
-                                logger.warning(f"[{dish.dish_id}] Max turns reached")
+                            if event_type == "agent.clarification":
+                                turns += 1
+
+                                # Detect semantic gatekeeper firing in single-shot mode
+                                if self.mode == "single-shot":
+                                    semantic_gatekeeper_fired = True
+                                    logger.warning(
+                                        f"[{dish.dish_id}] Semantic gatekeeper fired in "
+                                        f"single-shot mode — auto-answering"
+                                    )
+
+                                # Extract questions from list (AgentClarification schema)
+                                questions_list = data.get("questions", [])
+                                if questions_list:
+                                    logger.info(
+                                        f"[{dish.dish_id}] Clarification {turns}: "
+                                        f"{len(questions_list)} question(s)"
+                                    )
+                                else:
+                                    logger.info(f"[{dish.dish_id}] Clarification {turns}: empty")
+
+                                if turns > self.max_turns:
+                                    logger.warning(f"[{dish.dish_id}] Max turns reached")
+                                    done = True
+                                    break
+
+                                # Parse and answer each question individually
+                                responses = []
+                                for q_item in questions_list:
+                                    q_text = q_item.get("question", "")
+                                    intent = self._question_parser.parse(q_text)
+                                    answer = self._question_parser.lookup_answer(
+                                        intent, dish
+                                    )
+                                    logger.info(
+                                        f"[{dish.dish_id}] Q: {q_text[:50]} → "
+                                        f"{intent.question_type.name}: {answer[:50]}..."
+                                    )
+                                    responses.append(
+                                        {"response": answer, "is_voice": False}
+                                    )
+                                    clarification_history.append(
+                                        {
+                                            "question": q_text,
+                                            "item_name": q_item.get("item_name", ""),
+                                            "intent": intent.question_type.name,
+                                            "entity": intent.entity,
+                                            "answer": answer,
+                                        }
+                                    )
+
+                                # Submit all answers and wait for confirmation
+                                await self._submit_answers(
+                                    log_id, responses, headers
+                                )
+                                # Stream terminates after clarification — break inner loop
+                                # to reconnect via outer loop
                                 break
 
-                            # Use QuestionParser for targeted Oracle answer
-                            intent = self._question_parser.parse(question)
-                            answer = self._question_parser.lookup_answer(intent, dish)
-                            logger.info(
-                                f"[{dish.dish_id}] Intent: {intent.question_type.name}, "
-                                f"Answering: {answer[:50]}..."
-                            )
+                            elif event_type == "agent.response":
+                                final_log = data.get("nutritional_data")
+                                status = data.get("status")
 
-                            clarification_history.append(
-                                {
-                                    "question": question,
-                                    "intent": intent.question_type.name,
-                                    "entity": intent.entity,
-                                    "answer": answer,
-                                }
-                            )
+                                complexity_breakdown = data.get("complexity_breakdown")
+                                if complexity_breakdown and not isinstance(complexity_breakdown, dict):
+                                    logger.warning(
+                                        f"[{dish.dish_id}] Invalid complexity_breakdown format: "
+                                        f"{type(complexity_breakdown)}"
+                                    )
+                                    complexity_breakdown = None
 
-                            # Submit answer asynchronously
-                            asyncio.create_task(self._submit_answer(log_id, answer, headers))
+                                complexity_score = data.get("complexity_score")
 
-                        elif event_type == "agent.response":
-                            # Final result
-                            final_log = data.get("nutritional_data")
-                            status = data.get("status")
+                                logger.info(f"[{dish.dish_id}] Final Result: {status}")
+                                done = True
+                                break
 
-                            # Extract complexity data from response payload
-                            complexity_breakdown = data.get("complexity_breakdown")
-                            if complexity_breakdown and not isinstance(complexity_breakdown, dict):
-                                logger.warning(
-                                    f"[{dish.dish_id}] Invalid complexity_breakdown format: "
-                                    f"{type(complexity_breakdown)}"
-                                )
-                                complexity_breakdown = None
+                            elif event_type == "agent.error":
+                                error_msg = data.get("message", "Unknown error")
+                                logger.error(f"[{dish.dish_id}] Agent Error: {error_msg}")
+                                done = True
+                                break
 
-                            complexity_score = data.get("complexity_score")
-
-                            logger.info(f"[{dish.dish_id}] Final Result: {status}")
-                            # We can break here as we got the result
-                            break
-
-                        elif event_type == "agent.error":
-                            error_msg = data.get("message", "Unknown error")
-                            logger.error(f"[{dish.dish_id}] Agent Error: {error_msg}")
-                            break
+            if reconnection_count > max_reconnections:
+                error_msg = f"Max reconnections ({max_reconnections}) exceeded"
+                logger.error(f"[{dish.dish_id}] {error_msg}")
 
         except Exception as e:
             logger.error(f"Stream exception for {dish.dish_id}: {e}")
             error_msg = str(e)
 
+        # Log warning for naive-always-ask with 0 turns
+        if self.mode == "naive-always-ask" and turns == 0:
+            logger.warning(
+                f"[{dish.dish_id}] naive-always-ask mode completed with 0 turns "
+                f"(likely due to _item_already_asked filtering)"
+            )
+
         success = final_log is not None
-        return {
+        result: dict[str, Any] = {
             "dish_id": dish.dish_id,
             "success": success,
             "turns": turns,
@@ -237,14 +315,16 @@ class OracleRunner:
             "complexity_breakdown": complexity_breakdown,
             "complexity_score": complexity_score,
         }
+        if semantic_gatekeeper_fired:
+            result["semantic_gatekeeper_fired"] = True
+        return result
 
-    async def _submit_answer(self, log_id: str, answer: str, headers: dict):
-        """Submit clarification response."""
+    async def _submit_answers(
+        self, log_id: str, responses: list[dict], headers: dict
+    ):
+        """Submit clarification responses. Raises on failure to prevent silent reconnect loops."""
         url = f"/api/v1/analysis/clarify/{log_id}"
-        payload = {"response": answer, "is_voice": False}
-        try:
-            resp = await self.client.post(url, json=payload, headers=headers)
-            resp.raise_for_status()
-            logger.debug(f"Answer submitted for {log_id}")
-        except Exception as e:
-            logger.error(f"Failed to submit answer for {log_id}: {e}")
+        payload = {"responses": responses}
+        resp = await self.client.post(url, json=payload, headers=headers)
+        resp.raise_for_status()
+        logger.debug(f"Answer submitted for {log_id} ({len(responses)} responses)")

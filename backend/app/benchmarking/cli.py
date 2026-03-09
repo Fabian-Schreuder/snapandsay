@@ -15,7 +15,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 from app.benchmarking.experiment_log import ExperimentLog, ExperimentResult
-from app.benchmarking.metrics import LatencyTracker, MetricsCalculator
+from app.benchmarking.metrics import AggregateMAE, LatencyTracker, MetricsCalculator
 from app.benchmarking.nutrition5k_loader import Nutrition5kLoader
 from app.benchmarking.oracle_runner import OracleRunner
 from app.benchmarking.prompt_optimizer import PromptOptimizer
@@ -27,25 +27,28 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 
-def load_checkpoint(checkpoint_file: Path) -> tuple[list[dict], set[str]]:
-    """Load results from checkpoint file."""
+def load_checkpoint(checkpoint_file: Path) -> tuple[list[dict], set[str], dict]:
+    """Load results and metadata from checkpoint file."""
     if not checkpoint_file.exists():
-        return [], set()
+        return [], set(), {}
 
     with open(checkpoint_file) as f:
         data = json.load(f)
 
     results = data.get("results", [])
+    metadata = data.get("metadata", {})
     processed_ids = {r["dish_id"] for r in results}
     logger.info(f"Loaded checkpoint with {len(processed_ids)} processed dishes")
-    return results, processed_ids
+    return results, processed_ids, metadata
 
 
 def save_checkpoint(checkpoint_file: Path, results: list[dict], metadata: dict):
-    """Save current results to checkpoint file."""
+    """Save current results to checkpoint file with atomic writes."""
     data = {"metadata": metadata, "results": results}
-    with open(checkpoint_file, "w") as f:
+    tmp_file = checkpoint_file.with_suffix(".tmp")
+    with open(tmp_file, "w") as f:
         json.dump(data, f, indent=2, default=str)
+    os.replace(tmp_file, checkpoint_file)
     logger.info(f"Checkpoint saved: {len(results)} results")
 
 
@@ -121,14 +124,50 @@ async def main_async(args):
         await optimizer.close()
         return
 
+    if args.command == "compare":
+        await _run_compare(args, output_dir)
+        return
+
     # Original benchmark flow...
     checkpoint_file = output_dir / "benchmark_checkpoint.json"
     results = []
     processed_ids: set[str] = set()
+    mode = getattr(args, "mode", "agentic")
 
     # Load checkpoint if resuming
     if args.resume:
-        results, processed_ids = load_checkpoint(checkpoint_file)
+        results, processed_ids, ckpt_metadata = load_checkpoint(checkpoint_file)
+        if ckpt_metadata is not None:
+            ckpt_version = ckpt_metadata.get("checkpoint_version", 1)
+            force_resume = getattr(args, "force_resume", False)
+
+            if ckpt_version < 2:
+                # Legacy checkpoint — no mode info
+                if mode != "agentic" and not force_resume:
+                    logger.error(
+                        f"Checkpoint predates mode support (version {ckpt_version}). "
+                        f"Cannot resume with --mode {mode}. Use --force-resume to override."
+                    )
+                    sys.exit(1)
+                if mode != "agentic":
+                    logger.warning("Checkpoint predates mode support. Forcing resume as requested.")
+            else:
+                # Validate parameters match
+                mismatches = []
+                for key in ("seed", "complexity", "mode", "limit"):
+                    ckpt_val = ckpt_metadata.get(key)
+                    arg_val = getattr(args, key, None)
+                    if ckpt_val is not None and arg_val is not None and ckpt_val != arg_val:
+                        mismatches.append(f"{key}: checkpoint={ckpt_val}, current={arg_val}")
+
+                if mismatches and not force_resume:
+                    logger.error(
+                        f"Checkpoint parameter mismatch: {'; '.join(mismatches)}. "
+                        f"Use --force-resume to override."
+                    )
+                    sys.exit(1)
+                if mismatches:
+                    logger.warning(f"Forcing resume despite parameter mismatches: {'; '.join(mismatches)}")
 
     # 1. Load Data
     logger.info("Initializing Loader...")
@@ -154,6 +193,8 @@ async def main_async(args):
             email=args.email,
             password=args.password,
             max_turns=args.max_turns,
+            mode=mode,
+            timeout=getattr(args, "timeout", 180.0),
         )
 
         # 3. Login
@@ -168,7 +209,19 @@ async def main_async(args):
         # 4. Latency Tracker
         latency_tracker = LatencyTracker()
 
-        # 5. Run Loop with Batching
+        # Checkpoint metadata
+        ckpt_meta = {
+            "seed": args.seed,
+            "complexity": args.complexity,
+            "batch_size": args.batch_size,
+            "mode": mode,
+            "limit": args.limit,
+            "checkpoint_version": 2,
+        }
+
+        retries = getattr(args, "retries", 2)
+
+        # 5. Run Loop with Batching and Retry
         try:
             for _i, dish in enumerate(dishes):
                 batch_idx = (len(results) // args.batch_size) + 1
@@ -179,7 +232,35 @@ async def main_async(args):
                     f"Overall {len(results)+1}/{len(all_dishes)}: {dish.dish_id} ---"
                 )
 
-                result = await runner.run_dish(dish, provider=args.provider, model=args.model)
+                # Retry loop
+                result = None
+                for attempt in range(retries + 1):
+                    try:
+                        result = await runner.run_dish(dish, provider=args.provider, model=args.model)
+                        # Check for retryable failures
+                        if result["success"] or attempt >= retries:
+                            break
+                        error = result.get("error", "")
+                        retryable = any(kw in error.lower() for kw in ("timeout", "connection", "network"))
+                        if not retryable:
+                            break
+                        logger.warning(
+                            f"[{dish.dish_id}] Retryable failure (attempt {attempt+1}/{retries+1}): {error}"
+                        )
+                        await asyncio.sleep(2**attempt)
+                    except Exception as e:
+                        logger.error(f"[{dish.dish_id}] Exception on attempt {attempt+1}: {e}")
+                        if attempt >= retries:
+                            result = {
+                                "dish_id": dish.dish_id,
+                                "success": False,
+                                "error": str(e),
+                                "turns": 0,
+                                "log_id": None,
+                            }
+                        else:
+                            await asyncio.sleep(2**attempt)
+
                 results.append(result)
 
                 # Record latency
@@ -199,13 +280,12 @@ async def main_async(args):
                 else:
                     logger.error(f"FAILURE: {dish.dish_id} - {result.get('error')}")
 
-                # Save checkpoint after each batch
+                # Per-dish checkpoint save (atomic)
+                save_checkpoint(checkpoint_file, results, ckpt_meta)
+
+                # Batch progress logging
                 if len(results) % args.batch_size == 0:
-                    save_checkpoint(
-                        checkpoint_file,
-                        results,
-                        {"seed": args.seed, "complexity": args.complexity, "batch_size": args.batch_size},
-                    )
+                    logger.info(f"Batch {batch_idx} complete ({len(results)} total)")
 
                 # Brief pause to avoid rate limiting
                 await asyncio.sleep(args.delay)
@@ -213,11 +293,7 @@ async def main_async(args):
         finally:
             await runner.close()
             # Final checkpoint save
-            save_checkpoint(
-                checkpoint_file,
-                results,
-                {"seed": args.seed, "complexity": args.complexity, "batch_size": args.batch_size},
-            )
+            save_checkpoint(checkpoint_file, results, ckpt_meta)
 
     # 6. Generate Report/Result
     # Calculate MAE metrics
@@ -273,16 +349,35 @@ async def main_async(args):
     aggregate_latency = latency_tracker.aggregate()
     complexity_stats = metrics_calc.aggregate_complexity(per_dish_results)
 
-    # Create ExperimentResult
+    # Per-stratum MAE
+    dish_complexity_map = {did: d.complexity for did, d in dishes_map.items()}
+    stratum_mae = metrics_calc.aggregate_mae_by_stratum(mae_results, dish_complexity_map)
+
+    # Routing accuracy (only meaningful for agentic mode)
+    routing_accuracy = None
+    if mode == "agentic":
+        routing_accuracy = metrics_calc.calculate_routing_accuracy(per_dish_results, dish_complexity_map)
+
+    # Build metrics dict
+    metrics_dict = {
+        **aggregate_mae.to_dict()["mae"],
+        "complexity_stats": complexity_stats.to_dict(),
+        "stratum_mae": {k: v.to_dict() for k, v in stratum_mae.items()},
+    }
+    if routing_accuracy is not None:
+        metrics_dict["routing_accuracy"] = routing_accuracy
+
+    # Create ExperimentResult — filter password from config
     experiment_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    config = {k: v for k, v in vars(args).items() if k != "password"}
     final_result = ExperimentResult(
         experiment_id=f"run_{experiment_id}",
         prompt_version="baseline_run",
         timestamp=datetime.now(UTC).isoformat(),
-        metrics={**aggregate_mae.to_dict()["mae"], "complexity_stats": complexity_stats.to_dict()},
+        metrics=metrics_dict,
         latency_stats=aggregate_latency.to_dict(),
         per_dish_results=per_dish_results,
-        config=vars(args),
+        config=config,
     )
 
     experiment_log.log_experiment(final_result)
@@ -292,12 +387,29 @@ async def main_async(args):
     print("ORACLE BENCHMARKING REPORT")
     print("=" * 60)
     print(f"\nTimestamp: {final_result.timestamp}")
+    print(f"Mode: {mode}")
     print(f"Total Dishes: {len(results)}")
 
     print("\n--- WFR Ground Truth Comparison (MAE) ---")
     mae = final_result.metrics
     print(f"Calories MAE: {mae['calories']:.1f} kcal")
     print(f"Protein MAE: {mae['protein']:.1f} g")
+
+    # Per-stratum MAE
+    if stratum_mae:
+        print("\n--- Per-Stratum MAE ---")
+        for stratum, agg in sorted(stratum_mae.items()):
+            agg_dict = agg.to_dict()["mae"]
+            print(f"  {stratum}: Calories={agg_dict['calories']:.1f}, Protein={agg_dict['protein']:.1f}")
+
+    # Routing accuracy
+    if routing_accuracy and not routing_accuracy.get("skipped"):
+        print("\n--- Routing Accuracy (Agentic Mode) ---")
+        ra = routing_accuracy
+        print(f"  TNR: {ra['tnr']:.3f} (TN={ra['tn']}, FP={ra['fp']})")
+        print(f"  TPR: {ra['tpr']:.3f} (TP={ra['tp']}, FN={ra['fn']})")
+    elif mode != "agentic":
+        print(f"\n  Routing accuracy skipped (only meaningful for agentic mode, current: {mode})")
 
     # Complexity metrics summary
     cs = mae.get("complexity_stats", {})
@@ -316,6 +428,150 @@ async def main_async(args):
     print(f"\n✓ Result saved to: {output_dir / f'experiment_run_{experiment_id}.json'}")
 
 
+async def _run_compare(args, output_dir: Path):
+    """Cross-mode comparison: per-stratum MAE table, TNR/TPR, turn reduction."""
+    metrics_calc = MetricsCalculator()
+
+    mode_ids = {
+        "agentic": args.agentic_id,
+        "single-shot": args.single_shot_id,
+        "naive-always-ask": args.naive_id,
+    }
+
+    # Load experiment data
+    mode_data: dict[str, dict] = {}
+    for mode_name, exp_id in mode_ids.items():
+        exp_file = output_dir / f"experiment_{exp_id}.json"
+        if not exp_file.exists():
+            logger.error(f"Experiment file not found: {exp_file}")
+            sys.exit(1)
+        with open(exp_file) as f:
+            mode_data[mode_name] = json.load(f)
+
+    # Validate matching parameters
+    if not args.force:
+        configs = {m: d.get("config", {}) for m, d in mode_data.items()}
+        ref = configs["agentic"]
+        for mode_name, cfg in configs.items():
+            for key in ("seed", "limit", "complexity"):
+                ref_val = ref.get(key)
+                cfg_val = cfg.get(key)
+                if ref_val is not None and cfg_val is not None and ref_val != cfg_val:
+                    logger.error(
+                        f"Parameter mismatch between agentic and {mode_name}: "
+                        f"{key}={ref_val} vs {cfg_val}. Use --force to override."
+                    )
+                    sys.exit(1)
+
+    # Load dishes for ground truth and complexity map
+    seed = args.seed
+    loader = Nutrition5kLoader()
+    all_dishes = loader.load_dishes(seed=seed)
+    dishes_map = {d.dish_id: d for d in all_dishes}
+    dish_complexity_map = {did: d.complexity for did, d in dishes_map.items()}
+
+    # Normalize per-dish results and compute MAE for each mode
+    mode_mae_results: dict[str, list] = {}
+    mode_per_dish: dict[str, list[dict]] = {}
+
+    for mode_name, data in mode_data.items():
+        per_dish = data.get("per_dish_results", [])
+        mae_results = []
+        for r in per_dish:
+            dish_id = r["dish_id"]
+            dish = dishes_map.get(dish_id)
+            if not dish:
+                logger.warning(f"[{mode_name}] Dish {dish_id} not found in dataset — skipping")
+                continue
+
+            # Handle schema divergence: run results have "mae" key, experiment has "final_data"
+            if r.get("success") and "mae" in r:
+                # Already computed MAE — reconstruct DishMAE from stored dict
+                from app.benchmarking.metrics import DishMAE
+
+                mae_dict = r["mae"]
+                mae_results.append(
+                    DishMAE(
+                        dish_id=dish_id,
+                        calories=mae_dict.get("calories"),
+                        protein=mae_dict.get("protein"),
+                        fat=mae_dict.get("fat"),
+                        carbs=mae_dict.get("carbs"),
+                        success=True,
+                    )
+                )
+            elif r.get("success") and "final_data" in r:
+                # Recompute MAE from final_data
+                mae_results.append(metrics_calc.calculate_dish_mae(r["final_data"], dish))
+
+        mode_mae_results[mode_name] = mae_results
+        mode_per_dish[mode_name] = per_dish
+
+    # Per-stratum MAE for each mode
+    mode_stratum_mae: dict[str, dict[str, AggregateMAE]] = {}
+    mode_total_mae: dict[str, AggregateMAE] = {}
+    for mode_name, mae_results in mode_mae_results.items():
+        mode_stratum_mae[mode_name] = metrics_calc.aggregate_mae_by_stratum(mae_results, dish_complexity_map)
+        mode_total_mae[mode_name] = metrics_calc.aggregate_mae(mae_results)
+
+    # TNR/TPR for agentic mode
+    routing_acc = metrics_calc.calculate_routing_accuracy(
+        mode_per_dish["agentic"], dish_complexity_map
+    )
+
+    # Turn reduction
+    turn_reduction = metrics_calc.calculate_turn_reduction(
+        mode_per_dish["agentic"], mode_per_dish["naive-always-ask"]
+    )
+
+    # Total turns per mode
+    mode_turns = {m: sum(r.get("turns", 0) for r in per_dish) for m, per_dish in mode_per_dish.items()}
+
+    # Print comparison table
+    print("\n" + "=" * 70)
+    print("CROSS-MODE COMPARISON")
+    print("=" * 70)
+
+    header = f"{'Mode':<22} {'Simple MAE':>12} {'Complex MAE':>12} {'Total MAE':>12} {'Turns':>8}"
+    print(f"\n{header}")
+    print("-" * 70)
+
+    for mode_name in ["agentic", "single-shot", "naive-always-ask"]:
+        simple_mae = mode_stratum_mae[mode_name].get("simple")
+        complex_mae = mode_stratum_mae[mode_name].get("complex")
+        total_mae = mode_total_mae[mode_name]
+
+        simple_cal = (
+            f"{simple_mae.mean_calories:.1f}" if simple_mae and simple_mae.sample_count > 0 else "N/A"
+        )
+        complex_cal = (
+            f"{complex_mae.mean_calories:.1f}" if complex_mae and complex_mae.sample_count > 0 else "N/A"
+        )
+        total_cal = f"{total_mae.mean_calories:.1f}" if total_mae.sample_count > 0 else "N/A"
+        turns = mode_turns[mode_name]
+
+        print(f"{mode_name:<22} {simple_cal:>12} {complex_cal:>12} {total_cal:>12} {turns:>8}")
+
+    # TNR/TPR
+    if routing_acc and not routing_acc.get("skipped"):
+        print(
+            f"\nRouting Accuracy (agentic): "
+            f"TNR={routing_acc['tnr']:.3f}, TPR={routing_acc['tpr']:.3f}"
+        )
+        ra = routing_acc
+        print(f"  TN={ra['tn']}, FP={ra['fp']}, TP={ra['tp']}, FN={ra['fn']}")
+
+    # Turn reduction
+    if "error" not in turn_reduction:
+        print(f"\nTurn Reduction: {turn_reduction['turn_reduction_pct']:.1f}%")
+        print(
+            f"  Agentic turns: {turn_reduction['agentic_total_turns']}, "
+            f"Naive turns: {turn_reduction['naive_total_turns']}"
+        )
+    else:
+        print(f"\nTurn Reduction: {turn_reduction['error']}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Snap and Say Oracle Benchmark")
     subparsers = parser.add_subparsers(dest="command", help="Subcommand to run")
@@ -327,8 +583,19 @@ def main():
     bench_parser.add_argument("--seed", type=int, default=42)
     bench_parser.add_argument("--batch-size", type=int, default=50)
     bench_parser.add_argument("--resume", action="store_true")
+    bench_parser.add_argument(
+        "--force-resume", action="store_true", help="Resume even if parameters mismatch"
+    )
     bench_parser.add_argument("--delay", type=float, default=1.0)
     bench_parser.add_argument("--max-turns", type=int, default=3)
+    bench_parser.add_argument(
+        "--mode",
+        choices=["agentic", "single-shot", "naive-always-ask"],
+        default="agentic",
+        help="Runner mode: agentic (default), single-shot, or naive-always-ask",
+    )
+    bench_parser.add_argument("--timeout", type=float, default=180.0, help="Per-dish timeout in seconds")
+    bench_parser.add_argument("--retries", type=int, default=2, help="Max retries per dish on failure")
     bench_parser.add_argument("--provider", type=str, help="LLM provider (openai, google)")
     bench_parser.add_argument("--model", type=str, help="Specific model name")
 
@@ -349,6 +616,18 @@ def main():
     opt_parser.add_argument("--experiment-id", type=str, help="Experiment ID to analyze")
     opt_parser.add_argument("--provider", type=str, help="LLM provider (openai, google)")
     opt_parser.add_argument("--model", type=str, help="Specific model name")
+
+    # compare command
+    compare_parser = subparsers.add_parser("compare", help="Compare results across modes")
+    compare_parser.add_argument("--agentic-id", type=str, required=True, help="Agentic mode experiment ID")
+    compare_parser.add_argument(
+        "--single-shot-id", type=str, required=True, help="Single-shot mode experiment ID"
+    )
+    compare_parser.add_argument(
+        "--naive-id", type=str, required=True, help="Naive-always-ask mode experiment ID"
+    )
+    compare_parser.add_argument("--force", action="store_true", help="Skip parameter validation")
+    compare_parser.add_argument("--seed", type=int, default=42, help="Seed for dish loading")
 
     # Global args
     parser.add_argument("--output-dir", type=str, default="benchmark_output")

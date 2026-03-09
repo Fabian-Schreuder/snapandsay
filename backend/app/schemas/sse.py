@@ -23,6 +23,8 @@ class AgentResponse(BaseModel):
     log_id: str = Field(..., description="UUID of the created dietary log")
     nutritional_data: dict[str, Any] = Field(..., description="Extracted nutritional information")
     status: str = Field(default="success", description="Processing status")
+    complexity_breakdown: dict[str, Any] | None = Field(None, description="Complexity breakdown data")
+    complexity_score: float | None = Field(None, description="Complexity score")
 
 
 class AgentError(BaseModel):

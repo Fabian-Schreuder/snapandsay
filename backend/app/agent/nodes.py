@@ -925,12 +925,16 @@ async def finalize_log_streaming(
 
     # Emit final response event
     if log_id:
+        cb = state.get("complexity_breakdown")
+        complexity_dict = cb.model_dump() if hasattr(cb, "model_dump") else cb
         yield SSEEvent(
             type=EVENT_RESPONSE,
             payload=AgentResponse(
                 log_id=str(log_id),
                 nutritional_data=nutritional_data,
                 status="logged" if not needs_review else "needs_review",
+                complexity_breakdown=complexity_dict,
+                complexity_score=state.get("complexity_score"),
             ),
         )
 

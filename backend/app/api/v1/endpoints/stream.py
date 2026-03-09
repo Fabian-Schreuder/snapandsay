@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 # Processing timeout in seconds
-PROCESSING_TIMEOUT = 120
+PROCESSING_TIMEOUT = 180
 # Heartbeat interval in seconds
 HEARTBEAT_INTERVAL = 10
 
@@ -65,6 +65,8 @@ async def event_generator(
 
     last_heartbeat = asyncio.get_event_loop().time()
     final_nutritional_data = None
+    final_complexity_breakdown = None
+    final_complexity_score = None
 
     try:
         # Wrap the generator with timeout context manager
@@ -86,6 +88,9 @@ async def event_generator(
                 else:
                     # This is the final state dict
                     final_nutritional_data = item.get("nutritional_data")
+                    cb = item.get("complexity_breakdown")
+                    final_complexity_breakdown = cb.model_dump() if hasattr(cb, "model_dump") else cb
+                    final_complexity_score = item.get("complexity_score")
 
         # Emit final response event
         if final_nutritional_data:
@@ -95,6 +100,8 @@ async def event_generator(
                     log_id=str(request.log_id),
                     nutritional_data=final_nutritional_data,
                     status="success",
+                    complexity_breakdown=final_complexity_breakdown,
+                    complexity_score=final_complexity_score,
                 ),
             )
             yield await format_sse(response_event)

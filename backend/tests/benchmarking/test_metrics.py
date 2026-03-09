@@ -356,3 +356,129 @@ class TestDishLatency:
         """Default complexity should be 'unknown'."""
         dl = DishLatency(dish_id="test", latency_seconds=3.5)
         assert dl.complexity == "unknown"
+
+
+class TestAggregateMAEByStratum:
+    """Tests for per-stratum MAE aggregation."""
+
+    def test_splits_by_complexity(self, metrics_calculator):
+        results = [
+            DishMAE(dish_id="s1", calories=10, protein=2, fat=1, carbs=3, success=True),
+            DishMAE(dish_id="s2", calories=20, protein=4, fat=3, carbs=5, success=True),
+            DishMAE(dish_id="c1", calories=50, protein=8, fat=6, carbs=10, success=True),
+        ]
+        complexity_map = {"s1": "simple", "s2": "simple", "c1": "complex"}
+
+        stratum_mae = metrics_calculator.aggregate_mae_by_stratum(results, complexity_map)
+
+        assert "simple" in stratum_mae
+        assert "complex" in stratum_mae
+        assert stratum_mae["simple"].mean_calories == 15  # (10+20)/2
+        assert stratum_mae["simple"].sample_count == 2
+        assert stratum_mae["complex"].mean_calories == 50
+        assert stratum_mae["complex"].sample_count == 1
+
+    def test_all_same_stratum(self, metrics_calculator):
+        results = [
+            DishMAE(dish_id="s1", calories=10, protein=2, fat=1, carbs=3, success=True),
+            DishMAE(dish_id="s2", calories=20, protein=4, fat=3, carbs=5, success=True),
+        ]
+        complexity_map = {"s1": "simple", "s2": "simple"}
+
+        stratum_mae = metrics_calculator.aggregate_mae_by_stratum(results, complexity_map)
+
+        assert "simple" in stratum_mae
+        assert "complex" not in stratum_mae
+
+    def test_empty_results(self, metrics_calculator):
+        stratum_mae = metrics_calculator.aggregate_mae_by_stratum([], {})
+        assert stratum_mae == {}
+
+
+class TestRoutingAccuracy:
+    """Tests for TNR/TPR calculation."""
+
+    def test_known_counts(self, metrics_calculator):
+        per_dish = [
+            {"dish_id": "s1", "turns": 0, "success": True},  # TN
+            {"dish_id": "s2", "turns": 1, "success": True},  # FP
+            {"dish_id": "c1", "turns": 2, "success": True},  # TP
+            {"dish_id": "c2", "turns": 0, "success": True},  # FN
+        ]
+        complexity_map = {"s1": "simple", "s2": "simple", "c1": "complex", "c2": "complex"}
+
+        result = metrics_calculator.calculate_routing_accuracy(per_dish, complexity_map)
+
+        assert result["tn"] == 1
+        assert result["fp"] == 1
+        assert result["tp"] == 1
+        assert result["fn"] == 1
+        assert result["tnr"] == 0.5  # 1/(1+1)
+        assert result["tpr"] == 0.5  # 1/(1+1)
+
+    def test_perfect_routing(self, metrics_calculator):
+        per_dish = [
+            {"dish_id": "s1", "turns": 0, "success": True},  # TN
+            {"dish_id": "s2", "turns": 0, "success": True},  # TN
+            {"dish_id": "c1", "turns": 1, "success": True},  # TP
+            {"dish_id": "c2", "turns": 2, "success": True},  # TP
+        ]
+        complexity_map = {"s1": "simple", "s2": "simple", "c1": "complex", "c2": "complex"}
+
+        result = metrics_calculator.calculate_routing_accuracy(per_dish, complexity_map)
+
+        assert result["tnr"] == 1.0
+        assert result["tpr"] == 1.0
+
+    def test_excludes_failed_dishes(self, metrics_calculator):
+        """Failed dishes should not count as routing decisions."""
+        per_dish = [
+            {"dish_id": "s1", "turns": 0, "success": True},   # TN
+            {"dish_id": "s2", "turns": 0, "success": False},  # Failed — excluded
+            {"dish_id": "c1", "turns": 0, "success": False},  # Failed — excluded
+            {"dish_id": "c2", "turns": 1, "success": True},   # TP
+        ]
+        complexity_map = {"s1": "simple", "s2": "simple", "c1": "complex", "c2": "complex"}
+
+        result = metrics_calculator.calculate_routing_accuracy(per_dish, complexity_map)
+
+        assert result["tn"] == 1  # Only s1
+        assert result["fp"] == 0
+        assert result["tp"] == 1  # Only c2
+        assert result["fn"] == 0
+
+    def test_empty_results(self, metrics_calculator):
+        result = metrics_calculator.calculate_routing_accuracy([], {})
+        assert result["tnr"] == 0.0
+        assert result["tpr"] == 0.0
+
+
+class TestTurnReduction:
+    """Tests for turn reduction calculation."""
+
+    def test_basic_reduction(self, metrics_calculator):
+        agentic = [{"turns": 1}, {"turns": 0}, {"turns": 2}]  # total=3
+        naive = [{"turns": 3}, {"turns": 2}, {"turns": 3}]  # total=8
+
+        result = metrics_calculator.calculate_turn_reduction(agentic, naive)
+
+        assert "turn_reduction_pct" in result
+        assert result["agentic_total_turns"] == 3
+        assert result["naive_total_turns"] == 8
+        assert result["turn_reduction_pct"] == pytest.approx(62.5)  # (8-3)/8*100
+
+    def test_zero_naive_turns(self, metrics_calculator):
+        agentic = [{"turns": 0}]
+        naive = [{"turns": 0}]
+
+        result = metrics_calculator.calculate_turn_reduction(agentic, naive)
+
+        assert "error" in result
+
+    def test_no_reduction(self, metrics_calculator):
+        agentic = [{"turns": 5}]
+        naive = [{"turns": 5}]
+
+        result = metrics_calculator.calculate_turn_reduction(agentic, naive)
+
+        assert result["turn_reduction_pct"] == 0.0

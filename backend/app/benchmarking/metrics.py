@@ -252,6 +252,90 @@ class MetricsCalculator:
 
         return {macro: (within[macro] / total[macro] if total[macro] > 0 else 0.0) for macro in within}
 
+    def aggregate_mae_by_stratum(
+        self, results: list[DishMAE], dish_complexity_map: dict[str, str]
+    ) -> dict[str, AggregateMAE]:
+        """Aggregate MAE metrics grouped by complexity stratum (simple/complex).
+
+        Args:
+            results: List of DishMAE results.
+            dish_complexity_map: Mapping of dish_id to complexity string.
+
+        Returns:
+            Dict mapping stratum label to AggregateMAE.
+        """
+        groups: dict[str, list[DishMAE]] = {}
+        for r in results:
+            stratum = dish_complexity_map.get(r.dish_id, "unknown")
+            groups.setdefault(stratum, []).append(r)
+
+        return {stratum: self.aggregate_mae(group) for stratum, group in groups.items()}
+
+    def calculate_routing_accuracy(
+        self, per_dish_results: list[dict], dish_complexity_map: dict[str, str]
+    ) -> dict[str, Any]:
+        """Calculate TNR/TPR for clarification routing decisions.
+
+        Classification:
+        - TN: simple dish + 0 turns (correctly suppressed)
+        - FP: simple dish + >0 turns (unnecessary clarification)
+        - TP: complex dish + >0 turns (correctly triggered)
+        - FN: complex dish + 0 turns (missed clarification)
+
+        Only meaningful for agentic mode. Returns skipped flag for other modes.
+        """
+        tn = fp = tp = fn = 0
+        for r in per_dish_results:
+            # Skip failed dishes — they don't represent routing decisions
+            if not r.get("success", False):
+                continue
+            dish_id = r.get("dish_id", "")
+            complexity = dish_complexity_map.get(dish_id, "unknown")
+            turns = r.get("turns", 0)
+
+            if complexity == "simple":
+                if turns == 0:
+                    tn += 1
+                else:
+                    fp += 1
+            elif complexity == "complex":
+                if turns > 0:
+                    tp += 1
+                else:
+                    fn += 1
+
+        tnr = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+        tpr = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+
+        return {"tnr": tnr, "tpr": tpr, "tn": tn, "fp": fp, "tp": tp, "fn": fn}
+
+    def calculate_turn_reduction(
+        self, agentic_results: list[dict], naive_results: list[dict]
+    ) -> dict[str, Any]:
+        """Calculate turn reduction percentage between agentic and naive-always-ask modes.
+
+        Formula: Y = (naive_total_turns - agentic_total_turns) / naive_total_turns * 100
+
+        Args:
+            agentic_results: Per-dish results from agentic mode.
+            naive_results: Per-dish results from naive-always-ask mode.
+
+        Returns:
+            Dict with turn_reduction_pct, agentic_total_turns, naive_total_turns.
+        """
+        agentic_total = sum(r.get("turns", 0) for r in agentic_results)
+        naive_total = sum(r.get("turns", 0) for r in naive_results)
+
+        if naive_total == 0:
+            return {"error": "naive baseline has 0 total turns -- cannot compute turn reduction"}
+
+        reduction = (naive_total - agentic_total) / naive_total * 100
+        return {
+            "turn_reduction_pct": reduction,
+            "agentic_total_turns": agentic_total,
+            "naive_total_turns": naive_total,
+        }
+
     def aggregate_complexity(self, per_dish_results: list[dict]) -> "ComplexityMetrics":
         """
         Aggregate complexity metrics from per-dish benchmark results.
