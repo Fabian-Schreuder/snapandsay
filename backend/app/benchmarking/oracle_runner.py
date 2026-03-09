@@ -74,6 +74,7 @@ class OracleRunner:
         dish_timeout_seconds: float = 120.0,
         clinical_threshold: float = 15.0,
         confidence_threshold: float = 0.85,
+        language: str = "en",
     ) -> dict[str, Any]:
         """Orchestrate the benchmarking loop for a single dish.
 
@@ -85,6 +86,7 @@ class OracleRunner:
             dish_timeout_seconds: Total per-dish timeout (upload + processing).
             clinical_threshold: Complexity threshold for clarification.
             confidence_threshold: Confidence threshold for clarification.
+            language: The language for the agent to use.
 
         Returns:
             Result dict including latency_seconds for timing and complexity metrics.
@@ -148,6 +150,7 @@ class OracleRunner:
                     model,
                     clinical_threshold=clinical_threshold,
                     confidence_threshold=confidence_threshold,
+                    language=language,
                 ),
                 timeout=remaining_timeout,
             )
@@ -178,6 +181,7 @@ class OracleRunner:
         model: str | None = None,
         clinical_threshold: float = 15.0,
         confidence_threshold: float = 0.85,
+        language: str = "en",
     ) -> dict[str, Any]:
         """Reconnection-based SSE processing loop.
 
@@ -210,6 +214,7 @@ class OracleRunner:
             "force_clarify": force_clarify,
             "clinical_threshold": clinical_threshold,
             "confidence_threshold": confidence_threshold,
+            "language": language,
         }
 
         done = False
@@ -233,6 +238,7 @@ class OracleRunner:
                         "model": model,
                         "force_finalize": force_finalize,
                         "force_clarify": force_clarify,
+                        "language": language,
                     }
 
                 current_event_type = None

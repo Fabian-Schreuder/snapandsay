@@ -454,6 +454,7 @@ async def main_async(args):
                 "turns": result.get("turns", 0),
                 "complexity_breakdown": result.get("complexity_breakdown"),
                 "complexity_score": result.get("complexity_score"),
+                "clarification_history": result.get("clarification_history", []),
             }
             per_dish_results.append(dish_result)
         else:
@@ -466,6 +467,7 @@ async def main_async(args):
                     "turns": result.get("turns", 0),
                     "complexity_breakdown": result.get("complexity_breakdown"),
                     "complexity_score": result.get("complexity_score"),
+                    "clarification_history": result.get("clarification_history", []),
                 }
             )
 

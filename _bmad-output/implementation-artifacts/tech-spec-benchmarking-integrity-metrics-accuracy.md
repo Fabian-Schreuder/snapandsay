@@ -210,7 +210,7 @@ Phase B (system tuning): Investigate and tune the complexity threshold (currentl
 
 #### Story A5: Validate Oracle Quality Before Scaling
 
-- [ ] Task 13: Audit oracle answer quality on a sample
+- [x] Task 13: Audit oracle answer quality on a sample
   - File: `backend/app/benchmarking/question_parser.py`
   - Action: Run a mini agentic benchmark (N=50, seed=42) and capture all clarification Q&A pairs from `clarification_history` in the per-dish results. For each Q&A pair, log: the question text, parsed intent, oracle answer, and ground truth ingredient data. Export to a CSV/JSON file (`benchmark_output/oracle_audit.json`). Manually review a sample of 20-30 Q&A pairs to grade oracle answer accuracy (correct / partially correct / wrong / unparseable).
   - Notes: If the oracle gives bad answers, agentic mode benchmarks are measuring oracle quality, not system quality. This must be validated before spending ~12.5 hours of API credits on N=500. If >20% of oracle answers are wrong, the `question_parser.py` regex patterns need fixing before scaling. Common failure modes: unrecognized question formats falling to UNKNOWN intent, missing ingredient lookups, portion size answers that don't match the actual dish.
