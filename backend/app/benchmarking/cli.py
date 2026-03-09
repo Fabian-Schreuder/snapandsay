@@ -64,8 +64,8 @@ async def _run_sweep(args, output_dir: Path):
         print("No dishes found.")
         return
 
-    clinical_thresholds = [5.0, 8.0, 10.0, 12.0, 15.0, 20.0]
-    confidence_thresholds = [0.70, 0.75, 0.80, 0.85, 0.90]
+    clinical_thresholds = getattr(args, "clinical_thresholds", [5.0, 8.0, 10.0, 12.0, 15.0, 20.0])
+    confidence_thresholds = getattr(args, "confidence_thresholds", [0.70, 0.75, 0.80, 0.85, 0.90])
 
     sweep_results = []
 
@@ -105,20 +105,31 @@ async def _run_sweep(args, output_dir: Path):
                             logger.error(f"Failed {dish.dish_id}: {e}")
 
             metrics_calc = MetricsCalculator()
-            metrics = metrics_calc.calculate_all(
-                combo_results,
-                [d.dish_id for d in dishes if d.complexity == "simple"],
-                [d.dish_id for d in dishes if d.complexity == "complex"],
-            )
+            dishes_map = {d.dish_id: d for d in dishes}
+            mae_results = []
+            for r in combo_results:
+                if r.get("success"):
+                    dish = dishes_map[r["dish_id"]]
+                    dish_mae = metrics_calc.calculate_dish_mae(r.get("final_data"), dish)
+                    mae_results.append(dish_mae)
+                    r["mae"] = dish_mae.to_dict()
 
-            mae = metrics["mae_metrics"]["total"]
-            ra = metrics.get("routing_accuracy", {})
+            aggregate_mae = metrics_calc.aggregate_mae(mae_results)
+            dish_complexity_map = {d.dish_id: d.complexity for d in dishes}
+            ra = metrics_calc.calculate_routing_accuracy(combo_results, dish_complexity_map)
+
             tnr_str = f"{ra.get('tnr', 0):.3f}" if not ra.get("skipped") else "N/A"
             tpr_str = f"{ra.get('tpr', 0):.3f}" if not ra.get("skipped") else "N/A"
-            mae_str = f"{mae.mean_calories:.2f}" if mae.sample_count > 0 else "N/A"
+            mae_str = f"{aggregate_mae.mean_calories:.2f}" if aggregate_mae.sample_count > 0 else "N/A"
             fp_count = ra.get("fp", 0)
 
-            print(f"  TNR={tnr_str}, TPR={tpr_str}, MAE={mae_str}, FP={fp_count}")
+            metrics = {"mae_metrics": {"total": aggregate_mae}, "routing_accuracy": ra}
+
+            naive_results = [{"turns": 3} for _ in combo_results]
+            turn_reduction = metrics_calc.calculate_turn_reduction(combo_results, naive_results)
+            tr_pct = turn_reduction.get("turn_reduction_pct", 0)
+
+            print(f"  TNR={tnr_str}, TPR={tpr_str}, MAE={mae_str}, FP={fp_count}, TR={tr_pct:.1f}%")
             sweep_results.append(
                 {"clinical_threshold": c_thresh, "confidence_threshold": conf_thresh, "metrics": metrics}
             )
@@ -688,6 +699,32 @@ async def _run_compare(args, output_dir: Path):
         ra = routing_acc
         print(f"  TN={ra['tn']}, FP={ra['fp']}, TP={ra['tp']}, FN={ra['fn']}")
 
+        if ra.get("fp", 0) > 0 and "single-shot" in mode_mae_results:
+            fp_analysis = metrics_calc.analyze_false_positives(
+                mode_per_dish["agentic"], dish_complexity_map, mode_mae_results["single-shot"]
+            )
+            print("\n  False Positives Analysis:")
+            degraded_count = 0
+            improved_count = 0
+            for fp in fp_analysis["false_positives"]:
+                impact_str = "Unknown MAE impact"
+                if fp.get("mae_impact"):
+                    diff = fp["mae_impact"]["calories_diff"]
+                    if fp["mae_impact"]["degraded"]:
+                        impact_str = f"Degraded (+{diff} kcal)"
+                        degraded_count += 1
+                    elif fp["mae_impact"]["improved"]:
+                        impact_str = f"Improved ({diff} kcal)"
+                        improved_count += 1
+                    else:
+                        impact_str = "Neutral (0 kcal)"
+
+                print(
+                    f"    - {fp['dish_id']}: Score={fp['complexity_score']}, "
+                    f"Factor={fp['dominant_factor']}, Conf={fp['confidence']:.2f}, {impact_str}"
+                )
+            print(f"    Summary: {degraded_count} degraded, {improved_count} improved")
+
     # Turn reduction
     if "error" not in turn_reduction:
         print(f"\nTurn Reduction: {turn_reduction['turn_reduction_pct']:.1f}%")
@@ -779,6 +816,20 @@ def main():
     sweep_parser.add_argument("--seed", type=int, default=42)
     sweep_parser.add_argument("--provider", type=str, help="LLM provider (openai, google)")
     sweep_parser.add_argument("--model", type=str, help="Specific model name")
+    sweep_parser.add_argument(
+        "--clinical-thresholds",
+        type=float,
+        nargs="+",
+        default=[5.0, 8.0, 10.0, 12.0, 15.0, 20.0],
+        help="List of clinical thresholds to test",
+    )
+    sweep_parser.add_argument(
+        "--confidence-thresholds",
+        type=float,
+        nargs="+",
+        default=[0.70, 0.75, 0.80, 0.85, 0.90],
+        help="List of confidence thresholds to test",
+    )
 
     # Global args
     parser.add_argument("--output-dir", type=str, default="benchmark_output")

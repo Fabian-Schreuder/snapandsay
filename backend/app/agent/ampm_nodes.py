@@ -15,6 +15,7 @@ from sqlalchemy import select
 
 from app import database
 from app.agent.constants import (
+    CLINICAL_THRESHOLD,
     CONFIDENCE_THRESHOLD,
     EVENT_CLARIFICATION,
     EVENT_ERROR,
@@ -65,7 +66,7 @@ def _get_low_confidence_items(state: AgentState) -> list[FoodItem]:
     force_clarify = state.get("force_clarify", False)
     mandatory_clarification = state.get("mandatory_clarification", False)
     score = state.get("complexity_score", 0.0)
-    threshold = state.get("clinical_threshold", 15.0)
+    threshold = state.get("clinical_threshold", CLINICAL_THRESHOLD)
 
     if force_clarify or mandatory_clarification or (score > threshold):
         return [FoodItem(**item) for item in items]
@@ -283,7 +284,7 @@ async def final_probe(state: AgentState) -> dict:
       - Detail Cycle was inconclusive (items still below threshold)
     """
     complexity_score = state.get("complexity_score", 0.0)
-    threshold = state.get("clinical_threshold", 15.0)
+    threshold = state.get("clinical_threshold", CLINICAL_THRESHOLD)
     inconclusive = _is_detail_cycle_inconclusive(state)
 
     if complexity_score > threshold and inconclusive:
@@ -304,7 +305,7 @@ async def final_probe_streaming(
     """
     language = state.get("language", "nl") or "nl"
     complexity_score = state.get("complexity_score", 0.0)
-    threshold = state.get("clinical_threshold", 15.0)
+    threshold = state.get("clinical_threshold", CLINICAL_THRESHOLD)
     inconclusive = _is_detail_cycle_inconclusive(state)
     log_id = state.get("log_id")
 

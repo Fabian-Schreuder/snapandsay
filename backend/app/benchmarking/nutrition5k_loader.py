@@ -53,9 +53,24 @@ class Nutrition5kLoader:
         if complexity:
             dishes = [d for d in dishes if d.complexity.lower() == complexity.lower()]
 
-        # Limit
+        # Limit and Validate Image URLs
         if limit:
-            dishes = dishes[:limit]
+            import urllib.request
+
+            print(f"Finding {limit} dishes with valid images in Google Cloud Storage...")
+            valid_dishes = []
+            for d in dishes:
+                url = f"https://storage.googleapis.com/nutrition5k_dataset/nutrition5k_dataset/imagery/realsense_overhead/{d.dish_id}/rgb.png"
+                assert url.startswith("https://")
+                req = urllib.request.Request(url, method="HEAD")  # noqa: S310
+                try:
+                    urllib.request.urlopen(req)  # noqa: S310
+                    valid_dishes.append(d)
+                except Exception:  # noqa: S110
+                    pass
+                if len(valid_dishes) == limit:
+                    break
+            dishes = valid_dishes
 
         return dishes
 

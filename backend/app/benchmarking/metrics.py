@@ -508,17 +508,22 @@ class MetricsCalculator:
         }
 
     def analyze_false_positives(
-        self, per_dish_results: list[dict], dish_complexity_map: dict[str, str]
+        self,
+        per_dish_results: list[dict],
+        dish_complexity_map: dict[str, str],
+        single_shot_maes: list[DishMAE] | None = None,
     ) -> dict[str, Any]:
         """Analyze false positive routing decisions to identify patterns.
 
         Args:
             per_dish_results: List of per-dish results.
             dish_complexity_map: Mapping of dish_id to complexity string.
+            single_shot_maes: Optional list of DishMAE from single-shot mode to calculate MAE impact.
 
         Returns:
             Dict containing false positive analysis.
         """
+        ss_mae_map = {r.dish_id: r for r in single_shot_maes} if single_shot_maes else {}
         fps = []
         for r in per_dish_results:
             if not r.get("success", False):
@@ -535,6 +540,20 @@ class MetricsCalculator:
                     if items:
                         conf = sum(i.get("confidence", 0) for i in items) / len(items)
 
+                mae_impact = None
+                if ss_mae_map and dish_id in ss_mae_map and ss_mae_map[dish_id].success:
+                    agentic_cal_mae = None
+                    if "mae" in r and r.get("mae") and r["mae"].get("calories") is not None:
+                        agentic_cal_mae = r["mae"]["calories"]
+
+                    if agentic_cal_mae is not None and ss_mae_map[dish_id].calories is not None:
+                        mae_impact_val = agentic_cal_mae - ss_mae_map[dish_id].calories
+                        mae_impact = {
+                            "calories_diff": round(mae_impact_val, 2),
+                            "degraded": mae_impact_val > 0,
+                            "improved": mae_impact_val < 0,
+                        }
+
                 # We report what we know about the FP
                 fps.append(
                     {
@@ -543,6 +562,7 @@ class MetricsCalculator:
                         "dominant_factor": breakdown.get("dominant_factor"),
                         "confidence": conf,
                         "turns": turns,
+                        "mae_impact": mae_impact,
                     }
                 )
 

@@ -740,3 +740,27 @@ class TestComplexityMetricsScale:
         assert result.score_min == 2.0
         assert result.score_max == 5.5
         assert result.total_scored == 3
+
+
+class TestAnalyzeFalsePositives:
+    """Tests for false positive analysis."""
+
+    def test_identifies_false_positives(self, metrics_calculator):
+        per_dish = [
+            {"dish_id": "s1", "turns": 0, "success": True, "complexity_score": 1.0},
+            {"dish_id": "s2", "turns": 1, "success": True, "complexity_score": 5.0, "mae": {"calories": 100}},
+            {"dish_id": "c1", "turns": 1, "success": True, "complexity_score": 15.0},
+        ]
+        complexity_map = {"s1": "simple", "s2": "simple", "c1": "complex"}
+
+        ss_maes = [DishMAE(dish_id="s2", calories=50, success=True)]
+
+        result = metrics_calculator.analyze_false_positives(per_dish, complexity_map, ss_maes)
+
+        assert result["false_positive_count"] == 1
+        fp = result["false_positives"][0]
+        assert fp["dish_id"] == "s2"
+        assert fp["mae_impact"] is not None
+        assert fp["mae_impact"]["calories_diff"] == 50.0
+        assert fp["mae_impact"]["degraded"] is True
+        assert fp["mae_impact"]["improved"] is False

@@ -2,6 +2,7 @@
 
 from app.agent.constants import (
     AMPM_ENTRY,
+    CLINICAL_THRESHOLD,
     CONFIDENCE_THRESHOLD,
     FINALIZE_LOG,
     MAX_CLARIFICATIONS,
@@ -47,7 +48,7 @@ def route_by_confidence(state: AgentState) -> str:
     # Score range: 0.0-~32.0. Default threshold 15.0 triggers AMPM for complex/ambiguous foods.
     # Diabetic profile example: threshold=5.0, score=8.0 → triggers AMPM.
     score = state.get("complexity_score", 0.0)
-    threshold = state.get("clinical_threshold", 15.0)
+    threshold = state.get("clinical_threshold", CLINICAL_THRESHOLD)
 
     if score > threshold:
         return AMPM_ENTRY
