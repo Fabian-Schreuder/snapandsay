@@ -78,6 +78,7 @@ class AgentState(TypedDict):
 
     # Clinical Routing
     clinical_threshold: float
+    confidence_threshold: float
     mandatory_clarification: bool
 
     # Test/Forced modes

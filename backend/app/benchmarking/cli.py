@@ -55,6 +55,81 @@ def save_checkpoint(checkpoint_file: Path, results: list[dict], metadata: dict):
     logger.info(f"Checkpoint saved: {len(results)} results")
 
 
+async def _run_sweep(args, output_dir: Path):
+    """Run threshold sweep experiment."""
+    logger.info("Initializing Loader for sweep...")
+    loader = Nutrition5kLoader()
+    dishes = loader.load_dishes(seed=args.seed, complexity=args.complexity, limit=args.limit)
+    if not dishes:
+        print("No dishes found.")
+        return
+
+    clinical_thresholds = [5.0, 8.0, 10.0, 12.0, 15.0, 20.0]
+    confidence_thresholds = [0.70, 0.75, 0.80, 0.85, 0.90]
+
+    sweep_results = []
+
+    print("\nStarting Threshold Sweep (Grid Search)")
+    print(f"Dishes: {len(dishes)}")
+    print(f"Clinical Thresholds: {clinical_thresholds}")
+    print(f"Confidence Thresholds: {confidence_thresholds}")
+
+    runner = OracleRunner(
+        api_url=args.api_url,
+        email=args.email,
+        password=args.password,
+        max_turns=3,
+        mode="agentic",
+        timeout=180.0,
+    )
+    await runner.login()
+
+    for c_thresh in clinical_thresholds:
+        for conf_thresh in confidence_thresholds:
+            print(f"\nTesting combo: clinical_threshold={c_thresh}, confidence_threshold={conf_thresh}")
+            combo_results = []
+            for dish in dishes:
+                for attempt in range(getattr(args, "retries", 3) + 1):
+                    try:
+                        res = await runner.run_dish(
+                            dish,
+                            provider=args.provider,
+                            model=args.model,
+                            clinical_threshold=c_thresh,
+                            confidence_threshold=conf_thresh,
+                        )
+                        combo_results.append(res)
+                        break
+                    except Exception as e:
+                        if attempt == getattr(args, "retries", 3):
+                            logger.error(f"Failed {dish.dish_id}: {e}")
+
+            metrics_calc = MetricsCalculator()
+            metrics = metrics_calc.calculate_all(
+                combo_results,
+                [d.dish_id for d in dishes if d.complexity == "simple"],
+                [d.dish_id for d in dishes if d.complexity == "complex"],
+            )
+
+            mae = metrics["mae_metrics"]["total"]
+            ra = metrics.get("routing_accuracy", {})
+            tnr_str = f"{ra.get('tnr', 0):.3f}" if not ra.get("skipped") else "N/A"
+            tpr_str = f"{ra.get('tpr', 0):.3f}" if not ra.get("skipped") else "N/A"
+            mae_str = f"{mae.mean_calories:.2f}" if mae.sample_count > 0 else "N/A"
+            fp_count = ra.get("fp", 0)
+
+            print(f"  TNR={tnr_str}, TPR={tpr_str}, MAE={mae_str}, FP={fp_count}")
+            sweep_results.append(
+                {"clinical_threshold": c_thresh, "confidence_threshold": conf_thresh, "metrics": metrics}
+            )
+
+    sweep_file = output_dir / "sweep_results.json"
+    with open(sweep_file, "w") as f:
+        json.dump(sweep_results, f, indent=2, default=str)
+    print(f"\nSweep completed. Results saved to {sweep_file}")
+    await runner.close()
+
+
 async def main_async(args):
     """Main async benchmark execution."""
     output_dir = Path(args.output_dir)
@@ -129,6 +204,10 @@ async def main_async(args):
 
     if args.command == "compare":
         await _run_compare(args, output_dir)
+        return
+
+    if args.command == "sweep":
+        await _run_sweep(args, output_dir)
         return
 
     # Original benchmark flow...
@@ -690,6 +769,14 @@ def main():
     )
     compare_parser.add_argument("--force", action="store_true", help="Skip parameter validation")
     compare_parser.add_argument("--seed", type=int, default=42, help="Seed for dish loading")
+
+    # sweep command
+    sweep_parser = subparsers.add_parser("sweep", help="Run threshold parameter sweep analysis")
+    sweep_parser.add_argument("--limit", type=int, default=50)
+    sweep_parser.add_argument("--complexity", choices=["simple", "complex"])
+    sweep_parser.add_argument("--seed", type=int, default=42)
+    sweep_parser.add_argument("--provider", type=str, help="LLM provider (openai, google)")
+    sweep_parser.add_argument("--model", type=str, help="Specific model name")
 
     # Global args
     parser.add_argument("--output-dir", type=str, default="benchmark_output")

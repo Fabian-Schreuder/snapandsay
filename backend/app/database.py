@@ -1,4 +1,5 @@
 import logging
+import ssl
 from collections.abc import AsyncGenerator
 
 logger = logging.getLogger(__name__)
@@ -34,7 +35,10 @@ connect_args = {
 if "127.0.0.1" in async_db_connection_url or "localhost" in async_db_connection_url:
     connect_args["ssl"] = False
 else:
-    connect_args["ssl"] = True
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    connect_args["ssl"] = ssl_context
 
 engine = create_async_engine(
     async_db_connection_url,

@@ -507,6 +507,47 @@ class MetricsCalculator:
             "tpr_ci_upper": tpr_ci_upper,
         }
 
+    def analyze_false_positives(
+        self, per_dish_results: list[dict], dish_complexity_map: dict[str, str]
+    ) -> dict[str, Any]:
+        """Analyze false positive routing decisions to identify patterns.
+
+        Args:
+            per_dish_results: List of per-dish results.
+            dish_complexity_map: Mapping of dish_id to complexity string.
+
+        Returns:
+            Dict containing false positive analysis.
+        """
+        fps = []
+        for r in per_dish_results:
+            if not r.get("success", False):
+                continue
+            dish_id = r.get("dish_id", "")
+            complexity = dish_complexity_map.get(dish_id, "unknown")
+            turns = r.get("turns", 0)
+
+            if complexity == "simple" and turns > 0:
+                breakdown = r.get("complexity_breakdown", {}) or {}
+                conf = 0.0
+                if r.get("final_data") and "items" in r["final_data"]:
+                    items = r["final_data"]["items"]
+                    if items:
+                        conf = sum(i.get("confidence", 0) for i in items) / len(items)
+
+                # We report what we know about the FP
+                fps.append(
+                    {
+                        "dish_id": dish_id,
+                        "complexity_score": r.get("complexity_score"),
+                        "dominant_factor": breakdown.get("dominant_factor"),
+                        "confidence": conf,
+                        "turns": turns,
+                    }
+                )
+
+        return {"false_positive_count": len(fps), "false_positives": fps}
+
     def calculate_turn_reduction(
         self, agentic_results: list[dict], naive_results: list[dict]
     ) -> dict[str, Any]:

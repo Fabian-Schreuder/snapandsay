@@ -53,7 +53,8 @@ def route_by_confidence(state: AgentState) -> str:
         return AMPM_ENTRY
 
     # 3. Standard Confidence Check (Existing)
-    if overall_confidence >= CONFIDENCE_THRESHOLD:
+    thresh = state.get("confidence_threshold", CONFIDENCE_THRESHOLD)
+    if overall_confidence >= thresh:
         return FINALIZE_LOG
 
     return AMPM_ENTRY

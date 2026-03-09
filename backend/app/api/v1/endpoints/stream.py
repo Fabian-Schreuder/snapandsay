@@ -58,6 +58,7 @@ async def event_generator(
         "provider": request.provider,
         "model": request.model,
         "clinical_threshold": request.clinical_threshold,
+        "confidence_threshold": request.confidence_threshold,
         "mandatory_clarification": False,
         "force_clarify": request.force_clarify,
         "force_finalize": request.force_finalize,

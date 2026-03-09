@@ -72,6 +72,8 @@ class OracleRunner:
         provider: str | None = None,
         model: str | None = None,
         dish_timeout_seconds: float = 120.0,
+        clinical_threshold: float = 15.0,
+        confidence_threshold: float = 0.85,
     ) -> dict[str, Any]:
         """Orchestrate the benchmarking loop for a single dish.
 
@@ -81,6 +83,8 @@ class OracleRunner:
             provider: LLM provider.
             model: LLM model name.
             dish_timeout_seconds: Total per-dish timeout (upload + processing).
+            clinical_threshold: Complexity threshold for clarification.
+            confidence_threshold: Confidence threshold for clarification.
 
         Returns:
             Result dict including latency_seconds for timing and complexity metrics.
@@ -134,7 +138,17 @@ class OracleRunner:
             }
         try:
             result = await asyncio.wait_for(
-                self._process_loop(log_id, dish, headers, image_url, system_prompt_override, provider, model),
+                self._process_loop(
+                    log_id,
+                    dish,
+                    headers,
+                    image_url,
+                    system_prompt_override,
+                    provider,
+                    model,
+                    clinical_threshold=clinical_threshold,
+                    confidence_threshold=confidence_threshold,
+                ),
                 timeout=remaining_timeout,
             )
         except TimeoutError:
@@ -162,6 +176,8 @@ class OracleRunner:
         system_prompt_override: str | None = None,
         provider: str | None = None,
         model: str | None = None,
+        clinical_threshold: float = 15.0,
+        confidence_threshold: float = 0.85,
     ) -> dict[str, Any]:
         """Reconnection-based SSE processing loop.
 
@@ -192,6 +208,8 @@ class OracleRunner:
             "model": model,
             "force_finalize": force_finalize,
             "force_clarify": force_clarify,
+            "clinical_threshold": clinical_threshold,
+            "confidence_threshold": confidence_threshold,
         }
 
         done = False

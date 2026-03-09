@@ -15,6 +15,9 @@ class StreamAnalysisRequest(BaseModel):
     clinical_threshold: float = Field(
         default=15.0, description="Complexity threshold for routing to clarification (lower = more sensitive)"
     )
+    confidence_threshold: float = Field(
+        default=0.85, description="Confidence threshold for skipping clarification"
+    )
     system_prompt_override: str | None = Field(
         None, description="Optional system prompt to use for experiments"
     )
