@@ -28,13 +28,19 @@ if "@" in safe_url:
 logger.info(f"Connecting to Database: {safe_url}")
 
 
+connect_args = {
+    "statement_cache_size": 0,
+}
+if "127.0.0.1" in async_db_connection_url or "localhost" in async_db_connection_url:
+    connect_args["ssl"] = False
+else:
+    connect_args["ssl"] = True
+
 engine = create_async_engine(
     async_db_connection_url,
     echo=settings.ECHO_SQL,
     poolclass=NullPool,
-    connect_args={
-        "statement_cache_size": 0,
-    },
+    connect_args=connect_args,
 )
 
 async_session_maker = async_sessionmaker(engine, expire_on_commit=settings.EXPIRE_ON_COMMIT)

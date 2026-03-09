@@ -54,3 +54,8 @@ gha-creds-*.json
 # Playwright
 playwright-report/
 test-results/
+
+# Nutrition5k dataset
+benchmark_output/
+data/
+*.log
