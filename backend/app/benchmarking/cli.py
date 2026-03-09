@@ -11,8 +11,11 @@ import json
 import logging
 import os
 import sys
+import time
 from datetime import UTC, datetime
 from pathlib import Path
+
+import httpx
 
 from app.benchmarking.experiment_log import ExperimentLog, ExperimentResult
 from app.benchmarking.metrics import AggregateMAE, LatencyTracker, MetricsCalculator
@@ -219,9 +222,11 @@ async def main_async(args):
             "checkpoint_version": 2,
         }
 
-        retries = getattr(args, "retries", 2)
+        retries = getattr(args, "retries", 3)
 
         # 5. Run Loop with Batching and Retry
+        run_start_time = time.perf_counter()
+        dishes_processed_this_run = 0
         try:
             for _i, dish in enumerate(dishes):
                 batch_idx = (len(results) // args.batch_size) + 1
@@ -236,18 +241,43 @@ async def main_async(args):
                 result = None
                 for attempt in range(retries + 1):
                     try:
-                        result = await runner.run_dish(dish, provider=args.provider, model=args.model)
+                        result = await runner.run_dish(
+                            dish,
+                            provider=args.provider,
+                            model=args.model,
+                            dish_timeout_seconds=getattr(args, "timeout", 120.0),
+                        )
                         # Check for retryable failures
                         if result["success"] or attempt >= retries:
                             break
                         error = result.get("error", "")
-                        retryable = any(kw in error.lower() for kw in ("timeout", "connection", "network"))
-                        if not retryable:
+                        keyword_retryable = any(
+                            kw in error.lower() for kw in ("timeout", "connection", "network")
+                        )
+                        http_retryable = any(
+                            f"status code {code}" in error.lower()
+                            or f" {code} " in error
+                            or error.strip().endswith(str(code))
+                            for code in (429, 500, 502, 503, 504)
+                        )
+                        if not (keyword_retryable or http_retryable):
                             break
                         logger.warning(
                             f"[{dish.dish_id}] Retryable failure (attempt {attempt+1}/{retries+1}): {error}"
                         )
                         await asyncio.sleep(2**attempt)
+                    except (TimeoutError, httpx.TimeoutException) as e:
+                        logger.warning(f"[{dish.dish_id}] Timeout on attempt {attempt+1}/{retries+1}: {e}")
+                        if attempt >= retries:
+                            result = {
+                                "dish_id": dish.dish_id,
+                                "success": False,
+                                "error": f"timeout: {e}",
+                                "turns": 0,
+                                "log_id": None,
+                            }
+                        else:
+                            await asyncio.sleep(2**attempt)
                     except Exception as e:
                         logger.error(f"[{dish.dish_id}] Exception on attempt {attempt+1}: {e}")
                         if attempt >= retries:
@@ -262,6 +292,7 @@ async def main_async(args):
                             await asyncio.sleep(2**attempt)
 
                 results.append(result)
+                dishes_processed_this_run += 1
 
                 # Record latency
                 latency_tracker.record(
@@ -286,6 +317,20 @@ async def main_async(args):
                 # Batch progress logging
                 if len(results) % args.batch_size == 0:
                     logger.info(f"Batch {batch_idx} complete ({len(results)} total)")
+
+                # Progress reporting every 50 dishes
+                if dishes_processed_this_run % 50 == 0 and dishes_processed_this_run > 0:
+                    elapsed = time.perf_counter() - run_start_time
+                    success_count = sum(1 for r in results if r.get("success", False))
+                    success_rate = (success_count / len(results)) * 100
+                    avg_per_dish = elapsed / dishes_processed_this_run
+                    remaining_dishes = len(all_dishes) - len(results)
+                    remaining = remaining_dishes * avg_per_dish
+                    logger.info(
+                        f"Progress: {len(results)}/{len(all_dishes)} dishes "
+                        f"({success_rate:.1f}% success, elapsed: {elapsed:.0f}s, "
+                        f"ETA: {remaining:.0f}s)"
+                    )
 
                 # Brief pause to avoid rate limiting
                 await asyncio.sleep(args.delay)
@@ -406,8 +451,14 @@ async def main_async(args):
     if routing_accuracy and not routing_accuracy.get("skipped"):
         print("\n--- Routing Accuracy (Agentic Mode) ---")
         ra = routing_accuracy
-        print(f"  TNR: {ra['tnr']:.3f} (TN={ra['tn']}, FP={ra['fp']})")
-        print(f"  TPR: {ra['tpr']:.3f} (TP={ra['tp']}, FN={ra['fn']})")
+        print(
+            f"  TNR: {ra['tnr']:.3f} [{ra.get('tnr_ci_lower', 0):.3f}, "
+            f"{ra.get('tnr_ci_upper', 0):.3f}] (TN={ra['tn']}, FP={ra['fp']})"
+        )
+        print(
+            f"  TPR: {ra['tpr']:.3f} [{ra.get('tpr_ci_lower', 0):.3f}, "
+            f"{ra.get('tpr_ci_upper', 0):.3f}] (TP={ra['tp']}, FN={ra['fn']})"
+        )
     elif mode != "agentic":
         print(f"\n  Routing accuracy skipped (only meaningful for agentic mode, current: {mode})")
 
@@ -566,6 +617,15 @@ async def _run_compare(args, output_dir: Path):
     else:
         print(f"\nTurn Reduction: {turn_reduction['error']}")
 
+    # Cross-mode statistical comparison (agentic vs single-shot)
+    if mode_mae_results.get("agentic") and mode_mae_results.get("single-shot"):
+        comparison = metrics_calc.compare_modes(mode_mae_results["agentic"], mode_mae_results["single-shot"])
+        print("\n--- Effect Size Analysis (Agentic vs Single-Shot) ---")
+        print(f"  {comparison['summary']}")
+        for macro, d in comparison["effect_sizes_cohens_d"].items():
+            d_str = f"{d:.3f}" if d is not None else "N/A"
+            print(f"  {macro}: Cohen's d = {d_str}")
+
 
 def main():
     parser = argparse.ArgumentParser(description="Snap and Say Oracle Benchmark")
@@ -590,7 +650,14 @@ def main():
         help="Runner mode: agentic (default), single-shot, or naive-always-ask",
     )
     bench_parser.add_argument("--timeout", type=float, default=180.0, help="Per-dish timeout in seconds")
-    bench_parser.add_argument("--retries", type=int, default=2, help="Max retries per dish on failure")
+    bench_parser.add_argument(
+        "--retries",
+        type=int,
+        default=3,
+        choices=range(0, 11),
+        metavar="N",
+        help="Max retries per dish on failure (0-10, default: 3)",
+    )
     bench_parser.add_argument("--provider", type=str, help="LLM provider (openai, google)")
     bench_parser.add_argument("--model", type=str, help="Specific model name")
 

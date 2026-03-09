@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 import time
@@ -70,10 +71,19 @@ class OracleRunner:
         system_prompt_override: str | None = None,
         provider: str | None = None,
         model: str | None = None,
+        dish_timeout_seconds: float = 120.0,
     ) -> dict[str, Any]:
-        """
-        Orchestrates the benchmarking loop for a single dish.
-        Returns result dict including latency_seconds for timing and complexity metrics.
+        """Orchestrate the benchmarking loop for a single dish.
+
+        Args:
+            dish: The dish to benchmark.
+            system_prompt_override: Optional prompt override.
+            provider: LLM provider.
+            model: LLM model name.
+            dish_timeout_seconds: Total per-dish timeout (upload + processing).
+
+        Returns:
+            Result dict including latency_seconds for timing and complexity metrics.
         """
         start_time = time.perf_counter()
 
@@ -90,8 +100,11 @@ class OracleRunner:
 
         payload = {"image_path": image_url, "client_timestamp": datetime.now(UTC).isoformat()}
 
+        upload_timeout = min(30.0, dish_timeout_seconds * 0.25)
         try:
-            resp = await self.client.post("/api/v1/analysis/upload", json=payload, headers=headers)
+            resp = await self.client.post(
+                "/api/v1/analysis/upload", json=payload, headers=headers, timeout=upload_timeout
+            )
             resp.raise_for_status()
             data = resp.json()
             log_id = data["log_id"]
@@ -106,10 +119,35 @@ class OracleRunner:
                 "latency_seconds": latency,
             }
 
-        # 2. SSE Loop
-        result = await self._process_loop(
-            log_id, dish, headers, image_url, system_prompt_override, provider, model
-        )
+        # 2. SSE Loop with remaining time budget
+        remaining_timeout = dish_timeout_seconds - (time.perf_counter() - start_time)
+        if remaining_timeout <= 0:
+            latency = time.perf_counter() - start_time
+            logger.error(f"[{dish.dish_id}] Upload consumed entire timeout budget ({latency:.1f}s)")
+            return {
+                "dish_id": dish.dish_id,
+                "success": False,
+                "error": "timeout",
+                "log_id": log_id,
+                "turns": 0,
+                "latency_seconds": latency,
+            }
+        try:
+            result = await asyncio.wait_for(
+                self._process_loop(log_id, dish, headers, image_url, system_prompt_override, provider, model),
+                timeout=remaining_timeout,
+            )
+        except TimeoutError:
+            latency = time.perf_counter() - start_time
+            logger.error(f"[{dish.dish_id}] Per-dish timeout after {latency:.1f}s")
+            return {
+                "dish_id": dish.dish_id,
+                "success": False,
+                "error": "timeout",
+                "log_id": log_id,
+                "turns": 0,
+                "latency_seconds": latency,
+            }
 
         # Add latency to result
         result["latency_seconds"] = time.perf_counter() - start_time

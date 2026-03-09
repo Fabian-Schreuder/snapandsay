@@ -7,10 +7,14 @@ import pytest
 from app.benchmarking.metrics import (
     AggregateLatency,
     AggregateMAE,
+    ComplexityMetrics,
     DishLatency,
     DishMAE,
     LatencyTracker,
     MetricsCalculator,
+    calculate_ci,
+    calculate_cohens_d,
+    calculate_wilson_ci,
 )
 from app.benchmarking.schemas import IngredientInfo, NutritionDish
 
@@ -482,3 +486,257 @@ class TestTurnReduction:
         result = metrics_calculator.calculate_turn_reduction(agentic, naive)
 
         assert result["turn_reduction_pct"] == 0.0
+
+
+class TestCalculateCI:
+    """Tests for confidence interval calculation."""
+
+    def test_basic_ci(self):
+        values = [10.0, 20.0, 30.0, 40.0, 50.0]
+        lower, upper = calculate_ci(values)
+        mean = 30.0
+        assert lower < mean
+        assert upper > mean
+        # Symmetric around the mean
+        assert abs((upper - mean) - (mean - lower)) < 0.01
+
+    def test_single_value(self):
+        lower, upper = calculate_ci([42.0])
+        assert lower == 42.0
+        assert upper == 42.0
+
+    def test_empty_list(self):
+        lower, upper = calculate_ci([])
+        assert lower == 0.0
+        assert upper == 0.0
+
+    def test_identical_values(self):
+        lower, upper = calculate_ci([5.0, 5.0, 5.0])
+        assert lower == 5.0
+        assert upper == 5.0
+
+    def test_large_sample_narrow_ci(self):
+        """Larger samples should produce narrower CI."""
+        small = [10.0, 20.0, 30.0]
+        large = [10.0, 15.0, 20.0, 25.0, 30.0, 12.0, 18.0, 22.0, 28.0, 14.0]
+        _, small_upper = calculate_ci(small)
+        small_lower, _ = calculate_ci(small)
+        _, large_upper = calculate_ci(large)
+        large_lower, _ = calculate_ci(large)
+        small_width = small_upper - small_lower
+        large_width = large_upper - large_lower
+        assert large_width < small_width
+
+
+class TestCalculateCohensD:
+    """Tests for Cohen's d effect size calculation."""
+
+    def test_identical_groups(self):
+        g1 = [10.0, 20.0, 30.0]
+        d = calculate_cohens_d(g1, g1.copy())
+        assert d == 0.0
+
+    def test_large_effect(self):
+        g1 = [10.0, 12.0, 11.0, 13.0, 10.5]
+        g2 = [50.0, 52.0, 51.0, 53.0, 50.5]
+        d = calculate_cohens_d(g1, g2)
+        assert d is not None
+        assert abs(d) > 2.0  # Very large effect
+
+    def test_too_small_groups(self):
+        d = calculate_cohens_d([10.0], [20.0])
+        assert d is None
+
+    def test_equal_means_returns_zero(self):
+        """Equal means returns 0.0 regardless of variance."""
+        d = calculate_cohens_d([5.0, 5.0], [5.0, 5.0])
+        assert d == 0.0
+
+    def test_zero_pooled_variance_different_means(self):
+        """Zero pooled variance with different means returns None."""
+        d = calculate_cohens_d([5.0, 5.0], [10.0, 10.0])
+        assert d is None  # Zero pooled variance
+
+    def test_sign_direction(self):
+        g1 = [10.0, 12.0, 11.0]
+        g2 = [20.0, 22.0, 21.0]
+        d = calculate_cohens_d(g1, g2)
+        assert d is not None
+        assert d < 0  # g1 < g2
+
+
+class TestCalculateWilsonCI:
+    """Tests for Wilson score confidence interval."""
+
+    def test_perfect_proportion(self):
+        lower, upper = calculate_wilson_ci(10, 10)
+        assert lower > 0.5
+        assert upper == 1.0
+
+    def test_zero_proportion(self):
+        lower, upper = calculate_wilson_ci(0, 10)
+        assert lower == 0.0
+        assert upper < 0.5
+
+    def test_half_proportion(self):
+        lower, upper = calculate_wilson_ci(50, 100)
+        assert lower < 0.5
+        assert upper > 0.5
+
+    def test_empty_total(self):
+        lower, upper = calculate_wilson_ci(0, 0)
+        assert lower == 0.0
+        assert upper == 0.0
+
+    def test_small_sample(self):
+        """Wilson should handle small samples better than normal approximation."""
+        lower, upper = calculate_wilson_ci(1, 3)
+        assert 0.0 <= lower < 0.5
+        assert 0.3 < upper <= 1.0
+
+
+class TestAggregateMAEWithCI:
+    """Tests for CI integration in aggregate_mae."""
+
+    def test_ci_populated_for_multiple_results(self):
+        calc = MetricsCalculator()
+        results = [
+            DishMAE(dish_id="1", calories=10, protein=2, fat=1, carbs=3, success=True),
+            DishMAE(dish_id="2", calories=20, protein=4, fat=3, carbs=5, success=True),
+            DishMAE(dish_id="3", calories=30, protein=6, fat=5, carbs=7, success=True),
+        ]
+        agg = calc.aggregate_mae(results)
+
+        assert agg.ci_lower_calories is not None
+        assert agg.ci_upper_calories is not None
+        assert agg.ci_lower_calories < agg.mean_calories
+        assert agg.ci_upper_calories > agg.mean_calories
+
+    def test_ci_single_result(self):
+        calc = MetricsCalculator()
+        results = [DishMAE(dish_id="1", calories=10, protein=2, fat=1, carbs=3, success=True)]
+        agg = calc.aggregate_mae(results)
+
+        # Single result: CI collapses to the mean
+        assert agg.ci_lower_calories == agg.mean_calories
+        assert agg.ci_upper_calories == agg.mean_calories
+
+    def test_ci_in_to_dict(self):
+        calc = MetricsCalculator()
+        results = [
+            DishMAE(dish_id="1", calories=10, protein=2, fat=1, carbs=3, success=True),
+            DishMAE(dish_id="2", calories=20, protein=4, fat=3, carbs=5, success=True),
+        ]
+        agg = calc.aggregate_mae(results)
+        d = agg.to_dict()
+
+        assert "confidence_interval_95" in d
+        assert "calories" in d["confidence_interval_95"]
+
+
+class TestRoutingAccuracyWilsonCI:
+    """Tests for Wilson CI in routing accuracy."""
+
+    def test_wilson_ci_present(self):
+        calc = MetricsCalculator()
+        per_dish = [
+            {"dish_id": "s1", "turns": 0, "success": True},
+            {"dish_id": "s2", "turns": 1, "success": True},
+            {"dish_id": "c1", "turns": 1, "success": True},
+            {"dish_id": "c2", "turns": 0, "success": True},
+        ]
+        complexity_map = {"s1": "simple", "s2": "simple", "c1": "complex", "c2": "complex"}
+
+        result = calc.calculate_routing_accuracy(per_dish, complexity_map)
+
+        assert "tnr_ci_lower" in result
+        assert "tnr_ci_upper" in result
+        assert "tpr_ci_lower" in result
+        assert "tpr_ci_upper" in result
+        assert result["tnr_ci_lower"] <= result["tnr"]
+        assert result["tnr_ci_upper"] >= result["tnr"]
+
+
+class TestCompareModes:
+    """Tests for cross-mode comparison."""
+
+    def test_basic_comparison(self):
+        calc = MetricsCalculator()
+        agentic = [
+            DishMAE(dish_id="1", calories=80, protein=5, fat=3, carbs=8, success=True),
+            DishMAE(dish_id="2", calories=90, protein=6, fat=4, carbs=9, success=True),
+            DishMAE(dish_id="3", calories=70, protein=4, fat=2, carbs=7, success=True),
+        ]
+        single_shot = [
+            DishMAE(dish_id="1", calories=60, protein=4, fat=2, carbs=6, success=True),
+            DishMAE(dish_id="2", calories=50, protein=3, fat=2, carbs=5, success=True),
+            DishMAE(dish_id="3", calories=55, protein=3, fat=2, carbs=6, success=True),
+        ]
+
+        result = calc.compare_modes(agentic, single_shot)
+
+        assert "effect_sizes_cohens_d" in result
+        assert "mae_comparison" in result
+        assert "summary" in result
+        assert "calories" in result["effect_sizes_cohens_d"]
+        assert result["mae_comparison"]["calories"]["agentic_mae"] > 0
+        assert result["mae_comparison"]["calories"]["single_shot_mae"] > 0
+
+    def test_identical_results(self):
+        calc = MetricsCalculator()
+        results = [
+            DishMAE(dish_id="1", calories=50, protein=5, fat=3, carbs=8, success=True),
+            DishMAE(dish_id="2", calories=60, protein=6, fat=4, carbs=9, success=True),
+        ]
+
+        result = calc.compare_modes(results, results)
+
+        assert result["effect_sizes_cohens_d"]["calories"] == 0.0
+        assert result["mae_comparison"]["calories"]["difference"] == 0.0
+
+    def test_all_failed_results(self):
+        """All-failed results should not raise and should return zeroed comparison."""
+        calc = MetricsCalculator()
+        failed = [
+            DishMAE(dish_id="1", success=False),
+            DishMAE(dish_id="2", success=False),
+        ]
+
+        result = calc.compare_modes(failed, failed)
+
+        assert result["effect_sizes_cohens_d"]["calories"] is None
+        assert result["mae_comparison"]["calories"]["agentic_mae"] == 0.0
+        assert result["mae_comparison"]["calories"]["difference"] == 0.0
+
+
+class TestComplexityMetricsScale:
+    """Tests for ComplexityMetrics scale fields."""
+
+    def test_scale_fields_in_to_dict(self):
+        cm = ComplexityMetrics(
+            total_scored=5,
+            mean_score=3.6,
+            score_scale="deterministic_unbounded_0_to_21",
+            score_min=1.2,
+            score_max=8.4,
+        )
+        d = cm.to_dict()
+
+        assert d["score_scale"] == "deterministic_unbounded_0_to_21"
+        assert d["score_min"] == 1.2
+        assert d["score_max"] == 8.4
+
+    def test_aggregate_complexity_populates_scale(self):
+        calc = MetricsCalculator()
+        per_dish = [
+            {"complexity_breakdown": {"score": 2.0, "dominant_factor": "hidden_ingredients"}, "turns": 0},
+            {"complexity_breakdown": {"score": 5.5, "dominant_factor": "invisible_prep"}, "turns": 1},
+            {"complexity_breakdown": {"score": 3.2, "dominant_factor": "hidden_ingredients"}, "turns": 0},
+        ]
+
+        result = calc.aggregate_complexity(per_dish)
+
+        assert result.score_scale == "deterministic_unbounded_0_to_21"
+        assert result.score_min == 2.0
+        assert result.score_max == 5.5
+        assert result.total_scored == 3

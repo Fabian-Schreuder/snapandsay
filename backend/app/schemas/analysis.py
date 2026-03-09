@@ -43,9 +43,15 @@ class ComplexityBreakdown(BaseModel):
     weights: dict[str, float] | None = Field(
         None, description="Weights used for calculation (populated by Gatekeeper)"
     )
-    semantic_penalty: float = Field(0.0, description="Penalty for ambiguity (0.0 to 1.0)")
+    semantic_penalty: float = Field(
+        0.0,
+        description="Semantic penalty from food class risk profile (0.0-4.0, see food_class_registry.yaml)",
+    )
     dominant_factor: str | None = Field(None, description="Factor driving the complexity score")
-    score: float = Field(..., description="Calculated complexity score (0.0 to 1.0)")
+    score: float = Field(
+        ...,
+        description="Calculated complexity score (deterministic scale, practical range 0.0-~21.1)",
+    )
 
 
 class AnalysisResult(BaseModel):
@@ -69,8 +75,10 @@ class AnalysisResult(BaseModel):
     complexity_score: float = Field(
         0.0,
         description=(
-            "Meal complexity from 0.0 (simple, single item) to 1.0 (complex, multi-component). "
-            "Consider: number of distinct items, composite dishes, ambiguous portions, mixed preparations."
+            "Deterministic meal complexity score (C = Σ(w·L²) + P_sem). "
+            "Range 0.0-~21.1 depending on food class risk profile. "
+            "Higher values indicate greater ambiguity requiring clarification. "
+            "Clinical routing threshold default: 15.0."
         ),
     )
 
