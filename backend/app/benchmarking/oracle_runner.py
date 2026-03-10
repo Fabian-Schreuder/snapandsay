@@ -111,6 +111,14 @@ class OracleRunner:
             resp = await self.client.post(
                 "/api/v1/analysis/upload", json=payload, headers=headers, timeout=upload_timeout
             )
+            # Auto-refresh token on 401 and retry once
+            if resp.status_code == 401:
+                logger.warning(f"[{dish.dish_id}] JWT expired, re-authenticating...")
+                await self.login()
+                headers = {"Authorization": f"Bearer {self.access_token}"}
+                resp = await self.client.post(
+                    "/api/v1/analysis/upload", json=payload, headers=headers, timeout=upload_timeout
+                )
             resp.raise_for_status()
             data = resp.json()
             log_id = data["log_id"]
@@ -246,6 +254,11 @@ class OracleRunner:
                 async with self.client.stream(
                     "POST", "/api/v1/analysis/stream", json=stream_payload, headers=headers
                 ) as response:
+                    if response.status_code == 401:
+                        logger.warning(f"[{dish.dish_id}] JWT expired during stream, re-authenticating...")
+                        await self.login()
+                        headers["Authorization"] = f"Bearer {self.access_token}"
+                        continue  # Retry this stream request with refreshed token
                     if response.status_code != 200:
                         error_msg = f"Stream failed: {response.status_code}"
                         done = True
@@ -380,5 +393,10 @@ class OracleRunner:
         url = f"/api/v1/analysis/clarify/{log_id}"
         payload = {"responses": responses}
         resp = await self.client.post(url, json=payload, headers=headers)
+        if resp.status_code == 401:
+            logger.warning(f"[{log_id}] JWT expired during clarify, re-authenticating...")
+            await self.login()
+            headers["Authorization"] = f"Bearer {self.access_token}"
+            resp = await self.client.post(url, json=payload, headers=headers)
         resp.raise_for_status()
         logger.debug(f"Answer submitted for {log_id} ({len(responses)} responses)")
