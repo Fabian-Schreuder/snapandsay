@@ -3,4 +3,3 @@ packages:
 
 onlyBuiltDependencies:
   - '@railway/cli'
-  - '@seontechnologies/playwright-utils'
