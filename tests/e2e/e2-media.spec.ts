@@ -16,6 +16,8 @@ test.describe('Epic 2: Media Capture', () => {
 
     // Grant permissions for camera/microphone
     await context.grantPermissions(['camera', 'microphone']);
+    // Set locale to English so button labels match English test assertions
+    await context.addCookies([{ name: 'locale', value: 'en', domain: 'localhost', path: '/' }]);
     await page.goto('/snap');
   });
 
