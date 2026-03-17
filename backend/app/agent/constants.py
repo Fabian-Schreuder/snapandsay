@@ -76,7 +76,7 @@ def get_message(key: str, language: str = "nl") -> str:
 
 # Routing Constants
 CONFIDENCE_THRESHOLD = 0.85
-CLINICAL_THRESHOLD = 15.0
+CLINICAL_THRESHOLD = 5.0
 MAX_CLARIFICATIONS = 2
 CLARIFICATION_TIMEOUT_SECONDS = 30
 

@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { X, Check } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 interface ImagePreviewProps {
@@ -14,13 +15,15 @@ export default function ImagePreview({
   onRetake,
   onConfirm,
 }: ImagePreviewProps) {
+  const t = useTranslations("snap");
+  const tCommon = useTranslations("common");
   return (
     <div className="relative h-full w-full bg-black flex flex-col items-center justify-center">
       {/* Image Preview - using <img> because imageSrc is a base64 data URL from camera capture */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={imageSrc}
-        alt="Captured preview"
+        alt={t("capturedPreview")}
         className="absolute inset-0 h-full w-full object-contain"
       />
 
@@ -29,7 +32,7 @@ export default function ImagePreview({
         {/* Retake Button */}
         <button
           onClick={onRetake}
-          aria-label="Retake"
+          aria-label={t("retake")}
           className={cn(
             "h-16 w-16 rounded-full bg-white/20 backdrop-blur-md border border-white/30",
             "flex items-center justify-center text-white",
@@ -42,7 +45,7 @@ export default function ImagePreview({
         {/* Confirm Button */}
         <button
           onClick={onConfirm}
-          aria-label="Confirm"
+          aria-label={tCommon("confirm")}
           className={cn(
             "h-20 w-20 -mt-2 rounded-full bg-white text-primary",
             "flex items-center justify-center shadow-xl",

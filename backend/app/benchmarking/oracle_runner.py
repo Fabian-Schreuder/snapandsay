@@ -72,7 +72,7 @@ class OracleRunner:
         provider: str | None = None,
         model: str | None = None,
         dish_timeout_seconds: float = 120.0,
-        clinical_threshold: float = 15.0,
+        clinical_threshold: float = 5.0,
         confidence_threshold: float = 0.85,
         language: str = "en",
     ) -> dict[str, Any]:
@@ -187,7 +187,7 @@ class OracleRunner:
         system_prompt_override: str | None = None,
         provider: str | None = None,
         model: str | None = None,
-        clinical_threshold: float = 15.0,
+        clinical_threshold: float = 5.0,
         confidence_threshold: float = 0.85,
         language: str = "en",
     ) -> dict[str, Any]:

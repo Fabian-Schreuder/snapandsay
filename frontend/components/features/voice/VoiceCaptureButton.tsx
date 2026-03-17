@@ -1,10 +1,15 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useAudio } from "../../../hooks/use-audio";
 import { useFeedback } from "../../../hooks/use-feedback";
 import { Mic } from "lucide-react";
-import { AlertDialog, AlertDialogContent, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import PermissionErrorState from "../camera/PermissionErrorState";
 import { VoiceButton, VoiceButtonState } from "@/components/ui/voice-button";
 
@@ -26,6 +31,7 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
     isPermissionDenied,
   } = useAudio();
 
+  const tv = useTranslations("snap.voice");
   const [buttonState, setButtonState] = useState<VoiceButtonState>("idle");
   const [showPermissionDialog, setShowPermissionDialog] = useState(false);
   const feedback = useFeedback();
@@ -92,7 +98,9 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
         onOpenChange={setShowPermissionDialog}
       >
         <AlertDialogContent className="p-0 border-none bg-zinc-900 max-w-none w-screen h-screen rounded-none flex items-center justify-center">
-          <AlertDialogTitle className="sr-only">Microphone Permission Required</AlertDialogTitle>
+          <AlertDialogTitle className="sr-only">
+            {tv("micPermissionRequired")}
+          </AlertDialogTitle>
           <PermissionErrorState
             mediaType="microphone"
             errorType="permission"
@@ -111,10 +119,10 @@ export const VoiceCaptureButton: React.FC<VoiceCaptureButtonProps> = ({
         variant="default"
         aria-label={
           buttonState === "recording"
-            ? "Stop voice recording"
+            ? tv("stopRecording")
             : buttonState === "processing" || buttonState === "success"
-              ? "Processing voice recording"
-              : "Start voice recording"
+              ? tv("processingRecording")
+              : tv("startRecording")
         }
         aria-describedby="tap-to-toggle-text"
         icon={<Mic className="w-8 h-8" />}

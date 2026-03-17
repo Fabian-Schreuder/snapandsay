@@ -46,7 +46,6 @@ MIXED_DISH_KEYWORDS = frozenset(
         "stew",
         "soup",
         "curry",
-        "mixed",
         "blend",
         "puree",
         "mash",
@@ -123,7 +122,7 @@ class StratificationEngine:
     # Thresholds
     SIMPLE_INGREDIENT_THRESHOLD = 3
     HIGH_CALORIC_DENSITY_THRESHOLD = 150.0  # kcal per 100g
-    COMPLEXITY_THRESHOLD = 0.5  # Score above this = complex
+    COMPLEXITY_THRESHOLD = 0.35  # Score above this = complex
 
     def ingredient_count_score(self, dish: NutritionDish) -> float:
         """
@@ -161,7 +160,7 @@ class StratificationEngine:
         # Calculate ratio
         total = mixed_count + distinct_count
         if total == 0:
-            return 0.5
+            return 0.0  # No complexity-indicating keywords → treat as simple
 
         # More mixed = higher score (less distinct)
         return mixed_count / total

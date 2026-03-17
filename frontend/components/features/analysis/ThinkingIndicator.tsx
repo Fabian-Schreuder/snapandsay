@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { BrainCircuit, CheckCircle2, AlertCircle } from "lucide-react";
 
@@ -22,6 +23,8 @@ export function ThinkingIndicator({
   status,
   className,
 }: ThinkingIndicatorProps) {
+  const t = useTranslations("snap");
+  const tErrors = useTranslations("errors");
   const [displayThought, setDisplayThought] = useState("");
 
   // Update display thought smoothly
@@ -129,19 +132,19 @@ export function ThinkingIndicator({
             )}
           >
             {/* Show 'Connecting...' if no thoughts yet, else show latest thought */}
-            {thoughts.length === 0 ? "Connecting..." : displayThought}
+            {thoughts.length === 0 ? t("connecting") : displayThought}
           </p>
         )}
 
         {isComplete && (
           <p className="text-center text-lg font-medium text-emerald-800 animate-in fade-in">
-            Analysis complete
+            {t("analysisComplete")}
           </p>
         )}
 
         {isError && (
           <p className="text-center text-lg font-medium text-red-700 animate-in fade-in">
-            Something went wrong
+            {tErrors("generic")}
           </p>
         )}
       </div>

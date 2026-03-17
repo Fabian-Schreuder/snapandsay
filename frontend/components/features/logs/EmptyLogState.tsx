@@ -18,7 +18,9 @@ export function EmptyLogState() {
         <Utensils className="h-8 w-8 text-muted-foreground" />
       </div>
       <h3 className="mb-2 text-xl font-semibold">{t("dashboard.noMeals")}</h3>
-      <p className="mb-6 text-muted-foreground text-lg">{t("logs.noLogs")}</p>
+      <p className="mb-6 text-muted-foreground text-lg">
+        {t("dashboard.startTracking")}
+      </p>
       <Button asChild size="lg" className="text-lg px-8 py-6">
         <Link href="/snap">{t("dashboard.snapMeal")}</Link>
       </Button>

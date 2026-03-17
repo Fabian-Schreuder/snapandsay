@@ -145,8 +145,7 @@ export const useAgent = (): UseAgentReturn => {
           currentRequestRef.current;
         // Reset and retry after brief delay
         setTimeout(
-          () =>
-            startStreamingInternal(logId, imagePath, audioPath, options),
+          () => startStreamingInternal(logId, imagePath, audioPath, options),
           1000,
         );
       }
@@ -477,31 +476,34 @@ export const useAgent = (): UseAgentReturn => {
     [startStreamingInternal],
   );
 
-  const submitText = useCallback(async (text: string) => {
-    try {
-      cleanup();
-      setStatus("connecting");
-      setError(null);
+  const submitText = useCallback(
+    async (text: string) => {
+      try {
+        cleanup();
+        setStatus("connecting");
+        setError(null);
 
-      // 1. Upload/Create Log
-      const response = await analysisApi.upload({
-        text_input: text,
-        client_timestamp: new Date().toISOString(),
-        language: statusLocale,
-      });
+        // 1. Upload/Create Log
+        const response = await analysisApi.upload({
+          text_input: text,
+          client_timestamp: new Date().toISOString(),
+          language: statusLocale,
+        });
 
-      const newLogId = response.log_id;
+        const newLogId = response.log_id;
 
-      // 2. Start Streaming
-      // We pass undefined for image/audio paths as this is text-only
-      startStreaming(newLogId, undefined, undefined);
-    } catch (err) {
-      console.error("Text submission failed:", err);
-      // Use feedback hook for error sound if available or just set error state
-      setError("Failed to submit text. Please try again.");
-      setStatus("error");
-    }
-  }, [cleanup, statusLocale, startStreaming]);
+        // 2. Start Streaming
+        // We pass undefined for image/audio paths as this is text-only
+        startStreaming(newLogId, undefined, undefined);
+      } catch (err) {
+        console.error("Text submission failed:", err);
+        // Use feedback hook for error sound if available or just set error state
+        setError("Failed to submit text. Please try again.");
+        setStatus("error");
+      }
+    },
+    [cleanup, statusLocale, startStreaming],
+  );
 
   return {
     status,

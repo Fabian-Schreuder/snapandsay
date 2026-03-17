@@ -193,7 +193,11 @@ describe("ClarificationPrompt", () => {
       <ClarificationPrompt
         {...singleQuestionProps}
         questions={[
-          { item_name: "Portion", question: "How big was the portion?", options: [] },
+          {
+            item_name: "Portion",
+            question: "How big was the portion?",
+            options: [],
+          },
         ]}
       />,
     );

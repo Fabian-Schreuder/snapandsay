@@ -149,8 +149,7 @@ export default function SnapPage() {
       const pathname = window.location.pathname;
       const options = {
         force_clarify:
-          testParam === "always-clarify" ||
-          pathname.includes("always-clarify"),
+          testParam === "always-clarify" || pathname.includes("always-clarify"),
         force_finalize:
           testParam === "never-clarify" || pathname.includes("never-clarify"),
       };
@@ -163,7 +162,7 @@ export default function SnapPage() {
       console.error("Upload sequence failed:", error);
       // Only set error message if agent didn't already capture it
       if (!agentError) {
-        setErrorMessage("We couldn't save that. Please try again.");
+        setErrorMessage(t("snap.uploadFailed"));
       }
 
       // Cleanup: Delete any files that might have been uploaded
@@ -230,11 +229,11 @@ export default function SnapPage() {
               status === "clarifying"
                 ? "streaming"
                 : (status as
-                  | "idle"
-                  | "connecting"
-                  | "streaming"
-                  | "complete"
-                  | "error")
+                    | "idle"
+                    | "connecting"
+                    | "streaming"
+                    | "complete"
+                    | "error")
             }
             thoughts={thoughts}
           />
@@ -300,9 +299,6 @@ export default function SnapPage() {
                 onRecordingComplete={handleRecordingComplete}
               />
             )}
-            <p id="tap-to-toggle-text" className="text-zinc-400 text-sm">
-              {t("snap.tapToToggle")}
-            </p>
             <p id="tap-to-toggle-text" className="text-zinc-400 text-sm">
               {t("snap.tapToToggle")}
             </p>

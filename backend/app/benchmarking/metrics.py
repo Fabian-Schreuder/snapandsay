@@ -436,13 +436,17 @@ class MetricsCalculator:
         return {macro: (within[macro] / total[macro] if total[macro] > 0 else 0.0) for macro in within}
 
     def aggregate_mae_by_stratum(
-        self, results: list[DishMAE], dish_complexity_map: dict[str, str]
+        self,
+        results: list[DishMAE],
+        dish_complexity_map: dict[str, str],
+        ground_truths: dict[str, NutritionDish] | None = None,
     ) -> dict[str, AggregateMAE]:
         """Aggregate MAE metrics grouped by complexity stratum (simple/complex).
 
         Args:
             results: List of DishMAE results.
             dish_complexity_map: Mapping of dish_id to complexity string.
+            ground_truths: Optional mapping of dish_id to ground truth for within-threshold calc.
 
         Returns:
             Dict mapping stratum label to AggregateMAE.
@@ -452,7 +456,7 @@ class MetricsCalculator:
             stratum = dish_complexity_map.get(r.dish_id, "unknown")
             groups.setdefault(stratum, []).append(r)
 
-        return {stratum: self.aggregate_mae(group) for stratum, group in groups.items()}
+        return {stratum: self.aggregate_mae(group, ground_truths) for stratum, group in groups.items()}
 
     def calculate_routing_accuracy(
         self, per_dish_results: list[dict], dish_complexity_map: dict[str, str]

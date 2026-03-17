@@ -2,6 +2,7 @@
 import React, { useRef, useCallback, useState, useEffect } from "react";
 import Webcam from "react-webcam";
 import { Camera } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useFeedback } from "@/hooks/use-feedback";
 import PermissionErrorState from "./PermissionErrorState";
@@ -15,6 +16,7 @@ const videoConstraints = {
 };
 
 export default function CameraCapture({ onCapture }: CameraCaptureProps) {
+  const t = useTranslations("snap");
   const webcamRef = useRef<Webcam>(null);
   const [errorType, setErrorType] = useState<
     "permission" | "device" | "unknown" | null
@@ -85,37 +87,38 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
     }
   }, [webcamRef, onCapture, feedback]);
 
-  const handleUserMediaError = useCallback((error: string | DOMException) => {
-    console.error("Camera Error:", error);
+  const handleUserMediaError = useCallback(
+    (error: string | DOMException) => {
+      console.error("Camera Error:", error);
 
-    // Distinguish between permission and constraint errors
-    if (typeof error === "object" && "name" in error) {
-      if (
-        error.name === "NotAllowedError" ||
-        error.name === "PermissionDeniedError"
-      ) {
-        setErrorType("permission");
-        setErrorMessage(null); // Use default message in UI
-      } else if (error.name === "OverconstrainedError") {
-        setErrorType("device");
-        setErrorMessage(
-          "Camera resolution not supported. Please try a different device.",
-        );
-      } else if (error.name === "NotFoundError") {
-        setErrorType("device");
-        setErrorMessage("No camera found on this device.");
-      } else if (error.name === "NotReadableError") {
-        setErrorType("device");
-        setErrorMessage("Camera is currently in use by another application.");
+      // Distinguish between permission and constraint errors
+      if (typeof error === "object" && "name" in error) {
+        if (
+          error.name === "NotAllowedError" ||
+          error.name === "PermissionDeniedError"
+        ) {
+          setErrorType("permission");
+          setErrorMessage(null); // Use default message in UI
+        } else if (error.name === "OverconstrainedError") {
+          setErrorType("device");
+          setErrorMessage(t("camera.resolutionError"));
+        } else if (error.name === "NotFoundError") {
+          setErrorType("device");
+          setErrorMessage(t("camera.notFoundError"));
+        } else if (error.name === "NotReadableError") {
+          setErrorType("device");
+          setErrorMessage(t("camera.inUseError"));
+        } else {
+          setErrorType("unknown");
+          setErrorMessage(t("camera.unknownError"));
+        }
       } else {
         setErrorType("unknown");
-        setErrorMessage("We encountered an error accessing your camera.");
+        setErrorMessage(t("camera.genericError"));
       }
-    } else {
-      setErrorType("unknown");
-      setErrorMessage("We need camera access to see your meal.");
-    }
-  }, []);
+    },
+    [t],
+  );
 
   const handleUserMedia = useCallback(() => {
     setErrorType(null);
@@ -177,7 +180,7 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
       <div className="absolute bottom-10 z-10 w-full flex justify-center pb-8">
         <button
           onClick={capture}
-          aria-label="Shutter button"
+          aria-label={t("shutterButton")}
           className={cn(
             "h-20 w-20 rounded-full bg-white border-4 border-gray-300",
             "flex items-center justify-center",

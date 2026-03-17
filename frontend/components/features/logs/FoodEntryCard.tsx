@@ -46,6 +46,7 @@ import { useTranslations } from "next-intl";
 
 export function FoodEntryCard({ log, onClick }: FoodEntryCardProps) {
   const t = useTranslations("logs");
+  const tSnap = useTranslations("snap.logError");
   const router = useRouter();
   const displayText =
     log.title || log.description || log.transcript || t("defaultTitle");
@@ -91,7 +92,7 @@ export function FoodEntryCard({ log, onClick }: FoodEntryCardProps) {
         <p
           className={`text-lg font-medium leading-snug line-clamp-2 ${log.status === "invalid" ? "text-destructive" : ""}`}
         >
-          {log.status === "invalid" ? "Invalid Entry" : displayText}
+          {log.status === "invalid" ? tSnap("invalidEntry") : displayText}
         </p>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <span>{timeDisplay}</span>

@@ -51,7 +51,12 @@ jest.mock("@/components/features/input/TextEntryModal", () => ({
   }: {
     isOpen: boolean;
     onClose: () => void;
-  }) => (isOpen ? <div role="dialog">Text Entry Modal <button onClick={onClose}>Close</button></div> : null),
+  }) =>
+    isOpen ? (
+      <div role="dialog">
+        Text Entry Modal <button onClick={onClose}>Close</button>
+      </div>
+    ) : null,
 }));
 
 // Mock useAgent
@@ -82,8 +87,12 @@ jest.mock("@/lib/api", () => ({
 jest.mock("@/lib/supabase", () => ({
   supabase: {
     auth: {
-      getUser: jest.fn(() => Promise.resolve({ data: { user: { id: "test-user" } } })),
-      getSession: jest.fn(() => Promise.resolve({ data: { session: { access_token: "token" } } })),
+      getUser: jest.fn(() =>
+        Promise.resolve({ data: { user: { id: "test-user" } } }),
+      ),
+      getSession: jest.fn(() =>
+        Promise.resolve({ data: { session: { access_token: "token" } } }),
+      ),
     },
   },
 }));

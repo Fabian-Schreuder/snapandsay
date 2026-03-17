@@ -114,7 +114,7 @@ async def _run_sweep(args, output_dir: Path):
                     mae_results.append(dish_mae)
                     r["mae"] = dish_mae.to_dict()
 
-            aggregate_mae = metrics_calc.aggregate_mae(mae_results)
+            aggregate_mae = metrics_calc.aggregate_mae(mae_results, dishes_map)
             dish_complexity_map = {d.dish_id: d.complexity for d in dishes}
             ra = metrics_calc.calculate_routing_accuracy(combo_results, dish_complexity_map)
 
@@ -336,6 +336,8 @@ async def main_async(args):
                             provider=args.provider,
                             model=args.model,
                             dish_timeout_seconds=getattr(args, "timeout", 120.0),
+                            clinical_threshold=getattr(args, "clinical_threshold", 5.0),
+                            confidence_threshold=getattr(args, "confidence_threshold", 0.85),
                         )
                         # Check for retryable failures
                         if result["success"] or attempt >= retries:
@@ -482,13 +484,13 @@ async def main_async(args):
                 }
             )
 
-    aggregate_mae = metrics_calc.aggregate_mae(mae_results)
+    aggregate_mae = metrics_calc.aggregate_mae(mae_results, dishes_map)
     aggregate_latency = latency_tracker.aggregate()
     complexity_stats = metrics_calc.aggregate_complexity(per_dish_results)
 
     # Per-stratum MAE
     dish_complexity_map = {did: d.complexity for did, d in dishes_map.items()}
-    stratum_mae = metrics_calc.aggregate_mae_by_stratum(mae_results, dish_complexity_map)
+    stratum_mae = metrics_calc.aggregate_mae_by_stratum(mae_results, dish_complexity_map, dishes_map)
 
     # Routing accuracy (only meaningful for agentic mode)
     routing_accuracy = None
@@ -654,8 +656,10 @@ async def _run_compare(args, output_dir: Path):
     mode_stratum_mae: dict[str, dict[str, AggregateMAE]] = {}
     mode_total_mae: dict[str, AggregateMAE] = {}
     for mode_name, mae_results in mode_mae_results.items():
-        mode_stratum_mae[mode_name] = metrics_calc.aggregate_mae_by_stratum(mae_results, dish_complexity_map)
-        mode_total_mae[mode_name] = metrics_calc.aggregate_mae(mae_results)
+        mode_stratum_mae[mode_name] = metrics_calc.aggregate_mae_by_stratum(
+            mae_results, dish_complexity_map, dishes_map
+        )
+        mode_total_mae[mode_name] = metrics_calc.aggregate_mae(mae_results, dishes_map)
 
     # TNR/TPR for agentic mode
     routing_acc = metrics_calc.calculate_routing_accuracy(mode_per_dish["agentic"], dish_complexity_map)
@@ -778,6 +782,18 @@ def main():
     )
     bench_parser.add_argument("--provider", type=str, help="LLM provider (openai, google)")
     bench_parser.add_argument("--model", type=str, help="Specific model name")
+    bench_parser.add_argument(
+        "--clinical-threshold",
+        type=float,
+        default=5.0,
+        help="Clinical complexity threshold for routing (default: 5.0)",
+    )
+    bench_parser.add_argument(
+        "--confidence-threshold",
+        type=float,
+        default=0.85,
+        help="Confidence threshold for routing (default: 0.85)",
+    )
 
     # experiment command
     exp_parser = subparsers.add_parser("experiment", help="Run prompt experiment")

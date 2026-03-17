@@ -1,14 +1,12 @@
 "use client";
 import React, { useState, useCallback, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { VoiceCaptureButton } from "@/components/features/voice/VoiceCaptureButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Mic, Keyboard, ArrowRight, Loader2 } from "lucide-react";
-import {
-  uploadFile,
-  generateUploadPath,
-} from "@/services/upload-service";
+import { uploadFile, generateUploadPath } from "@/services/upload-service";
 import { supabase } from "@/lib/supabase";
 
 export interface ClarificationQuestion {
@@ -47,6 +45,8 @@ export function ClarificationPrompt({
   onSubmitAll,
   onSkip,
 }: ClarificationPromptProps) {
+  const t = useTranslations();
+  const tc = useTranslations("snap.clarification");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<ClarificationAnswer[]>([]);
   const [textInput, setTextInput] = useState("");
@@ -155,12 +155,13 @@ export function ClarificationPrompt({
               {questions.map((_, i) => (
                 <div
                   key={i}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${i < currentIndex
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i < currentIndex
                       ? "w-6 bg-indigo-500"
                       : i === currentIndex
                         ? "w-6 bg-indigo-400"
                         : "w-3 bg-zinc-700"
-                    }`}
+                  }`}
                 />
               ))}
             </div>
@@ -172,7 +173,7 @@ export function ClarificationPrompt({
 
         <div className="space-y-4 text-center">
           <p className="text-zinc-400 text-sm font-medium uppercase tracking-wide">
-            Quick question...
+            {tc("quickQuestion")}
           </p>
           <h2 className="text-white text-2xl font-semibold leading-relaxed">
             {currentQuestion.question}
@@ -199,7 +200,9 @@ export function ClarificationPrompt({
         {/* Divider */}
         <div className="flex items-center gap-4">
           <div className="flex-1 h-px bg-zinc-800" />
-          <span className="text-zinc-500 text-sm font-medium">or</span>
+          <span className="text-zinc-500 text-sm font-medium">
+            {t("common.or")}
+          </span>
           <div className="flex-1 h-px bg-zinc-800" />
         </div>
 
@@ -213,7 +216,9 @@ export function ClarificationPrompt({
                 <VoiceCaptureButton onRecordingComplete={handleVoiceComplete} />
               )}
             </div>
-            <p className="text-zinc-400 text-sm text-center">Hold to speak</p>
+            <p className="text-zinc-400 text-sm text-center">
+              {tc("holdToSpeak")}
+            </p>
             <div className="text-center">
               <Button
                 variant="link"
@@ -221,7 +226,7 @@ export function ClarificationPrompt({
                 className="text-zinc-400 hover:text-white"
               >
                 <Keyboard className="w-4 h-4 mr-2" />
-                Type answer instead
+                {tc("typeAnswer")}
               </Button>
             </div>
           </div>
@@ -233,7 +238,7 @@ export function ClarificationPrompt({
                 size="senior"
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
-                placeholder="Type your answer..."
+                placeholder={tc("typePlaceholder")}
                 className="bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
                 onKeyDown={(e) => e.key === "Enter" && handleTextSubmit()}
                 autoFocus
@@ -245,7 +250,7 @@ export function ClarificationPrompt({
               size="senior"
               className="w-full"
             >
-              {isLastQuestion ? "Send Answer" : "Next →"}
+              {isLastQuestion ? tc("sendAnswer") : `${t("common.next")} →`}
             </Button>
             <div className="text-center">
               <Button
@@ -254,7 +259,7 @@ export function ClarificationPrompt({
                 className="text-zinc-400 hover:text-white"
               >
                 <Mic className="w-4 h-4 mr-2" />
-                Use voice instead
+                {tc("useVoice")}
               </Button>
             </div>
           </div>
@@ -275,8 +280,7 @@ export function ClarificationPrompt({
                 onClick={onSkip}
                 className="text-zinc-400 hover:text-white hover:bg-zinc-800/50 h-auto py-2"
               >
-                Taking too long? Tap to skip{" "}
-                <ArrowRight className="w-4 h-4 ml-2" />
+                {tc("skipPrompt")} <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
           )}

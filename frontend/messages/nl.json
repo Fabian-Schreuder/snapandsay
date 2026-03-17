@@ -13,7 +13,10 @@
     "close": "Sluiten",
     "confirm": "Bevestigen",
     "yes": "Ja",
-    "no": "Nee"
+    "no": "Nee",
+    "retry": "Opnieuw",
+    "goBack": "Ga terug",
+    "or": "of"
   },
   "nav": {
     "home": "Home",
@@ -49,7 +52,56 @@
     "whatsInThisMeal": "Wat zit er in deze maaltijd?",
     "tapToToggle": "Tik om op te nemen of te stoppen met opnemen",
     "openTextEntry": "Beschrijf met tekst",
-    "typeInstead": "Typen in plaats van praten"
+    "typeInstead": "Typen in plaats van praten",
+    "shutterButton": "Sluiterknop",
+    "capturedPreview": "Vastgelegde voorvertoning",
+    "retake": "Opnieuw maken",
+    "uploadFailed": "We konden dat niet opslaan. Probeer het opnieuw.",
+    "connecting": "Verbinden...",
+    "analysisComplete": "Analyse voltooid",
+    "textEntry": {
+      "title": "Maaltijd loggen",
+      "description": "Typ wat je hebt gegeten of beschrijf je maaltijd in detail.",
+      "placeholder": "Typ wat je hebt gegeten...",
+      "logging": "Bezig met loggen..."
+    },
+    "clarification": {
+      "quickQuestion": "Even een vraagje...",
+      "holdToSpeak": "Houd ingedrukt om te spreken",
+      "typeAnswer": "Typ je antwoord",
+      "typePlaceholder": "Typ je antwoord...",
+      "sendAnswer": "Antwoord versturen",
+      "useVoice": "Gebruik spraak",
+      "skipPrompt": "Duurt te lang? Tik om over te slaan"
+    },
+    "voice": {
+      "micPermissionRequired": "Microfoon toestemming vereist",
+      "stopRecording": "Stop spraakopname",
+      "processingRecording": "Spraakopname verwerken",
+      "startRecording": "Start spraakopname"
+    },
+    "camera": {
+      "accessBlocked": "{media} toegang geblokkeerd",
+      "mediaError": "{media} fout",
+      "needAccess": "We hebben {media} toegang nodig om {purpose}.",
+      "purposeCamera": "je maaltijd vast te leggen",
+      "purposeMicrophone": "je notitie op te nemen",
+      "deviceError": "Er ging iets mis met je {media}.",
+      "resolutionError": "Camera-resolutie niet ondersteund. Probeer een ander apparaat.",
+      "notFoundError": "Geen camera gevonden op dit apparaat.",
+      "inUseError": "Camera wordt momenteel gebruikt door een andere app.",
+      "unknownError": "Er is een fout opgetreden bij het gebruik van je camera.",
+      "genericError": "We hebben cameratoegang nodig om je maaltijd te zien.",
+      "howToFix": "Zo los je het op:",
+      "checkBrowser": "Controleer je browserbalk op een geblokkeerd {media}-icoon.",
+      "tapSettings": "Tik op instellingen en selecteer <strong>Toestaan</strong>/<strong>Vragen</strong>.",
+      "tapRetry": "Tik hieronder op \"Opnieuw proberen\" om te herladen.",
+      "reloadRetry": "Herladen & opnieuw proberen"
+    },
+    "logError": {
+      "title": "Kan maaltijden niet laden",
+      "invalidEntry": "Ongeldige invoer"
+    }
   },
   "logs": {
     "title": "Maaltijd logboek",

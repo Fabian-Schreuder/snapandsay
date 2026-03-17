@@ -13,7 +13,10 @@
     "close": "Close",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "retry": "Retry",
+    "goBack": "Go Back",
+    "or": "or"
   },
   "nav": {
     "home": "Home",
@@ -48,7 +51,57 @@
     },
     "whatsInThisMeal": "What's in this meal?",
     "tapToToggle": "Tap to toggle",
-    "openTextEntry": "Describe with text"
+    "openTextEntry": "Describe with text",
+    "typeInstead": "Type instead of speaking",
+    "shutterButton": "Shutter button",
+    "capturedPreview": "Captured preview",
+    "retake": "Retake",
+    "uploadFailed": "We couldn't save that. Please try again.",
+    "connecting": "Connecting...",
+    "analysisComplete": "Analysis complete",
+    "textEntry": {
+      "title": "Log Meal",
+      "description": "Type what you ate or explain your meal in detail.",
+      "placeholder": "Type what you ate...",
+      "logging": "Logging..."
+    },
+    "clarification": {
+      "quickQuestion": "Quick question...",
+      "holdToSpeak": "Hold to speak",
+      "typeAnswer": "Type answer instead",
+      "typePlaceholder": "Type your answer...",
+      "sendAnswer": "Send Answer",
+      "useVoice": "Use voice instead",
+      "skipPrompt": "Taking too long? Tap to skip"
+    },
+    "voice": {
+      "micPermissionRequired": "Microphone Permission Required",
+      "stopRecording": "Stop voice recording",
+      "processingRecording": "Processing voice recording",
+      "startRecording": "Start voice recording"
+    },
+    "camera": {
+      "accessBlocked": "{media} Access Blocked",
+      "mediaError": "{media} Error",
+      "needAccess": "We need {media} access to {purpose}.",
+      "purposeCamera": "snap your meal",
+      "purposeMicrophone": "record your note",
+      "deviceError": "Something went wrong with your {media}.",
+      "resolutionError": "Camera resolution not supported. Please try a different device.",
+      "notFoundError": "No camera found on this device.",
+      "inUseError": "Camera is currently in use by another application.",
+      "unknownError": "We encountered an error accessing your camera.",
+      "genericError": "We need camera access to see your meal.",
+      "howToFix": "How to fix this:",
+      "checkBrowser": "Check your browser address bar for a blocked {media} icon.",
+      "tapSettings": "Tap usage settings and select <strong>Allow</strong>/<strong>Ask</strong>.",
+      "tapRetry": "Tap \"Try Again\" below to reload.",
+      "reloadRetry": "Reload & Try Again"
+    },
+    "logError": {
+      "title": "Unable to load meals",
+      "invalidEntry": "Invalid Entry"
+    }
   },
   "logs": {
     "title": "Meal Log",
