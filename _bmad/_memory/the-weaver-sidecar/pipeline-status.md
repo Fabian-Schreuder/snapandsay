@@ -7,8 +7,8 @@
 | AN - Analyze | COMPLETE (updated) | PASS | 2026-03-07, updated 2026-03-10 |
 | MG - Merge | COMPLETE | PASS | 2026-03-10 |
 | BR - Bridge | COMPLETE | PASS | 2026-03-10 |
-| HR - Harmonize | COMPLETE | PASS | 2026-03-10 |
-| TR - Translate | COMPLETE | PASS | 2026-03-10 |
+| HR - Harmonize | COMPLETE | PASS | 2026-03-10, surgical re-run 2026-03-11 |
+| TR - Translate | COMPLETE | PASS | 2026-03-10, surgical re-run 2026-03-11 |
 | CL - Close | COMPLETE | PASS | 2026-03-10 |
 
 ## Quality Gate: Close (2026-03-10)
@@ -162,8 +162,8 @@
 - AMPM as gold standard (not WFR)
 
 ## Discussion Fuel Summary
-- **Total items:** 28 (10 original + 5 updated analysis + 5 merge + 4 bridge + 1 harmonize + 3 translate)
-- **All items resolved or appropriately addressed:**
+- **Total items:** 29 (10 original + 5 updated analysis + 5 merge + 4 bridge + 1 harmonize + 3 translate + 1 post-pipeline)
+- **All 29 items resolved or appropriately addressed:**
   - DF-001 (two-phase structure): §1.5 + §6.3 + Ch 7 knowledge contributions
   - DF-002 (prototype trap): §6.3.1 — honest acknowledgement
   - DF-003 (translational gap): §6.3 opening paragraph — explicit X→Y→Z trace
@@ -189,6 +189,7 @@
   - DF-026 (translation philosophy): translation registry created
   - DF-027 (privacy gaps): RESOLVED — GDPR across 4 sections
   - DF-028 (accessibility gaps): RESOLVED — WCAG 2.1 in §4.6
+  - DF-029 (two-phase sweep): RESOLVED — evaluation integrity narrative in §6.4.7
 
 ## Student Decisions Log
 All items resolved as of 2026-03-10:

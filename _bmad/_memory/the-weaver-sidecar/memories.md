@@ -30,6 +30,36 @@
 7. ~~Privacy gaps: HIPAA/GDPR not cited (§4.1.1, §4.1.4, §6.3.4)~~ → **RESOLVED** (GDPR Art. 25, 5(1)(c,e), 9, 32 cited across §3.5, §4.1.1, §4.1.4, §6.3.4)
 8. ~~Accessibility gap: WCAG 2.1 not cited (§4.6)~~ → **RESOLVED** (WCAG 2.1 Level AA cited with guideline-level references)
 
+## Terminology: Artifact → System (2026-03-11)
+- Supervisor requested removal of term "artifact" throughout consolidated thesis
+- All instances replaced: "artifact"/"Artifact" → "system"/"System" across ch1–ch7, appendices, main.tex
+- "an artifact" → "a system" (article corrected)
+- `\label{ch:artifact}` → `\label{ch:system}`, all `\ref{ch:artifact}` → `\ref{ch:system}` (cross-references consistent)
+- File `ch4_artifact.tex` and `\input{chapters/ch4_artifact}` left unchanged (internal, not visible in output)
+- Ch 3 §3.3 closing sentence de-duplicated ("system...system" → "system...implementation")
+- DSR methodological grounding preserved — "artifact" was replaced by "system" in prose but §3.1 still cites Hevner et al. and names DSR explicitly
+
+## Supervisor-Ready Cleanup (2026-03-11)
+- All editorial `%` comment lines (349 total) stripped from ch1–ch7 + appendices `.tex` files
+- All `.md` draft/registry files moved from `msc-thesis-consolidated/` to `_bmad/_memory/the-weaver-sidecar/consolidated-drafts/`
+- `.gitignore` updated in submodule to exclude `*.md` going forward
+- **Pending:** Fabian must commit the submodule changes (stage deletions + modified `.tex` files) and push to sync Overleaf
+
+## Figure Integration Plan (2026-03-11)
+- Full figure inventory completed: 12 figures exist (5 Phase 1, 6 Phase 2 + visual-abstract)
+- Plan saved to `figure-integration-plan.md` in sidecar
+
+## Figure Placements Completed (2026-03-11)
+All 11 existing figures placed in main body text. Labels used:
+- Ch 2: fig:prisma-flow, fig:publication-trends, fig:modality-heatmap, fig:technical-pipeline-sankey, fig:evidence-gap-map
+- Ch 4: fig:system-architecture, fig:agent-flow, fig:data-pipeline
+- Ch 5: fig:user-journey, fig:evaluation-flow
+- Appendix: fig:schema_erd (kept, not duplicated in main text)
+- visual-abstract.png NOT placed inline (belongs on abstract/title page)
+- supplementary_figures.tex updated: removed 3 figures now in main text, kept schema_erd
+- Cross-references added to evidence-gap-map in Ch 6 §6.3.5 and Ch 7 §7.3
+- 6–7 new figures still needed (see figure-integration-plan.md): Closed Loop diagram (Ch 1), Friction-Fidelity 2×2 (Ch 3), routing flowchart (Ch 4, conditional), MAE bar chart, suppression logic, threshold calibration heatmap, survey chart (all Ch 5)
+
 ## LaTeX Conversion (2026-03-10)
 - All 7 consolidated chapters + appendices converted from Markdown to LaTeX
 - Output: `docs/thesis/msc-thesis-consolidated/chapters/` (ch1–ch7 + appendices.tex)
@@ -45,6 +75,29 @@
 **ALL 6 STEPS COMPLETE — QUALITY GATES PASSED**
 
 AN ✅ → MG ✅ → BR ✅ → HR ✅ → TR ✅ → CL ✅
+
+## Threshold Calibration Sweep Results (2026-03-11)
+- Stratification threshold corrected: θ_s = 0.50 → 0.35 (97th → 73rd percentile); 3.7% → 27.0% Complex
+- Two keyword fixes: "mixed" removed from MIXED_DISH_KEYWORDS; visual distinctiveness default 0.5 → 0.0
+- Two-phase sweep: full-distribution N=500 (30 combos) for TNR + stratified Complex-only N=80 (6 combos) for TPR
+- Pareto-optimal: C_thresh=5.0, Conf_thresh=0.85 → TPR=0.759 [0.655, 0.840], TNR≈0.63, MAE=92.7 kcal
+- All thesis references updated: ch5 (lines 41, 55), ch6 (§6.1.2 Obj 1+2, §7.5 Future Directions), ch7 (system evaluation summary)
+- Consolidation plan still references old figures (92% TNR, 78% TPR, optimal=15.0/0.85) — these are now superseded
+- DF-029 RESOLVED: two-phase sweep framed as evaluation integrity narrative in §6.4.7 — audit→correction→design adaptation→valid Pareto analysis chain closes the circularity threat mitigation argument
+
+## Supervisor Rework (2026-03-12)
+- **Feedback received:** 5 items across Ch1, Ch3, Ch7
+- **Structural rework completed:** Thesis restructured from 7 chapters to 5 chapters + Data Availability
+  - Ch1: Introduction (RQs restructured: MRQ1 for Phase 1, MRQ2 for Phase 2; sub-questions moved to Ch3 opening)
+  - Ch2: Literature Review (unchanged)
+  - Ch3: "Design, Development, and Evaluation of Snap and Say" (merged old Ch3+Ch4+Ch5+§6.1 phase-2 discussion)
+  - Ch4: Discussion (cross-phase only: §6.2 Contextualisation + §6.3 Closing the Loop + §6.4 Limitations)
+  - Ch5: "Conclusions & Recommendations" (flattened sections; 9 expanded recommendations for future MSc projects)
+  - Data and Code Availability (standalone unnumbered chapter after conclusion)
+- **New files:** ch3_case_study.tex, ch4_discussion.tex, ch5_conclusions.tex, data_availability.tex
+- **Old files (no longer \input'd):** ch3_methodology.tex, ch4_artifact.tex, ch5_evaluation.tex, ch6_discussion.tex, ch7_conclusion.tex
+- **Cross-references:** ch:methodology and ch:evaluation labels removed; all refs now point to ch:system, ch:discussion, ch:conclusion
+- **New recommendations added:** Personalised dietary recommendations, Clinical decision support / FHIR integration, Caregiver-mediated LTC adaptation, Multi-language/multi-cultural deployment, Federated learning for privacy-preserving data sharing
 
 ## Preferences
 <!-- User preferences noted during sessions -->

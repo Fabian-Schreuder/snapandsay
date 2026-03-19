@@ -12,7 +12,7 @@
 - **Type:** DSR artifact design and evaluation
 - **Scope:** Multimodal agentic AI system for dietary assessment targeting older adults
 - **Structure:** Introduction > Methodology (DSR Problem ID + 6 Objectives) > Artifact (6 sections) > Evaluation (benchmarking + Digital Buffet + threshold calibration) > Discussion (full academic prose, 7 limitation subsections) > Conclusion
-- **Key findings:** 22.8% MAE reduction (agentic vs single-shot), 30.6% on Complex items, 92% TNR on Simple items, optimal thresholds $C_{\text{thresh}}=15.0 / \text{Conf}_{\text{thresh}}=0.85$, N=19 older adults validated usability, 7.1s average latency
+- **Key findings:** 22.8% MAE reduction (agentic vs single-shot), 30.6% on Complex items, TPR=76% (0.759, 95% CI [0.655, 0.840]) on Complex items, TNR≈63% on Simple items, Pareto-optimal thresholds $C_{\text{thresh}}=5.0 / \text{Conf}_{\text{thresh}}=0.85$ (identified via two-phase sweep: N=500 full-distribution for TNR + N=80 stratified Complex-only for TPR), caloric MAE at optimal=92.7 kcal, N=19 older adults validated usability, 7.1s average latency
 - **Terminology (aligned):** "friction-fidelity paradox," "directed state graph" (not DCG), "Semantic Gatekeeper" (not Critique step), "deterministic complexity scoring," "clinical threshold routing," AMPM as gold standard (not WFR)
 
 ---
@@ -113,7 +113,7 @@ The directed state graph (LangGraph) with three-tier clinical threshold routing 
 The scoring formula $C = \sum w_d \cdot L_d^2 + P_{\text{sem}}$ with the Food Class Registry is a novel technical artifact. The quadratic penalty curve, three-tier routing logic (mandatory override > clinical threshold > confidence gate), and the "dominant factor" identification for question targeting must be preserved in full technical detail. **Updated:** Now has empirical calibration data: optimal $C_{\text{thresh}}=15.0$, $\text{Conf}_{\text{thresh}}=0.85$ from parameter sweep.
 
 ### [TECHNICAL PRESERVATION: Three-tier routing policy]
-**EXPANDED from previous "Confidence-gated suppression logic."** The routing is now explicitly three-tiered: (1) mandatory override via Food Class Registry flags, (2) clinical threshold $C > \tau$ with configurable per-session $\tau$, (3) standard confidence gate at 0.85. Safety budget $N_{max}=2$. Empirically validated: 92% TNR on Simple, 78% TPR on Complex.
+**EXPANDED from previous "Confidence-gated suppression logic."** The routing is now explicitly three-tiered: (1) mandatory override via Food Class Registry flags, (2) clinical threshold $C > \tau$ with configurable per-session $\tau$, (3) standard confidence gate at 0.85. Safety budget $N_{max}=2$. Empirically validated (two-phase sweep): TNR≈63% on Simple items, TPR=76% (0.759, 95% CI [0.655, 0.840]) on Complex items, at Pareto-optimal configuration $C_{\text{thresh}}=5.0$, $\text{Conf}_{\text{thresh}}=0.85$.
 
 ### [CORE NOVELTY: Friction-fidelity paradox as a design construct]
 **NEW.** Phase 2 now formally names and defines the "friction-fidelity paradox" as a design construct within dietary information systems. The conclusion claims this formalisation as one of three knowledge contributions.
